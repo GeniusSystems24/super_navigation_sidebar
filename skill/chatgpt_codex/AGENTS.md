@@ -58,6 +58,9 @@ MaterialApp(
 | `value` | — | Strongly-typed host payload. |
 | `badge` | — | `NavBadge(text, tone: NavBadgeTone.*)` |
 | `shortcut` | — | `['g', 'd']` hint shown on hover. |
+| `locked` | — | Permission-gate: dim + lock glyph + blocked nav + tooltip. |
+| `lockMessage` | — | Tooltip on a locked row. |
+| `status` | — | `NavNodeStatus.open/closed/locked/attention` dot. |
 | `enabled` | — | Default `true`. |
 
 ### Role derivation (no explicit field)
@@ -89,6 +92,9 @@ MaterialApp(
 | `mode` | `expanded` | `expanded` / `rail` / `drawer` |
 | `showGuides` | `true` | │ ├ └ connectors. |
 | `railFlyouts` | `true` | Module hover flyouts in rail. |
+| `shortcutMode` | `onHover` | Keycap visibility — `onHover`/`always`/`hidden`; always a tooltip. |
+| `searchable` | `false` | Built-in filter field + match highlight. |
+| `favoritable` | `false` | Per-row star + synthesized Quick Access band. |
 | `header` | `null` | `(ctx, collapsed) → Widget` slot. |
 | `footer` | `null` | `(ctx, collapsed) → Widget` slot. |
 | `onNavigate` | `null` | Called alongside `controller.navigate`. |

@@ -57,6 +57,25 @@ class NavigationSidebar<T> extends StatefulWidget {
   final bool showGuides;
   final bool railFlyouts;
 
+  /// How keyboard-shortcut hints appear on expanded-tree rows.
+  /// The shortcut is always available through the row tooltip regardless.
+  final NavShortcutMode shortcutMode;
+
+  /// Show a built-in search field above the tree (expanded / drawer modes).
+  /// Typing filters the tree to matching nodes (+ ancestors), auto-expands
+  /// them and highlights the match. Drives the controller's query.
+  final bool searchable;
+
+  /// Placeholder for the [searchable] field.
+  final String searchHint;
+
+  /// Enable per-row star toggles and a synthesized "Quick Access" band at the
+  /// top listing the user's favorited destinations.
+  final bool favoritable;
+
+  /// Eyebrow title for the synthesized favorites band.
+  final String quickAccessTitle;
+
   // ── callbacks ──
   final ValueChanged<NavNode<T>>? onNavigate;
 
@@ -72,6 +91,11 @@ class NavigationSidebar<T> extends StatefulWidget {
     this.drawerTitle = 'Navigation',
     this.showGuides = true,
     this.railFlyouts = true,
+    this.shortcutMode = NavShortcutMode.onHover,
+    this.searchable = false,
+    this.searchHint = 'Search navigation…',
+    this.favoritable = false,
+    this.quickAccessTitle = 'Quick Access',
     this.onNavigate,
   }) : assert(sections != null || controller != null, 'Provide sections or a controller.');
 
@@ -83,6 +107,7 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
   late NavigationSidebarController<T> _controller;
   bool _ownsController = false;
   final ScrollController _scroll = ScrollController();
+  final TextEditingController _search = TextEditingController();
 
   NavigationSidebarThemeData get _t => NavigationSidebarThemeData.of(context);
   bool get _rtl => Directionality.of(context) == TextDirection.rtl;
@@ -123,6 +148,7 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
     _controller.removeListener(_onChanged);
     if (_ownsController) _controller.dispose();
     _scroll.dispose();
+    _search.dispose();
     super.dispose();
   }
 
@@ -219,6 +245,14 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
             widget.header!(context, railed),
             const SizedBox(height: 12),
           ],
+          if (widget.searchable && !railed) ...[
+            _SearchField(
+              controller: _search,
+              hint: widget.searchHint,
+              onChanged: _controller.setQuery,
+            ),
+            const SizedBox(height: 10),
+          ],
           Expanded(
             child: railed ? _railNav(t) : _expandedNav(t),
           ),
@@ -261,6 +295,37 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
 
   // ── expanded tree ──────────────────────────────────────────
   Widget _expandedNav(NavigationSidebarThemeData t) {
+    final filtering = _controller.filtering;
+    final match = filtering ? _controller.matchSet() : null;
+
+    // No-results state while filtering.
+    if (filtering && match!.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.search_off, size: 26, color: t.fg4),
+              const SizedBox(height: 10),
+              Text(
+                'No matches for “${_controller.query.trim()}”',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontFamily: NavigationSidebarThemeData.bodyFont,
+                  fontSize: 12.5,
+                  color: t.fg3,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    final showQuickAccess =
+        widget.favoritable && !filtering && _controller.favoriteNodes.isNotEmpty;
+
     return Scrollbar(
       controller: _scroll,
       child: SingleChildScrollView(
@@ -269,6 +334,7 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            if (showQuickAccess) _quickAccess(t),
             for (final sec in _controller.sections) ...[
               Padding(
                 padding: const EdgeInsets.fromLTRB(12, 12, 12, 6),
@@ -282,7 +348,7 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
                   ),
                 ),
               ),
-              for (final node in sec.items) _treeNode(t, node, 0),
+              for (final node in sec.items) _treeNode(t, node, 0, match),
               const SizedBox(height: 6),
             ],
           ],
@@ -291,9 +357,57 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
     );
   }
 
+  /// Synthesized favorites band — flat list of starred destinations.
+  Widget _quickAccess(NavigationSidebarThemeData t) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(12, 12, 12, 6),
+          child: Row(
+            children: [
+              const Icon(Icons.star_rounded, size: 13, color: NavigationSidebarThemeData.accent),
+              const SizedBox(width: 6),
+              Text(
+                widget.quickAccessTitle.toUpperCase(),
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 10,
+                  letterSpacing: 1.4,
+                  color: t.fg4,
+                ),
+              ),
+            ],
+          ),
+        ),
+        for (final n in _controller.favoriteNodes)
+          _NavRow<T>(
+            key: ValueKey('fav-${n.id}'),
+            node: n,
+            depth: 0,
+            role: NavNodeRole.direct,
+            active: _controller.isActive(n.id),
+            shortcutMode: NavShortcutMode.hidden,
+            query: '',
+            favoritable: true,
+            favorite: true,
+            onToggleFavorite: () => _controller.toggleFavorite(n.id),
+            onTap: () => _go(n),
+          ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(12, 8, 12, 2),
+          child: Divider(height: 1, color: t.border),
+        ),
+      ],
+    );
+  }
+
   /// Recursive node: its own row, then (if a folder and open) its children
-  /// wrapped in drawn connectors. Handles any depth.
-  Widget _treeNode(NavigationSidebarThemeData t, NavNode<T> node, int depth) {
+  /// wrapped in drawn connectors. Handles any depth. When [match] is non-null
+  /// the tree is filtered to matched ids (+ ancestors) and branches force open.
+  Widget _treeNode(NavigationSidebarThemeData t, NavNode<T> node, int depth, Set<NavNodeId>? match) {
+    if (match != null && !match.contains(node.id)) return const SizedBox.shrink();
+    final filtering = match != null;
     final role = NavNodeRole.of(depth: depth, hasChildren: node.hasChildren);
     if (node.isLeaf) {
       return _NavRow<T>(
@@ -302,11 +416,16 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
         depth: depth,
         role: role,
         active: _controller.isActive(node.id),
+        shortcutMode: widget.shortcutMode,
+        query: _controller.query,
+        favoritable: widget.favoritable,
+        favorite: _controller.isFavorite(node.id),
+        onToggleFavorite: widget.favoritable ? () => _controller.toggleFavorite(node.id) : null,
         onTap: () => _go(node),
       );
     }
 
-    final open = _controller.isExpanded(node.id);
+    final open = filtering || _controller.isExpanded(node.id);
     final ownsActive = _controller.ownsActive(node.id);
     final lx = NavigationSidebarThemeData.lineInset(depth);
 
@@ -321,6 +440,8 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
           expandable: true,
           open: open,
           ownsActive: ownsActive,
+          shortcutMode: widget.shortcutMode,
+          query: _controller.query,
           onTap: () => _controller.toggleNode(node.id),
         ),
         if (open)
@@ -330,7 +451,7 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
               for (var i = 0; i < node.children.length; i++)
                 _connectorWrap(
                   t,
-                  child: _treeNode(t, node.children[i], depth + 1),
+                  child: _treeNode(t, node.children[i], depth + 1, match),
                   lx: lx,
                   childRole: NavNodeRole.of(
                     depth: depth + 1,
@@ -447,6 +568,16 @@ class _NavRow<T> extends StatefulWidget {
   final bool ownsActive;
   final VoidCallback onTap;
 
+  final NavShortcutMode shortcutMode;
+
+  /// Current search query, for label highlighting (empty = no highlight).
+  final String query;
+
+  /// Whether this leaf can be starred, whether it currently is, and the toggle.
+  final bool favoritable;
+  final bool favorite;
+  final VoidCallback? onToggleFavorite;
+
   const _NavRow({
     super.key,
     required this.node,
@@ -456,6 +587,11 @@ class _NavRow<T> extends StatefulWidget {
     this.open = false,
     this.active = false,
     this.ownsActive = false,
+    this.shortcutMode = NavShortcutMode.onHover,
+    this.query = '',
+    this.favoritable = false,
+    this.favorite = false,
+    this.onToggleFavorite,
     required this.onTap,
   });
 
@@ -465,6 +601,44 @@ class _NavRow<T> extends StatefulWidget {
 
 class _NavRowState<T> extends State<_NavRow<T>> {
   bool _hover = false;
+
+  // Whether the inline keycap hint should be visible right now.
+  bool get _showInline {
+    if (widget.node.shortcut == null) return false;
+    switch (widget.shortcutMode) {
+      case NavShortcutMode.always:
+        return true;
+      case NavShortcutMode.hidden:
+        return false;
+      case NavShortcutMode.onHover:
+        return _hover;
+    }
+  }
+
+  // Smoothly grows/fades the keycap hint so toggling never jolts the layout.
+  Widget _shortcutInline({required bool onAccent}) {
+    return AnimatedSwitcher(
+      duration: NavigationSidebarThemeData.durFast,
+      switchInCurve: NavigationSidebarThemeData.curveStandard,
+      switchOutCurve: NavigationSidebarThemeData.curveStandard,
+      transitionBuilder: (child, anim) => FadeTransition(
+        opacity: anim,
+        child: SizeTransition(
+          axis: Axis.horizontal,
+          axisAlignment: -1,
+          sizeFactor: anim,
+          child: child,
+        ),
+      ),
+      child: _showInline
+          ? Padding(
+              key: const ValueKey('sc-on'),
+              padding: const EdgeInsetsDirectional.only(start: 6),
+              child: _ShortcutHint(keys: widget.node.shortcut!, onAccent: onAccent),
+            )
+          : const SizedBox.shrink(key: ValueKey('sc-off')),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -505,19 +679,100 @@ class _NavRowState<T> extends State<_NavRow<T>> {
       onExit: (_) => setState(() => _hover = false),
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onTap: widget.node.enabled ? widget.onTap : null,
-        child: AnimatedContainer(
-          duration: NavigationSidebarThemeData.durFast,
-          height: h,
-          padding: EdgeInsetsDirectional.only(start: pad, end: 10),
-          decoration: BoxDecoration(
-            color: bg,
-            borderRadius: BorderRadius.circular(radius),
+        onTap: (widget.node.enabled && !widget.node.locked) ? widget.onTap : null,
+        child: _withTooltip(
+          Opacity(
+            opacity: widget.node.locked ? 0.55 : 1.0,
+            child: AnimatedContainer(
+              duration: NavigationSidebarThemeData.durFast,
+              height: h,
+              padding: EdgeInsetsDirectional.only(start: pad, end: 10),
+              decoration: BoxDecoration(
+                color: bg,
+                borderRadius: BorderRadius.circular(radius),
+              ),
+              child: content,
+            ),
           ),
-          child: content,
         ),
       ),
     );
+  }
+
+  // Row tooltip. A locked row shows its permission message (highest priority);
+  // otherwise a shortcut row shows its chord — the discoverability path that
+  // survives a hidden inline hint. Suppressed when the keycaps are already on
+  // screen (always mode).
+  Widget _withTooltip(Widget child) {
+    if (widget.node.locked) {
+      final msg = widget.node.lockMessage ?? 'Locked — you don’t have access';
+      return Tooltip(
+        message: msg,
+        waitDuration: const Duration(milliseconds: 350),
+        child: child,
+      );
+    }
+    final keys = widget.node.shortcut;
+    if (keys == null || widget.shortcutMode == NavShortcutMode.always) return child;
+    return Tooltip(
+      message: _ShortcutHint.describe(keys),
+      waitDuration: const Duration(milliseconds: 450),
+      child: child,
+    );
+  }
+
+  // Label with optional search-match highlight (accent on the matched run).
+  Widget _label(String text, TextStyle style) {
+    final q = widget.query.trim().toLowerCase();
+    if (q.isEmpty) {
+      return Text(text, maxLines: 1, overflow: TextOverflow.ellipsis, style: style);
+    }
+    final lower = text.toLowerCase();
+    final i = lower.indexOf(q);
+    if (i < 0) {
+      return Text(text, maxLines: 1, overflow: TextOverflow.ellipsis, style: style);
+    }
+    final hi = style.copyWith(
+      color: NavigationSidebarThemeData.accent,
+      fontWeight: FontWeight.w800,
+    );
+    return Text.rich(
+      TextSpan(style: style, children: [
+        TextSpan(text: text.substring(0, i)),
+        TextSpan(text: text.substring(i, i + q.length), style: hi),
+        TextSpan(text: text.substring(i + q.length)),
+      ]),
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+    );
+  }
+
+  // A small status dot for fiscal-period / ledger state.
+  Widget _statusDot(NavigationSidebarThemeData t) {
+    final c = t.statusColor(widget.node.status);
+    if (c == null) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsetsDirectional.only(end: 7),
+      child: Container(width: 7, height: 7, decoration: BoxDecoration(color: c, shape: BoxShape.circle)),
+    );
+  }
+
+  // Trailing affordance: a lock glyph (gated) or a star toggle (favoritable).
+  Widget _trailing(NavigationSidebarThemeData t, {required bool onAccent}) {
+    if (widget.node.locked) {
+      return Padding(
+        padding: const EdgeInsetsDirectional.only(start: 6),
+        child: Icon(Icons.lock_outline, size: 13, color: onAccent ? Colors.white : t.fg3),
+      );
+    }
+    if (widget.favoritable && (widget.favorite || _hover)) {
+      return _StarButton(
+        on: widget.favorite,
+        onAccent: onAccent,
+        onTap: widget.onToggleFavorite,
+      );
+    }
+    return const SizedBox.shrink();
   }
 
   Widget _chevron(NavigationSidebarThemeData t) {
@@ -541,12 +796,11 @@ class _NavRowState<T> extends State<_NavRow<T>> {
       children: [
         Icon(widget.node.icon ?? Icons.circle_outlined, size: NavigationSidebarThemeData.iconTop, color: tint),
         const SizedBox(width: 12),
+        if (widget.node.status != NavNodeStatus.none) _statusDot(t),
         Expanded(
-          child: Text(
+          child: _label(
             widget.node.label,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
+            TextStyle(
               fontFamily: NavigationSidebarThemeData.bodyFont,
               fontSize: 13.5,
               fontWeight: bold ? FontWeight.w600 : FontWeight.w500,
@@ -555,10 +809,8 @@ class _NavRowState<T> extends State<_NavRow<T>> {
           ),
         ),
         if (widget.node.badge != null) ...[const SizedBox(width: 6), _NavBadgeChip(badge: widget.node.badge!)],
-        if (widget.node.shortcut != null && _hover && !widget.active) ...[
-          const SizedBox(width: 6),
-          _ShortcutHint(keys: widget.node.shortcut!),
-        ],
+        _shortcutInline(onAccent: isDirect && widget.active),
+        if (isDirect) _trailing(t, onAccent: widget.active),
         if (moduleDot) ...[
           const SizedBox(width: 6),
           Container(width: 6, height: 6, decoration: const BoxDecoration(color: NavigationSidebarThemeData.accent, shape: BoxShape.circle)),
@@ -620,12 +872,11 @@ class _NavRowState<T> extends State<_NavRow<T>> {
           ),
         ),
         const SizedBox(width: 10),
+        if (widget.node.status != NavNodeStatus.none) _statusDot(t),
         Expanded(
-          child: Text(
+          child: _label(
             widget.node.label,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
+            TextStyle(
               fontFamily: NavigationSidebarThemeData.bodyFont,
               fontSize: 12.5,
               fontWeight: active ? FontWeight.w600 : FontWeight.w500,
@@ -634,10 +885,8 @@ class _NavRowState<T> extends State<_NavRow<T>> {
           ),
         ),
         if (widget.node.badge != null) ...[const SizedBox(width: 6), _NavBadgeChip(badge: widget.node.badge!, small: true)],
-        if (widget.node.shortcut != null && _hover && !active) ...[
-          const SizedBox(width: 6),
-          _ShortcutHint(keys: widget.node.shortcut!),
-        ],
+        _shortcutInline(onAccent: false),
+        _trailing(t, onAccent: false),
       ],
     );
   }
@@ -990,38 +1239,164 @@ class _NavBadgeChip extends StatelessWidget {
   }
 }
 
-class _ShortcutHint extends StatelessWidget {
-  final List<String> keys;
-  const _ShortcutHint({required this.keys});
+// ── Search field (built-in nav filter) ───────────────────────────
+class _SearchField extends StatelessWidget {
+  final TextEditingController controller;
+  final String hint;
+  final ValueChanged<String> onChanged;
+  const _SearchField({required this.controller, required this.hint, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
     final t = NavigationSidebarThemeData.of(context);
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        for (final k in keys)
-          Container(
-            margin: const EdgeInsetsDirectional.only(start: 3),
-            constraints: const BoxConstraints(minWidth: 16),
-            alignment: Alignment.center,
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-            decoration: BoxDecoration(
-              color: t.inputBg,
-              borderRadius: BorderRadius.circular(NavigationSidebarThemeData.radiusSm),
-              border: Border.all(color: t.border),
-            ),
-            child: Text(
-              k.toUpperCase(),
-              style: TextStyle(
-                fontFamily: NavigationSidebarThemeData.monoFont,
-                fontSize: 9.5,
-                fontWeight: FontWeight.w600,
-                color: t.fg3,
+    return ValueListenableBuilder<TextEditingValue>(
+      valueListenable: controller,
+      builder: (context, value, _) {
+        final hasText = value.text.isNotEmpty;
+        return Container(
+          height: 36,
+          padding: const EdgeInsetsDirectional.only(start: 10, end: 4),
+          decoration: BoxDecoration(
+            color: t.inputBg,
+            borderRadius: BorderRadius.circular(NavigationSidebarThemeData.radiusMd),
+            border: Border.all(color: t.border),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.search, size: 15, color: t.fg3),
+              const SizedBox(width: 8),
+              Expanded(
+                child: TextField(
+                  controller: controller,
+                  onChanged: onChanged,
+                  cursorColor: NavigationSidebarThemeData.accent,
+                  style: TextStyle(
+                    fontFamily: NavigationSidebarThemeData.bodyFont,
+                    fontSize: 12.5,
+                    color: t.fg1,
+                  ),
+                  decoration: InputDecoration(
+                    isCollapsed: true,
+                    border: InputBorder.none,
+                    hintText: hint,
+                    hintStyle: TextStyle(
+                      fontFamily: NavigationSidebarThemeData.bodyFont,
+                      fontSize: 12.5,
+                      color: t.fg4,
+                    ),
+                  ),
+                ),
               ),
+              if (hasText)
+                InkWell(
+                  onTap: () {
+                    controller.clear();
+                    onChanged('');
+                  },
+                  borderRadius: BorderRadius.circular(NavigationSidebarThemeData.radiusSm),
+                  child: Padding(
+                    padding: const EdgeInsets.all(5),
+                    child: Icon(Icons.close, size: 14, color: t.fg3),
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+// ── Star toggle (favorites / quick access) ────────────────────────
+class _StarButton extends StatelessWidget {
+  final bool on;
+  final bool onAccent;
+  final VoidCallback? onTap;
+  const _StarButton({required this.on, required this.onAccent, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = NavigationSidebarThemeData.of(context);
+    final color = on
+        ? (onAccent ? Colors.white : NavigationSidebarThemeData.accent)
+        : (onAccent ? Colors.white.withOpacity(0.8) : t.fg3);
+    return Tooltip(
+      message: on ? 'Remove from Quick Access' : 'Add to Quick Access',
+      waitDuration: const Duration(milliseconds: 450),
+      child: GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: Padding(
+          padding: const EdgeInsetsDirectional.only(start: 6),
+          child: Icon(on ? Icons.star_rounded : Icons.star_outline_rounded, size: 15, color: color),
+        ),
+      ),
+    );
+  }
+}
+
+class _ShortcutHint extends StatelessWidget {
+  final List<String> keys;
+
+  /// Render light-on-accent keycaps for rows sitting on the accent fill.
+  final bool onAccent;
+  const _ShortcutHint({required this.keys, this.onAccent = false});
+
+  /// A readable tooltip string, e.g. `Shortcut · G then D`.
+  static String describe(List<String> keys) {
+    if (keys.isEmpty) return '';
+    final pretty = keys.map((k) => k.toUpperCase()).join(' then ');
+    return 'Shortcut · $pretty';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = NavigationSidebarThemeData.of(context);
+    final capBg = onAccent ? Colors.white.withOpacity(0.20) : t.surface;
+    final capBorder = onAccent ? Colors.white.withOpacity(0.38) : t.border;
+    final capFg = onAccent ? Colors.white : t.fg3;
+
+    Widget cap(String k) => Container(
+          constraints: const BoxConstraints(minWidth: 17),
+          alignment: Alignment.center,
+          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+          decoration: BoxDecoration(
+            color: capBg,
+            borderRadius: BorderRadius.circular(NavigationSidebarThemeData.radiusSm),
+            border: Border.all(color: capBorder),
+            // Crisp 1px bottom edge for a tactile "keycap" feel (light mode only).
+            boxShadow: onAccent
+                ? null
+                : [BoxShadow(color: t.guide.withOpacity(0.55), offset: const Offset(0, 1))],
+          ),
+          child: Text(
+            k.toUpperCase(),
+            style: TextStyle(
+              fontFamily: NavigationSidebarThemeData.monoFont,
+              fontSize: 9.5,
+              height: 1.25,
+              fontWeight: FontWeight.w700,
+              color: capFg,
             ),
           ),
-      ],
+        );
+
+    return Tooltip(
+      message: describe(keys),
+      waitDuration: const Duration(milliseconds: 450),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (var i = 0; i < keys.length; i++) ...[
+            if (i > 0)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 2.5),
+                child: Icon(Icons.chevron_right, size: 10, color: capFg.withOpacity(0.65)),
+              ),
+            cap(keys[i]),
+          ],
+        ],
+      ),
     );
   }
 }

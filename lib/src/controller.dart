@@ -24,12 +24,14 @@ class NavigationSidebarController<T> extends ChangeNotifier {
     required List<NavSection<T>> sections,
     NavNodeId? active,
     Set<NavNodeId>? expanded,
+    Set<NavNodeId>? favorites,
     bool collapsed = false,
     bool drawerOpen = false,
     bool autoExpandActive = true,
   })  : _sections = List.unmodifiable(sections),
         _active = active,
         _expanded = {...?expanded},
+        _favorites = {...?favorites},
         _collapsed = collapsed,
         _drawerOpen = drawerOpen,
         _autoExpandActive = autoExpandActive {
@@ -41,6 +43,7 @@ class NavigationSidebarController<T> extends ChangeNotifier {
   List<NavSection<T>> _sections;
   NavNodeId? _active;
   final Set<NavNodeId> _expanded;
+  final Set<NavNodeId> _favorites;
   bool _collapsed;
   bool _drawerOpen;
   final bool _autoExpandActive;
@@ -67,12 +70,40 @@ class NavigationSidebarController<T> extends ChangeNotifier {
   /// The strongly-typed value behind the active node, or null.
   T? get activeValue => _active == null ? null : node(_active!)?.value;
 
+  // ── favorites / quick access ───────────────────────────────
+  /// Ids the user has starred for the synthesized "Quick Access" band.
+  Set<NavNodeId> get favorites => Set.unmodifiable(_favorites);
+
+  bool isFavorite(NavNodeId id) => _favorites.contains(id);
+
+  /// Favorited nodes, in the order they appear in the tree (skips missing ids).
+  List<NavNode<T>> get favoriteNodes {
+    final out = <NavNode<T>>[];
+    NavOps.walk<T>(_sections, (n, _) {
+      if (_favorites.contains(n.id)) out.add(n);
+    });
+    return out;
+  }
+
+  void toggleFavorite(NavNodeId id) {
+    _favorites.contains(id) ? _favorites.remove(id) : _favorites.add(id);
+    notifyListeners();
+  }
+
+  void setFavorites(Iterable<NavNodeId> ids) {
+    _favorites
+      ..clear()
+      ..addAll(ids);
+    notifyListeners();
+  }
+
   // ── navigation ─────────────────────────────────────────────
   /// Make [id] the active destination. Auto-opens its ancestor modules and
   /// closes the mobile drawer (so a drawer tap navigates *and* dismisses).
+  /// Refuses disabled and [NavNode.locked] (permission-gated) nodes.
   void navigate(NavNodeId id) {
     final n = node(id);
-    if (n == null || !n.enabled) return;
+    if (n == null || !n.enabled || n.locked) return;
     var changed = false;
     if (_active != id) {
       _active = id;

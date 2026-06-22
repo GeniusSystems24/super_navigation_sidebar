@@ -148,8 +148,26 @@ class NavigationSidebarThemeData extends ThemeExtension<NavigationSidebarThemeDa
         return (bg: success.withOpacity(0.16), fg: const Color(0xFF2BBE7C), border: success.withOpacity(0.34));
       case NavBadgeTone.warning:
         return (bg: warning.withOpacity(0.16), fg: const Color(0xFFE0A23B), border: warning.withOpacity(0.34));
+      case NavBadgeTone.danger:
+        return (bg: danger.withOpacity(0.16), fg: const Color(0xFFF26464), border: danger.withOpacity(0.34));
       case NavBadgeTone.muted:
         return (bg: inputBg, fg: fg3, border: border);
+    }
+  }
+
+  /// Resolve a [NavNodeStatus] to its status-dot colour (null = no dot).
+  Color? statusColor(NavNodeStatus status) {
+    switch (status) {
+      case NavNodeStatus.none:
+        return null;
+      case NavNodeStatus.open:
+        return success;
+      case NavNodeStatus.closed:
+        return fg4;
+      case NavNodeStatus.locked:
+        return danger;
+      case NavNodeStatus.attention:
+        return warning;
     }
   }
 

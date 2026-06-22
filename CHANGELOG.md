@@ -4,6 +4,25 @@ All notable changes to `super_navigation_sidebar` will be documented in this fil
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] — 2026-06-22
+
+### Added — ERP / banking capabilities
+
+- **Built-in search & filter** — `NavigationSidebar.searchable` (+ `searchHint`)
+  renders a filter field above the tree; matches filter the tree to hits +
+  ancestors, auto-expand, and highlight the matched run. `No matches` empty
+  state. Drives `controller.setQuery` / `matchSet()`.
+- **Quick Access favorites** — `NavigationSidebar.favoritable` (+
+  `quickAccessTitle`) adds per-row star toggles and a synthesized favorites
+  band at the top. Controller: `favorites` · `favoriteNodes` · `isFavorite` ·
+  `toggleFavorite` · `setFavorites`; constructor `favorites:` seed.
+- **Permission-gated nodes** — `NavNode.locked` + `NavNode.lockMessage`: dimmed
+  row, lock glyph, blocked navigation (`controller.navigate` refuses locked),
+  reason tooltip. Segregation-of-duties.
+- **Status dots** — `NavNode.status` + `NavNodeStatus` enum (`none` · `open` ·
+  `closed` · `locked` · `attention`); `NavigationSidebarThemeData.statusColor`.
+- Banking/accounting example app (`example_04_erp_banking.dart`).
+
 ## [1.0.0] — 2026-06-22
 
 ### Added
@@ -18,6 +37,8 @@ versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
     slide in/out with `AnimatedPositionedDirectional`. Tapping a destination
     navigates and dismisses.
   - `showGuides` · `railFlyouts` · `drawerTitle` chrome toggles.
+  - `shortcutMode` (`NavShortcutMode.onHover` / `always` / `hidden`) — keycap
+    hint visibility; always surfaced via row tooltip.
   - `header` / `footer` slot builders — `(ctx, collapsed) → Widget`.
   - `onNavigate` callback fires alongside `controller.navigate`.
 
@@ -45,9 +66,12 @@ versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   depth + `hasChildren` via `NavNodeRole.of(depth:, hasChildren:)`.
 
 - **`NavBadge`** — `text` + `NavBadgeTone` (`accent · success · warning ·
-  muted`). Pill on rows; dot on collapsed modules and rail icons.
+  danger · muted`). Pill on rows; dot on collapsed modules and rail icons.
 
 - **`NavSidebarMode`** enum — `expanded · rail · drawer`.
+
+- **`NavShortcutMode`** enum — `onHover · always · hidden`; controls inline
+  keycap-hint visibility on expanded rows (always available as a tooltip).
 
 - **`NavSidebarBreakpoints`** — `modeFor(width)`: expanded ≥ 1200 px ·
   rail ≥ 768 px · drawer below. Thresholds configurable.

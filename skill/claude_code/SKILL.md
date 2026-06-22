@@ -89,12 +89,42 @@ NavigationSidebar<T>(
   mode: NavSidebarMode.expanded,
   showGuides: true,                // │ ├ └ connectors
   railFlyouts: true,               // module hover flyouts in rail
+  shortcutMode: NavShortcutMode.onHover, // onHover / always / hidden
   drawerTitle: 'Navigation',
   header: (ctx, collapsed) => MyLogo(collapsed: collapsed),
   footer: (ctx, collapsed) => HelpCard(collapsed: collapsed),
   onNavigate: (node) {},
 );
 ```
+
+### Shortcut hints
+
+A leaf's `shortcut: ['g', 'd']` renders as `G › D` keycaps. `shortcutMode`
+controls inline visibility — `onHover` (default), `always`, or `hidden`. In
+all modes the chord is still surfaced through the row tooltip
+(`Shortcut · G then D`).
+
+### ERP / banking extras
+
+```dart
+NavigationSidebar<String>(
+  controller: nav,
+  searchable: true,       // built-in filter field + match highlight
+  favoritable: true,      // per-row star + synthesized Quick Access band
+);
+
+// Permission-gated + status-dotted nodes:
+NavNode(id: 'wire', label: 'Wire / SWIFT', value: 'wire',
+        locked: true, lockMessage: 'Requires Treasury Approver role');
+NavNode(id: 'fy25q3', label: 'FY2025 · Q3', value: 'fy25q3',
+        status: NavNodeStatus.open); // open/closed/locked/attention
+
+// Controller favorites: favorites · favoriteNodes · isFavorite ·
+// toggleFavorite · setFavorites (seed via the `favorites:` constructor arg).
+```
+
+Locked nodes are dimmed, show a lock glyph, can't be navigated to (the
+controller refuses), and reveal `lockMessage` as a tooltip.
 
 ## `NavigationSidebarController<T>` API
 

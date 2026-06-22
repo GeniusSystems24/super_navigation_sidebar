@@ -110,9 +110,11 @@ On collapsed modules / rail icons: 7 px dot overlaid on the icon's top-end corne
 | `NavNode<T>` | Class | Node model (id · label · icon · children · value · badge · shortcut · enabled). |
 | `NavNodeRole` | Enum | `direct · module · group · item`. |
 | `NavBadge` | Class | Badge model (`text` + `NavBadgeTone`). |
-| `NavBadgeTone` | Enum | `accent · success · warning · muted`. |
+| `NavBadgeTone` | Enum | `accent · success · warning · danger · muted`. |
 | `NavNodeId` | Typedef | `String` — node identity. |
 | `NavSidebarMode` | Enum | `expanded · rail · drawer`. |
+| `NavShortcutMode` | Enum | `onHover · always · hidden` — keycap hint visibility. |
+| `NavNodeStatus` | Enum | `none · open · closed · locked · attention` — status dot. |
 | `NavSidebarBreakpoints` | Class | `modeFor(width)` helper. |
 | `NavSidebarSlotBuilder` | Typedef | `Widget Function(BuildContext, bool collapsed)`. |
 | `NavOps` | Class | `walk · find · ancestorsOf · subtreeHasBadge · leafIds`. |

@@ -1,6 +1,6 @@
 # super_navigation_sidebar
 
-[![pub package](https://img.shields.io/badge/pub-v1.0.0-4A7CFF.svg)](https://pub.dev/packages/super_navigation_sidebar)
+[![pub package](https://img.shields.io/badge/pub-v1.1.0-4A7CFF.svg)](https://pub.dev/packages/super_navigation_sidebar)
 [![flutter](https://img.shields.io/badge/Flutter-%E2%89%A53.10-1DB88A.svg)](https://flutter.dev)
 [![style](https://img.shields.io/badge/style-MVC-F97316.svg)](#architecture)
 [![license](https://img.shields.io/badge/license-MIT-64748B.svg)](#license)
@@ -35,7 +35,18 @@ dependencies.
   the drawer.
 - 🔴 **Badges** — `NavBadge(text, tone: NavBadgeTone.success/danger/muted)`;
   renders as a pill on rows, a dot on collapsed modules / rail icons.
-- ⌨ **Shortcut hints** — two-key `['g', 'd']`-style hints shown on hover.
+- ⌨ **Shortcut hints** — two-key `['g', 'd']`-style keycaps shown on hover by
+  default; switch with `shortcutMode` (`onHover` · `always` · `hidden`). Hidden
+  hints stay discoverable through the row's tooltip.
+- 🔎 **Built-in search & filter** — `searchable: true` adds a filter field that
+  matches every level, auto-expands hits, and highlights the matched run.
+- ⭐ **Quick Access favorites** — `favoritable: true` adds per-row star toggles
+  and a synthesized favorites band pinned at the top.
+- 🔒 **Permission-gated nodes** — `NavNode.locked` + `lockMessage` dim a row,
+  add a lock glyph, block navigation, and surface the reason as a tooltip —
+  built for banking segregation-of-duties.
+- 🟢 **Status dots** — `NavNode.status` (`open` · `closed` · `locked` ·
+  `attention`) marks fiscal-period / ledger state before the label.
 - 🔲 **Header / footer slots** — builder `(ctx, collapsed) → Widget` for logo,
   theme toggle, help card, etc.
 - 🔭 **`of(context)` scope** — `NavigationSidebarController.of<T>(context)`
@@ -182,6 +193,9 @@ NavSection<String>(
 | `value` | `T?` | Strongly-typed host payload (`node.value` — no casting). |
 | `badge` | `NavBadge?` | Trailing badge pill. |
 | `shortcut` | `List<String>?` | Two-key hint shown on hover, e.g. `['g', 'd']`. |
+| `locked` | `bool` | Permission-gate: dim, lock glyph, block navigation, tooltip. Default `false`. |
+| `lockMessage` | `String?` | Tooltip shown on a locked row, e.g. `'Requires Approver role'`. |
+| `status` | `NavNodeStatus` | State dot before the label — `none`/`open`/`closed`/`locked`/`attention`. |
 | `enabled` | `bool` | When `false`, row is shown but not activatable. Default `true`. |
 
 ### Role derivation
@@ -206,6 +220,93 @@ NavBadge('12',    tone: NavBadgeTone.muted)    // grey
 
 Renders as a pill on expanded rows; collapses to a dot on collapsed modules
 and rail icons.
+
+### Shortcut hints
+
+Give a leaf a two-key chord and it renders as keycaps (`G › D`) on the row:
+
+```dart
+NavNode(id: 'dashboard', label: 'Dashboard', icon: Icons.dashboard_outlined,
+        value: 'dashboard', shortcut: ['g', 'd']);
+```
+
+Control visibility per sidebar with `shortcutMode`:
+
+```dart
+NavigationSidebar<String>(
+  controller: nav,
+  shortcutMode: NavShortcutMode.onHover, // default — reveal on row hover
+  // NavShortcutMode.always  → keycaps always visible
+  // NavShortcutMode.hidden  → no inline keycaps
+);
+```
+
+In **every** mode the chord stays discoverable: hovering the row shows a
+`Shortcut · G then D` tooltip (suppressed only in `always`, where the keycaps
+are already on screen). On an active direct row the keycaps switch to a
+light-on-accent treatment automatically.
+
+---
+
+## ERP / banking features
+
+Purpose-built for deep finance & accounting navigation.
+
+### Built-in search & filter
+
+```dart
+NavigationSidebar<String>(
+  controller: nav,
+  searchable: true,
+  searchHint: 'Search accounts, journals, reports…',
+);
+```
+
+A filter field appears above the tree. Typing drives the controller's query;
+the tree collapses to matching nodes (plus their ancestors so they stay
+reachable), auto-expands them, and highlights the matched run in accent. A
+`No matches` state shows when nothing matches. Drive it yourself with
+`controller.setQuery(q)` / `controller.matchSet()` if you supply your own field.
+
+### Quick Access (favorites)
+
+```dart
+NavigationSidebarController<String>(
+  sections: sections,
+  favorites: {'journalEntry', 'trialBalance'}, // pre-pinned
+);
+
+NavigationSidebar<String>(controller: nav, favoritable: true);
+```
+
+Hovering any destination reveals a star; tapping it calls
+`controller.toggleFavorite(id)`. Favorited destinations are listed in a
+synthesized **Quick Access** band at the very top. Controller API:
+`favorites` · `favoriteNodes` · `isFavorite(id)` · `toggleFavorite(id)` ·
+`setFavorites(ids)`. Persist by listening to the controller and storing the id
+set.
+
+### Permission-gated nodes
+
+```dart
+NavNode(id: 'wire', label: 'Wire / SWIFT', icon: Icons.bolt_outlined,
+        value: 'wire', locked: true,
+        lockMessage: 'Requires Treasury Approver role');
+```
+
+A locked row is dimmed, shows a lock glyph, can't be activated (and
+`controller.navigate` refuses it), and reveals its `lockMessage` on hover —
+the standard segregation-of-duties pattern.
+
+### Status dots
+
+```dart
+NavNode(id: 'fy25q3', label: 'FY2025 · Q3', value: 'fy25q3',
+        status: NavNodeStatus.open);     // open · closed · locked · attention
+```
+
+A small colored dot before the label reflects fiscal-period or ledger state:
+`open` (green) · `closed` (grey) · `locked` (red) · `attention` (amber).
 
 ---
 
@@ -260,6 +361,11 @@ Tapping a destination navigates **and** dismisses the drawer automatically.
 | `mode` | `NavSidebarMode` | `expanded` | Layout mode. |
 | `showGuides` | `bool` | `true` | `│ ├ └` connector lines. |
 | `railFlyouts` | `bool` | `true` | Module hover flyouts in rail mode. |
+| `shortcutMode` | `NavShortcutMode` | `onHover` | Keycap hint visibility — `onHover` / `always` / `hidden`. Always available as a row tooltip. |
+| `searchable` | `bool` | `false` | Built-in filter field above the tree. |
+| `searchHint` | `String` | `'Search navigation…'` | Placeholder for the search field. |
+| `favoritable` | `bool` | `false` | Per-row star toggles + synthesized Quick Access band. |
+| `quickAccessTitle` | `String` | `'Quick Access'` | Eyebrow for the favorites band. |
 | `drawerTitle` | `String` | `'Navigation'` | Label above the drawer close button. |
 | `header` | `NavSidebarSlotBuilder?` | `null` | `(ctx, collapsed) → Widget`. |
 | `footer` | `NavSidebarSlotBuilder?` | `null` | `(ctx, collapsed) → Widget`. |
@@ -306,6 +412,7 @@ final nav = NavigationSidebarController<String>(
 |---|---|
 | `replaceSections(sections)` | Hot-swap the entire section forest (e.g. after a role change). |
 | `setQuery(q)` | Set the search filter (drives `matchSet()`). |
+| `toggleFavorite(id)` · `setFavorites(ids)` | Manage the Quick Access set. |
 
 ### Reads
 
@@ -321,6 +428,8 @@ final nav = NavigationSidebarController<String>(
 | `ownsActive(id)` | `bool` — `id` is an ancestor of the active node. |
 | `node(id)` | `NavNode<T>?` |
 | `matchSet()` | `Set<NavNodeId>` — matching ids + ancestors for the current query. |
+| `favorites` · `favoriteNodes` | The Quick Access id set / nodes (tree order). |
+| `isFavorite(id)` | `bool` |
 
 ### `of(context)` scope
 

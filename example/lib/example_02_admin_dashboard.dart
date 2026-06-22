@@ -14,174 +14,106 @@ import 'package:flutter/material.dart';
 import 'package:super_navigation_sidebar/super_navigation_sidebar.dart';
 
 // ── Full ERP navigation tree ─────────────────────────────────────
-List<NavSection<String>> _buildSections(int inboxCount) => <NavSection<String>>[
+List<NavSection<String>> _buildSections(int inboxCount) =>
+    <NavSection<String>>[
       NavSection(title: 'Overview', items: [
-        NavNode(
-            id: 'dashboard',
-            label: 'Dashboard',
-            icon: Icons.dashboard_outlined,
-            value: 'dashboard',
-            shortcut: ['g', 'd']),
-        NavNode(
-            id: 'invDashboard',
-            label: 'Inventory Dashboard',
-            icon: Icons.qr_code_scanner,
-            value: 'invDashboard',
-            shortcut: ['g', 'i']),
+        NavNode(id: 'dashboard',    label: 'Dashboard',
+                icon: Icons.dashboard_outlined,        value: 'dashboard',
+                shortcut: ['g', 'd']),
+        NavNode(id: 'invDashboard', label: 'Inventory Dashboard',
+                icon: Icons.qr_code_scanner,           value: 'invDashboard',
+                shortcut: ['g', 'i']),
       ]),
       NavSection(title: 'Finance', items: [
-        NavNode(
-            id: 'accountsHub',
-            label: 'Accounts',
-            icon: Icons.menu_book_outlined,
-            children: [
-              NavNode(id: 'coaGroup', label: 'Chart of Accounts', children: [
-                NavNode(
-                    id: 'accounts',
-                    label: 'Chart of Accounts',
-                    icon: Icons.menu_book_outlined,
-                    value: 'accounts'),
-                NavNode(
-                    id: 'accountTree',
-                    label: 'Account Tree',
-                    icon: Icons.account_tree_outlined,
-                    value: 'accountTree',
-                    badge: NavBadge('3'),
-                    shortcut: ['g', 't']),
-              ]),
-            ]),
-        NavNode(
-            id: 'ledgerHub',
-            label: 'Ledger',
-            icon: Icons.receipt_long_outlined,
-            children: [
-              NavNode(id: 'jeGroup', label: 'Journal Entries', children: [
-                NavNode(
-                    id: 'journals',
-                    label: 'Journal Entries',
-                    icon: Icons.receipt_long_outlined,
-                    value: 'journals',
+        NavNode(id: 'accountsHub', label: 'Accounts',
+                icon: Icons.menu_book_outlined, children: [
+          NavNode(id: 'coaGroup', label: 'Chart of Accounts', children: [
+            NavNode(id: 'accounts',    label: 'Chart of Accounts',
+                    icon: Icons.menu_book_outlined, value: 'accounts'),
+            NavNode(id: 'accountTree', label: 'Account Tree',
+                    icon: Icons.account_tree_outlined, value: 'accountTree',
+                    badge: NavBadge('3'), shortcut: ['g', 't']),
+          ]),
+        ]),
+        NavNode(id: 'ledgerHub', label: 'Ledger',
+                icon: Icons.receipt_long_outlined, children: [
+          NavNode(id: 'jeGroup', label: 'Journal Entries', children: [
+            NavNode(id: 'journals',      label: 'Journal Entries',
+                    icon: Icons.receipt_long_outlined, value: 'journals',
                     badge: NavBadge('Live', tone: NavBadgeTone.success),
                     shortcut: ['g', 'j']),
-                NavNode(
-                    id: 'createJournal',
-                    label: 'Create Journal Entry',
-                    icon: Icons.add,
-                    value: 'createJournal'),
-              ]),
-            ]),
-        NavNode(
-            id: 'reportsHub',
-            label: 'Reports',
-            icon: Icons.description_outlined,
-            children: [
-              NavNode(id: 'finGroup', label: 'Financial', children: [
-                NavNode(
-                    id: 'trialBalance',
-                    label: 'Trial Balance',
-                    icon: Icons.menu_book_outlined,
-                    value: 'trialBalance',
+            NavNode(id: 'createJournal', label: 'Create Journal Entry',
+                    icon: Icons.add, value: 'createJournal'),
+          ]),
+        ]),
+        NavNode(id: 'reportsHub', label: 'Reports',
+                icon: Icons.description_outlined, children: [
+          NavNode(id: 'finGroup', label: 'Financial', children: [
+            NavNode(id: 'trialBalance', label: 'Trial Balance',
+                    icon: Icons.menu_book_outlined, value: 'trialBalance',
                     shortcut: ['g', 'b']),
-                NavNode(
-                    id: 'incomeStmt',
-                    label: 'Income Statement',
-                    icon: Icons.description_outlined,
-                    value: 'incomeStmt'),
-                NavNode(
-                    id: 'balanceSheet',
-                    label: 'Balance Sheet',
-                    icon: Icons.description_outlined,
-                    value: 'balanceSheet'),
-              ]),
-              NavNode(id: 'secGroup', label: 'Security', children: [
-                NavNode(
-                    id: 'auditLog',
-                    label: 'Audit Log',
-                    icon: Icons.lock_outline,
-                    value: 'auditLog',
+            NavNode(id: 'incomeStmt',   label: 'Income Statement',
+                    icon: Icons.description_outlined, value: 'incomeStmt'),
+            NavNode(id: 'balanceSheet', label: 'Balance Sheet',
+                    icon: Icons.description_outlined, value: 'balanceSheet'),
+          ]),
+          NavNode(id: 'secGroup', label: 'Security', children: [
+            NavNode(id: 'auditLog', label: 'Audit Log',
+                    icon: Icons.lock_outline, value: 'auditLog',
                     badge: NavBadge('12', tone: NavBadgeTone.muted)),
-              ]),
-            ]),
+          ]),
+        ]),
       ]),
       NavSection(title: 'Operations', items: [
-        NavNode(
-            id: 'storesHub',
-            label: 'Inventory & Stores',
-            icon: Icons.storefront_outlined,
-            children: [
-              NavNode(id: 'catalogGroup', label: 'Catalog', children: [
-                NavNode(
-                    id: 'products',
-                    label: 'Products',
-                    icon: Icons.qr_code_scanner,
-                    value: 'products',
+        NavNode(id: 'storesHub', label: 'Inventory & Stores',
+                icon: Icons.storefront_outlined, children: [
+          NavNode(id: 'catalogGroup', label: 'Catalog', children: [
+            NavNode(id: 'products', label: 'Products',
+                    icon: Icons.qr_code_scanner, value: 'products',
                     shortcut: ['g', 'p']),
-              ]),
-              NavNode(id: 'stockGroup', label: 'Stock Operations', children: [
-                NavNode(
-                    id: 'inventory',
-                    label: 'Issue Inventory',
-                    icon: Icons.qr_code_scanner,
-                    value: 'inventory'),
-                NavNode(
-                    id: 'receive',
-                    label: 'Receive Inventory',
-                    icon: Icons.south,
-                    value: 'receive'),
-                NavNode(
-                    id: 'stockTake',
-                    label: 'Stock Take',
-                    icon: Icons.check,
-                    value: 'stockTake',
+          ]),
+          NavNode(id: 'stockGroup', label: 'Stock Operations', children: [
+            NavNode(id: 'inventory',  label: 'Issue Inventory',
+                    icon: Icons.qr_code_scanner, value: 'inventory'),
+            NavNode(id: 'receive',    label: 'Receive Inventory',
+                    icon: Icons.south, value: 'receive'),
+            NavNode(id: 'stockTake',  label: 'Stock Take',
+                    icon: Icons.check, value: 'stockTake',
                     badge: NavBadge('New', tone: NavBadgeTone.success)),
-              ]),
-            ]),
+          ]),
+        ]),
       ]),
       NavSection(title: 'Administration', items: [
-        NavNode(
-            id: 'adminHub',
-            label: 'Team & Access',
-            icon: Icons.person_outline,
-            children: [
-              NavNode(id: 'usersGroup', label: 'Users', children: [
-                NavNode(
-                    id: 'users',
-                    label: 'Users',
-                    icon: Icons.person_outline,
-                    value: 'users',
-                    badge:
-                        NavBadge('$inboxCount+', tone: NavBadgeTone.warning)),
-                NavNode(
-                    id: 'roles',
-                    label: 'Roles & Permissions',
-                    icon: Icons.settings_outlined,
-                    value: 'roles'),
-              ]),
-            ]),
-        NavNode(
-            id: 'settingsHub',
-            label: 'Settings',
-            icon: Icons.settings_outlined,
-            children: [
-              NavNode(id: 'wsGroup', label: 'Workspace', children: [
-                NavNode(
-                    id: 'settingsGeneral',
-                    label: 'General',
-                    icon: Icons.settings_outlined,
-                    value: 'settingsGeneral'),
-              ]),
-            ]),
+        NavNode(id: 'adminHub', label: 'Team & Access',
+                icon: Icons.person_outline, children: [
+          NavNode(id: 'usersGroup', label: 'Users', children: [
+            NavNode(id: 'users',  label: 'Users',
+                    icon: Icons.person_outline, value: 'users',
+                    badge: NavBadge('$inboxCount+', tone: NavBadgeTone.danger)),
+            NavNode(id: 'roles',  label: 'Roles & Permissions',
+                    icon: Icons.settings_outlined, value: 'roles'),
+          ]),
+        ]),
+        NavNode(id: 'settingsHub', label: 'Settings',
+                icon: Icons.settings_outlined, children: [
+          NavNode(id: 'wsGroup', label: 'Workspace', children: [
+            NavNode(id: 'settingsGeneral', label: 'General',
+                    icon: Icons.settings_outlined, value: 'settingsGeneral'),
+          ]),
+        ]),
       ]),
     ];
 
 class AdminDashboardExample extends StatefulWidget {
   const AdminDashboardExample({super.key});
   @override
-  State<AdminDashboardExample> createState() => _AdminDashboardExampleState();
+  State<AdminDashboardExample> createState() =>
+      _AdminDashboardExampleState();
 }
 
 class _AdminDashboardExampleState extends State<AdminDashboardExample> {
   int _inboxCount = 9;
+  NavShortcutMode _shortcutMode = NavShortcutMode.onHover;
   late NavigationSidebarController<String> _nav;
 
   @override
@@ -233,12 +165,20 @@ class _AdminDashboardExampleState extends State<AdminDashboardExample> {
                     fontSize: 16,
                     color: s.fg1)),
             const Spacer(),
+            // Shortcut-hint display mode — hover / always / hidden.
+            // In every mode the shortcut stays discoverable via row tooltip.
+            _ShortcutModeToggle(
+              mode: _shortcutMode,
+              onChanged: (m) => setState(() => _shortcutMode = m),
+            ),
+            const SizedBox(width: 10),
             // Simulate a notification arriving → badge count increments
             TextButton.icon(
               onPressed: _simulateNotification,
               icon: const Icon(Icons.notifications_outlined, size: 16),
               label: Text('Notify (${_inboxCount}+)'),
-              style: TextButton.styleFrom(foregroundColor: s.fg2),
+              style:
+                  TextButton.styleFrom(foregroundColor: s.fg2),
             ),
           ]),
         ),
@@ -249,6 +189,7 @@ class _AdminDashboardExampleState extends State<AdminDashboardExample> {
               controller: _nav,
               mode: NavSidebarMode.expanded,
               showGuides: true,
+              shortcutMode: _shortcutMode,
               footer: (ctx, collapsed) =>
                   _ModeToggle(nav: _nav, collapsed: collapsed),
             ),
@@ -275,65 +216,71 @@ class _ActivePage extends StatelessWidget {
     final ancestors = NavOps.ancestorsOf<String>(nav.sections, activeId)
         .map((id) => nav.node(id)?.label ?? id)
         .toList();
-    final crumb = [...ancestors, if (node != null) node.label].join(' › ');
+    final crumb =
+        [...ancestors, if (node != null) node.label].join(' › ');
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(28),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(crumb.toUpperCase(),
-            style: TextStyle(
-                fontFamily: NavigationSidebarThemeData.monoFont,
-                fontSize: 10.5,
-                letterSpacing: 1.6,
-                color: s.fg4)),
-        const SizedBox(height: 10),
-        Text(node?.label ?? 'Workspace',
-            style: TextStyle(
-                fontFamily: NavigationSidebarThemeData.displayFont,
-                fontSize: 26,
-                fontWeight: FontWeight.w700,
-                color: s.fg1)),
-        const SizedBox(height: 24),
-        // ── Quick nav section ─────────────────────────
-        Container(
-          padding: const EdgeInsets.all(18),
-          decoration: BoxDecoration(
-            color: s.surface,
-            border: Border.all(color: s.border),
-            borderRadius:
-                BorderRadius.circular(NavigationSidebarThemeData.radiusLg),
-          ),
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('Quick navigation',
+      child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(crumb.toUpperCase(),
                 style: TextStyle(
-                    fontFamily: NavigationSidebarThemeData.bodyFont,
-                    fontSize: 14,
+                    fontFamily: NavigationSidebarThemeData.monoFont,
+                    fontSize: 10.5,
+                    letterSpacing: 1.6,
+                    color: s.fg4)),
+            const SizedBox(height: 10),
+            Text(node?.label ?? 'Workspace',
+                style: TextStyle(
+                    fontFamily: NavigationSidebarThemeData.displayFont,
+                    fontSize: 26,
                     fontWeight: FontWeight.w700,
                     color: s.fg1)),
-            const SizedBox(height: 6),
-            Text(
-              'These buttons call '
-              'NavigationSidebarController.of<String>(context)'
-              '?.navigate(id) — they work because this page '
-              'is inside the NavigationSidebarScope.',
-              style: TextStyle(
-                  fontFamily: NavigationSidebarThemeData.bodyFont,
-                  fontSize: 12.5,
-                  color: s.fg3,
-                  height: 1.5),
+            const SizedBox(height: 24),
+            // ── Quick nav section ─────────────────────────
+            Container(
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: s.surface,
+                border: Border.all(color: s.border),
+                borderRadius: BorderRadius.circular(
+                    NavigationSidebarThemeData.radiusLg),
+              ),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Quick navigation',
+                        style: TextStyle(
+                            fontFamily:
+                                NavigationSidebarThemeData.bodyFont,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: s.fg1)),
+                    const SizedBox(height: 6),
+                    Text(
+                      'These buttons call '
+                      'NavigationSidebarController.of<String>(context)'
+                      '?.navigate(id) — they work because this page '
+                      'is inside the NavigationSidebarScope.',
+                      style: TextStyle(
+                          fontFamily:
+                              NavigationSidebarThemeData.bodyFont,
+                          fontSize: 12.5,
+                          color: s.fg3,
+                          height: 1.5),
+                    ),
+                    const SizedBox(height: 14),
+                    Wrap(spacing: 10, runSpacing: 10, children: [
+                      _QuickNavBtn('Dashboard', 'dashboard'),
+                      _QuickNavBtn('Journal Entries', 'journals'),
+                      _QuickNavBtn('Trial Balance', 'trialBalance'),
+                      _QuickNavBtn('Products', 'products'),
+                      _QuickNavBtn('Audit Log', 'auditLog'),
+                    ]),
+                  ]),
             ),
-            const SizedBox(height: 14),
-            Wrap(spacing: 10, runSpacing: 10, children: [
-              _QuickNavBtn('Dashboard', 'dashboard'),
-              _QuickNavBtn('Journal Entries', 'journals'),
-              _QuickNavBtn('Trial Balance', 'trialBalance'),
-              _QuickNavBtn('Products', 'products'),
-              _QuickNavBtn('Audit Log', 'auditLog'),
-            ]),
           ]),
-        ),
-      ]),
     );
   }
 }
@@ -348,14 +295,16 @@ class _QuickNavBtn extends StatelessWidget {
     return GestureDetector(
       onTap: () =>
           // ← The key pattern: navigate from inside page content
-          NavigationSidebarController.of<String>(context)?.navigate(targetId),
+          NavigationSidebarController.of<String>(context)
+              ?.navigate(targetId),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+        padding:
+            const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
         decoration: BoxDecoration(
           color: s.inputBg,
           border: Border.all(color: s.border),
-          borderRadius:
-              BorderRadius.circular(NavigationSidebarThemeData.radiusMd),
+          borderRadius: BorderRadius.circular(
+              NavigationSidebarThemeData.radiusMd),
         ),
         child: Text(label,
             style: TextStyle(
@@ -363,6 +312,66 @@ class _QuickNavBtn extends StatelessWidget {
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: s.fg1)),
+      ),
+    );
+  }
+}
+
+// ── Shortcut-hint mode segmented control (hover / always / hidden) ─
+class _ShortcutModeToggle extends StatelessWidget {
+  final NavShortcutMode mode;
+  final ValueChanged<NavShortcutMode> onChanged;
+  const _ShortcutModeToggle({required this.mode, required this.onChanged});
+
+  static const _opts = <(NavShortcutMode, IconData, String)>[
+    (NavShortcutMode.onHover, Icons.mouse_outlined, 'Hover'),
+    (NavShortcutMode.always, Icons.keyboard_outlined, 'Always'),
+    (NavShortcutMode.hidden, Icons.visibility_off_outlined, 'Hidden'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final s = NavigationSidebarThemeData.of(context);
+    return Tooltip(
+      message: 'Shortcut hints — still shown as a tooltip when hidden',
+      child: Container(
+        padding: const EdgeInsets.all(2),
+        decoration: BoxDecoration(
+          color: s.inputBg,
+          border: Border.all(color: s.border),
+          borderRadius:
+              BorderRadius.circular(NavigationSidebarThemeData.radiusMd),
+        ),
+        child: Row(mainAxisSize: MainAxisSize.min, children: [
+          for (final o in _opts)
+            GestureDetector(
+              onTap: () => onChanged(o.$1),
+              child: AnimatedContainer(
+                duration: NavigationSidebarThemeData.durFast,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
+                decoration: BoxDecoration(
+                  color: mode == o.$1
+                      ? NavigationSidebarThemeData.accent
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(
+                      NavigationSidebarThemeData.radiusSm),
+                ),
+                child: Row(mainAxisSize: MainAxisSize.min, children: [
+                  Icon(o.$2,
+                      size: 13,
+                      color: mode == o.$1 ? Colors.white : s.fg3),
+                  const SizedBox(width: 5),
+                  Text(o.$3,
+                      style: TextStyle(
+                          fontFamily: NavigationSidebarThemeData.bodyFont,
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w600,
+                          color: mode == o.$1 ? Colors.white : s.fg2)),
+                ]),
+              ),
+            ),
+        ]),
       ),
     );
   }
@@ -384,25 +393,28 @@ class _ModeToggle extends StatelessWidget {
         decoration: BoxDecoration(
           color: s.inputBg,
           border: Border.all(color: s.border),
-          borderRadius:
-              BorderRadius.circular(NavigationSidebarThemeData.radiusMd),
+          borderRadius: BorderRadius.circular(
+              NavigationSidebarThemeData.radiusMd),
         ),
-        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Icon(
-              collapsed
-                  ? Icons.keyboard_arrow_right
-                  : Icons.keyboard_arrow_left,
-              size: 16,
-              color: s.fg3),
-          if (!collapsed) ...[
-            const SizedBox(width: 6),
-            Text('Collapse',
-                style: TextStyle(
-                    fontFamily: NavigationSidebarThemeData.bodyFont,
-                    fontSize: 12,
-                    color: s.fg3)),
-          ],
-        ]),
+        child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                  collapsed
+                      ? Icons.keyboard_arrow_right
+                      : Icons.keyboard_arrow_left,
+                  size: 16,
+                  color: s.fg3),
+              if (!collapsed) ...[
+                const SizedBox(width: 6),
+                Text('Collapse',
+                    style: TextStyle(
+                        fontFamily:
+                            NavigationSidebarThemeData.bodyFont,
+                        fontSize: 12,
+                        color: s.fg3)),
+              ],
+            ]),
       ),
     );
   }

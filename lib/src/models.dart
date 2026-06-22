@@ -48,7 +48,7 @@ enum NavNodeRole {
 }
 
 /// Semantic colour of a [NavBadge].
-enum NavBadgeTone { accent, success, warning, muted }
+enum NavBadgeTone { accent, success, warning, danger, muted }
 
 /// A small trailing pill on a nav row — a count (`'3'`), a status (`'New'`,
 /// `'Live'`) or any short token. In the collapsed rail it collapses to a dot.
@@ -57,6 +57,44 @@ class NavBadge {
   final String text;
   final NavBadgeTone tone;
   const NavBadge(this.text, {this.tone = NavBadgeTone.accent});
+}
+
+/// Controls how a node's keyboard-shortcut hint is shown in the expanded tree.
+///
+/// Regardless of the mode, a node that has a [NavNode.shortcut] always exposes
+/// it through the row's tooltip — so the hint can be hidden from view without
+/// losing discoverability.
+enum NavShortcutMode {
+  /// Reveal the inline hint only while the row is hovered (default).
+  onHover,
+
+  /// Always render the inline hint.
+  always,
+
+  /// Never render the inline hint; it stays available via the row tooltip.
+  hidden,
+}
+
+/// Informational state of a node — surfaced as a small status dot before the
+/// label. Built for ERP needs like fiscal-period or ledger state (an *open*
+/// period is green, a *closed* one grey, a *locked* one red). Purely
+/// presentational; it does not block navigation (use [NavNode.locked] for
+/// permission gating).
+enum NavNodeStatus {
+  /// No status dot.
+  none,
+
+  /// Open / active — accounting period open, account live. Green.
+  open,
+
+  /// Closed — period closed for posting. Muted grey.
+  closed,
+
+  /// Hard-locked / sealed — audited & immutable. Red.
+  locked,
+
+  /// Needs attention — reconciliation pending, breach flagged. Amber.
+  attention,
 }
 
 /// One node in the navigation tree, generic over a strongly-typed host
@@ -92,6 +130,18 @@ class NavNode<T> {
   /// When false the row is shown but can't be activated.
   final bool enabled;
 
+  /// When true the row is permission-gated: rendered with a lock glyph, dimmed,
+  /// not activatable (the controller refuses to navigate to it), and its
+  /// [lockMessage] is surfaced as a tooltip. Use for segregation-of-duties /
+  /// role-gated banking & accounting screens.
+  final bool locked;
+
+  /// Tooltip shown on a [locked] row, e.g. `'Requires Approver role'`.
+  final String? lockMessage;
+
+  /// Informational state dot before the label (fiscal-period / ledger state).
+  final NavNodeStatus status;
+
   const NavNode({
     required this.id,
     required this.label,
@@ -101,6 +151,9 @@ class NavNode<T> {
     this.shortcut,
     this.value,
     this.enabled = true,
+    this.locked = false,
+    this.lockMessage,
+    this.status = NavNodeStatus.none,
   });
 
   bool get hasChildren => children.isNotEmpty;
@@ -115,6 +168,9 @@ class NavNode<T> {
     List<String>? shortcut,
     T? value,
     bool? enabled,
+    bool? locked,
+    String? lockMessage,
+    NavNodeStatus? status,
   }) =>
       NavNode<T>(
         id: id ?? this.id,
@@ -125,6 +181,9 @@ class NavNode<T> {
         shortcut: shortcut ?? this.shortcut,
         value: value ?? this.value,
         enabled: enabled ?? this.enabled,
+        locked: locked ?? this.locked,
+        lockMessage: lockMessage ?? this.lockMessage,
+        status: status ?? this.status,
       );
 
   @override
