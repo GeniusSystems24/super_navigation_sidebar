@@ -1,0 +1,17 @@
+name: super_navigation_sidebar_example
+description: Runnable examples for the super_navigation_sidebar package.
+publish_to: "none"
+version: 1.0.0
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.10.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  super_navigation_sidebar:
+    path: ../
+
+flutter:
+  uses-material-design: true
