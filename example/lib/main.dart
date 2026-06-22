@@ -6,6 +6,7 @@ import 'package:super_navigation_sidebar/super_navigation_sidebar.dart';
 import 'example_01_responsive_shell.dart';
 import 'example_02_admin_dashboard.dart';
 import 'example_03_theme_rtl.dart';
+import 'navigation_sidebar_demo.dart';
 
 void main() => runApp(const ExampleApp());
 
@@ -67,6 +68,12 @@ class LauncherScreen extends StatelessWidget {
         '3 themes (Dark / Light / Warm), LTR/RTL toggle,\n'
             'showGuides + railFlyouts toggles, copyWith explained.',
         const ThemeRtlExample(),
+      ),
+      (
+        '04 · Full component workbench (original)',
+        'Device-width simulator · expanded / rail / drawer · live Light/Dark ·\n'
+            'LTR/RTL · command palette · workspace + user menus.',
+        const NavigationSidebarDemo(),
       ),
     ];
 

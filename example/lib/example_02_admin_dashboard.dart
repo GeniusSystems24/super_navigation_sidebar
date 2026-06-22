@@ -15,7 +15,7 @@ import 'package:super_navigation_sidebar/super_navigation_sidebar.dart';
 
 // ── Full ERP navigation tree ─────────────────────────────────────
 List<NavSection<String>> _buildSections(int inboxCount) => <NavSection<String>>[
-      const NavSection(title: 'Overview', items: [
+      NavSection(title: 'Overview', items: [
         NavNode(
             id: 'dashboard',
             label: 'Dashboard',
@@ -29,7 +29,7 @@ List<NavSection<String>> _buildSections(int inboxCount) => <NavSection<String>>[
             value: 'invDashboard',
             shortcut: ['g', 'i']),
       ]),
-      const NavSection(title: 'Finance', items: [
+      NavSection(title: 'Finance', items: [
         NavNode(
             id: 'accountsHub',
             label: 'Accounts',
@@ -103,7 +103,7 @@ List<NavSection<String>> _buildSections(int inboxCount) => <NavSection<String>>[
               ]),
             ]),
       ]),
-      const NavSection(title: 'Operations', items: [
+      NavSection(title: 'Operations', items: [
         NavNode(
             id: 'storesHub',
             label: 'Inventory & Stores',
@@ -151,14 +151,14 @@ List<NavSection<String>> _buildSections(int inboxCount) => <NavSection<String>>[
                     value: 'users',
                     badge:
                         NavBadge('$inboxCount+', tone: NavBadgeTone.warning)),
-                const NavNode(
+                NavNode(
                     id: 'roles',
                     label: 'Roles & Permissions',
                     icon: Icons.settings_outlined,
                     value: 'roles'),
               ]),
             ]),
-        const NavNode(
+        NavNode(
             id: 'settingsHub',
             label: 'Settings',
             icon: Icons.settings_outlined,
@@ -324,7 +324,7 @@ class _ActivePage extends StatelessWidget {
                   height: 1.5),
             ),
             const SizedBox(height: 14),
-            const Wrap(spacing: 10, runSpacing: 10, children: [
+            Wrap(spacing: 10, runSpacing: 10, children: [
               _QuickNavBtn('Dashboard', 'dashboard'),
               _QuickNavBtn('Journal Entries', 'journals'),
               _QuickNavBtn('Trial Balance', 'trialBalance'),
