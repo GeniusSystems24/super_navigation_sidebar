@@ -4,7 +4,7 @@ description: >
   expanded tree with connectors, icon-only rail with hover flyouts, and
   off-canvas drawer with scrim. Typed NavNode<T> tree, badges, shortcuts,
   header/footer slots, RTL. Zero third-party dependencies.
-version: 1.0.0
+version: 1.1.0
 homepage: https://github.com/geniussystems24/super_navigation_sidebar
 repository: https://github.com/geniussystems24/super_navigation_sidebar
 
