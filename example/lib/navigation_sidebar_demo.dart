@@ -332,7 +332,7 @@ class _NavigationSidebarDemoState extends State<NavigationSidebarDemo> {
       padding: const EdgeInsets.all(2),
       decoration: BoxDecoration(
         color: t.inputBg,
-        borderRadius: BorderRadius.circular(NavigationSidebarThemeData.radiusMd),
+        borderRadius: BorderRadius.circular(t.radiusMd),
         border: Border.all(color: t.border),
       ),
       child: Row(
@@ -519,7 +519,7 @@ class _AppBar extends StatelessWidget {
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: t.inputBg,
-              borderRadius: BorderRadius.circular(NavigationSidebarThemeData.radiusLg),
+              borderRadius: BorderRadius.circular(t.radiusLg),
               border: Border.all(color: t.border),
             ),
             child: child,
@@ -585,7 +585,7 @@ class _AppBar extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12),
         decoration: BoxDecoration(
           color: t.inputBg,
-          borderRadius: BorderRadius.circular(NavigationSidebarThemeData.radiusLg),
+          borderRadius: BorderRadius.circular(t.radiusLg),
           border: Border.all(color: t.border),
         ),
         child: Row(children: [
@@ -632,7 +632,7 @@ class _WorkspaceMenu extends StatelessWidget {
         alignment: Alignment.center,
         decoration: BoxDecoration(
           color: open ? t.hover : t.inputBg,
-          borderRadius: BorderRadius.circular(NavigationSidebarThemeData.radiusLg),
+          borderRadius: BorderRadius.circular(t.radiusLg),
           border: Border.all(color: open ? NavigationSidebarThemeData.accent : t.border),
         ),
         child: Row(mainAxisSize: MainAxisSize.min, children: [
@@ -708,7 +708,7 @@ class _UserMenu extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: compact ? 0.0 : 6.0),
         decoration: BoxDecoration(
           color: open ? t.hover : Colors.transparent,
-          borderRadius: BorderRadius.circular(NavigationSidebarThemeData.radiusLg),
+          borderRadius: BorderRadius.circular(t.radiusLg),
           border: Border.all(color: open ? t.borderStrong : Colors.transparent),
         ),
         child: Row(mainAxisSize: MainAxisSize.min, children: [
@@ -829,7 +829,7 @@ class _HeaderMenuState extends State<_HeaderMenu> {
                   width: widget.width,
                   decoration: BoxDecoration(
                     color: t.surface,
-                    borderRadius: BorderRadius.circular(NavigationSidebarThemeData.radiusLg),
+                    borderRadius: BorderRadius.circular(t.radiusLg),
                     border: Border.all(color: t.borderStrong),
                     boxShadow: NavigationSidebarThemeData.popShadow,
                   ),
@@ -915,7 +915,7 @@ class _SidebarFooter extends StatelessWidget {
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: t.inputBg,
-              borderRadius: BorderRadius.circular(NavigationSidebarThemeData.radiusMd),
+              borderRadius: BorderRadius.circular(t.radiusMd),
               border: Border.all(color: t.border),
             ),
             child: Container(
@@ -937,7 +937,7 @@ class _SidebarFooter extends StatelessWidget {
           alignment: Alignment.center,
           decoration: BoxDecoration(
             color: t.inputBg,
-            borderRadius: BorderRadius.circular(NavigationSidebarThemeData.radiusLg),
+            borderRadius: BorderRadius.circular(t.radiusLg),
             border: Border.all(color: t.border),
           ),
           child: Icon(Icons.info_outline, size: 18, color: t.fg2),
@@ -951,7 +951,7 @@ class _SidebarFooter extends StatelessWidget {
         padding: const EdgeInsets.all(4),
         decoration: BoxDecoration(
           color: t.inputBg,
-          borderRadius: BorderRadius.circular(NavigationSidebarThemeData.radiusMd),
+          borderRadius: BorderRadius.circular(t.radiusMd),
           border: Border.all(color: t.border),
         ),
         child: Row(children: [
@@ -988,7 +988,7 @@ class _SidebarFooter extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
           color: t.inputBg,
-          borderRadius: BorderRadius.circular(NavigationSidebarThemeData.radiusXl),
+          borderRadius: BorderRadius.circular(t.radiusXl),
           border: Border.all(color: t.border),
         ),
         child: Row(children: [
@@ -1114,7 +1114,7 @@ class _SearchDialogState extends State<_SearchDialog> {
                 child: Container(
                   decoration: BoxDecoration(
                     color: t.surface,
-                    borderRadius: BorderRadius.circular(NavigationSidebarThemeData.radiusXl),
+                    borderRadius: BorderRadius.circular(t.radiusXl),
                     border: Border.all(color: t.borderStrong),
                     boxShadow: NavigationSidebarThemeData.popShadow,
                   ),
@@ -1278,7 +1278,7 @@ class _FauxPage extends StatelessWidget {
 
     final muted = BoxDecoration(
       color: t.surface,
-      borderRadius: BorderRadius.circular(NavigationSidebarThemeData.radiusMd),
+      borderRadius: BorderRadius.circular(t.radiusMd),
       border: Border.all(color: t.border),
     );
 

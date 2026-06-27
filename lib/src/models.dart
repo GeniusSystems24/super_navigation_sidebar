@@ -7,9 +7,20 @@
 // expansion, the active id, the rail/drawer mode and the open-flyout all live
 // in the controller, keyed by node id.
 //
+// DEEP IMMUTABILITY
+// -----------------
+// NavNode.children and NavSection.items are wrapped in List.unmodifiable() at
+// construction time — external callers cannot mutate the list. All structural
+// changes must go through the controller (replaceSections / navigate / etc.)
+// which notifies listeners correctly.
+//
+// NOTE: The NavNode and NavSection constructors are intentionally non-const so
+// the List.unmodifiable() wrap can run at construction time. Users who
+// previously used `const NavNode(...)` should remove the `const` keyword.
+//
 // The tree mirrors the GeniusLink web sidebar's four roles:
-//   Section  →  Module     →  Group        →  Item        (Finance ▸ Accounts ▸ Chart of Accounts ▸ Account Tree)
-//   Section  →  Direct leaf                                (Overview ▸ Dashboard)
+//   Section  →  Module     →  Group        →  Item
+//   Section  →  Direct leaf
 // Role is *derived* from depth + whether the node has children — see
 // [NavNodeRole.of]. The same recursion paints any depth.
 //
@@ -61,6 +72,12 @@ class NavBadge {
 
 /// Controls how a node's keyboard-shortcut hint is shown in the expanded tree.
 ///
+/// **Important:** Shortcut declarations in [NavNode.shortcut] are **visual
+/// hints only**. The sidebar renders the keycap glyphs and exposes them in
+/// tooltips, but does **not** register global key handlers. Wiring the actual
+/// keystroke (via [Shortcuts] / [Actions] or a custom [FocusNode]) is the
+/// host app's responsibility.
+///
 /// Regardless of the mode, a node that has a [NavNode.shortcut] always exposes
 /// it through the row's tooltip — so the hint can be hidden from view without
 /// losing discoverability.
@@ -99,11 +116,17 @@ enum NavNodeStatus {
 
 /// One node in the navigation tree, generic over a strongly-typed host
 /// [value] (a route, a screen enum, …) so callers read `node.value` with no
-/// casting. Immutable; compose `List<NavNode<T>>` (each with `children`) to
-/// describe the whole sidebar.
+/// casting. Deeply immutable; [children] is wrapped in [List.unmodifiable] at
+/// construction time. Use [copyWith] to derive modified copies.
+///
+/// **Breaking change from 1.1:** The constructor is no longer `const`. Remove
+/// the `const` keyword from any `const NavNode(…)` call sites.
 @immutable
 class NavNode<T> {
   /// Unique, stable id across the whole sidebar (the host's screen key).
+  ///
+  /// [NavigationSidebarController] validates that every id in the tree is
+  /// unique in debug builds. Duplicate ids cause an assertion failure.
   final NavNodeId id;
 
   /// Display label (also what the optional search filter matches against).
@@ -114,13 +137,16 @@ class NavNode<T> {
   final IconData? icon;
 
   /// Child nodes. Empty for a leaf.
+  ///
+  /// Always an unmodifiable view — external mutation is prevented. All
+  /// structural changes must go through the controller.
   final List<NavNode<T>> children;
 
   /// Optional trailing badge (count / status / shortcut hint).
   final NavBadge? badge;
 
-  /// Two-key "g d"-style shortcut shown on hover (purely presentational here;
-  /// wiring the keystroke is the host's job).
+  /// Two-key "g d"-style shortcut shown on hover (visual hint only — see
+  /// [NavShortcutMode] for details on host-side keystroke wiring).
   final List<String>? shortcut;
 
   /// Strongly-typed payload travelling with the node (`null` for structural
@@ -131,9 +157,9 @@ class NavNode<T> {
   final bool enabled;
 
   /// When true the row is permission-gated: rendered with a lock glyph, dimmed,
-  /// not activatable (the controller refuses to navigate to it), and its
-  /// [lockMessage] is surfaced as a tooltip. Use for segregation-of-duties /
-  /// role-gated banking & accounting screens.
+  /// not activatable (the controller refuses to navigate to it and
+  /// [NavigationSidebar.onNavigate] is never fired), and its [lockMessage] is
+  /// surfaced as a tooltip. Use for segregation-of-duties / role-gated screens.
   final bool locked;
 
   /// Tooltip shown on a [locked] row, e.g. `'Requires Approver role'`.
@@ -142,11 +168,15 @@ class NavNode<T> {
   /// Informational state dot before the label (fiscal-period / ledger state).
   final NavNodeStatus status;
 
-  const NavNode({
+  /// Creates a deeply-immutable nav node.
+  ///
+  /// [children] is wrapped in [List.unmodifiable]; passing a list and then
+  /// mutating it externally has no effect on this node.
+  NavNode({
     required this.id,
     required this.label,
     this.icon,
-    this.children = const [],
+    List<NavNode<T>>? children,
     this.badge,
     this.shortcut,
     this.value,
@@ -154,7 +184,9 @@ class NavNode<T> {
     this.locked = false,
     this.lockMessage,
     this.status = NavNodeStatus.none,
-  });
+  }) : children = children == null
+            ? const []
+            : List.unmodifiable(children);
 
   bool get hasChildren => children.isNotEmpty;
   bool get isLeaf => children.isEmpty;
@@ -176,7 +208,7 @@ class NavNode<T> {
         id: id ?? this.id,
         label: label ?? this.label,
         icon: icon ?? this.icon,
-        children: children ?? this.children,
+        children: children ?? List<NavNode<T>>.of(this.children),
         badge: badge ?? this.badge,
         shortcut: shortcut ?? this.shortcut,
         value: value ?? this.value,
@@ -195,11 +227,21 @@ class NavNode<T> {
 
 /// A titled band of the sidebar (e.g. *Overview*, *Finance*). The title is the
 /// small uppercase eyebrow above the band; [items] are its top-level nodes.
+///
+/// [items] is wrapped in [List.unmodifiable] at construction time.
+///
+/// **Breaking change from 1.1:** The constructor is no longer `const`. Remove
+/// the `const` keyword from any `const NavSection(…)` call sites.
 @immutable
 class NavSection<T> {
   final String title;
+
+  /// Top-level nodes in this section. Always an unmodifiable list.
   final List<NavNode<T>> items;
-  const NavSection({required this.title, required this.items});
+
+  /// Creates a nav section whose [items] list is deeply immutable.
+  NavSection({required this.title, required List<NavNode<T>> items})
+      : items = List.unmodifiable(items);
 }
 
 /// How the sidebar is currently presented. The view can derive this from the
@@ -266,7 +308,8 @@ class NavOps {
   }
 
   /// Ancestor ids of [id], outermost-first (empty if top-level or missing).
-  static List<NavNodeId> ancestorsOf<T>(List<NavSection<T>> sections, NavNodeId id) {
+  static List<NavNodeId> ancestorsOf<T>(
+      List<NavSection<T>> sections, NavNodeId id) {
     List<NavNodeId>? result;
     void rec(List<NavNode<T>> nodes, List<NavNodeId> path) {
       for (final n in nodes) {
@@ -308,5 +351,23 @@ class NavOps {
 
     rec(node);
     return out;
+  }
+
+  /// Returns all duplicate [NavNodeId]s found by walking [sections].
+  ///
+  /// An empty list means the tree is valid (all ids are unique). Use this in
+  /// host-app debug assertions or unit tests to validate nav trees:
+  ///
+  /// ```dart
+  /// assert(NavOps.findDuplicateIds(sections).isEmpty,
+  ///     'Duplicate nav ids: ${NavOps.findDuplicateIds(sections)}');
+  /// ```
+  static List<NavNodeId> findDuplicateIds<T>(List<NavSection<T>> sections) {
+    final seen = <NavNodeId>{};
+    final dups = <NavNodeId>[];
+    walk<T>(sections, (n, _) {
+      if (!seen.add(n.id)) dups.add(n.id);
+    });
+    return dups;
   }
 }

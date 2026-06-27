@@ -325,7 +325,7 @@ class _Footer extends StatelessWidget {
           decoration: BoxDecoration(
             color: s.inputBg,
             borderRadius: BorderRadius.circular(
-                NavigationSidebarThemeData.radiusMd),
+                s.radiusMd),
             border: Border.all(color: s.border),
           ),
           child: Icon(
@@ -348,7 +348,7 @@ class _Footer extends StatelessWidget {
               color: s.inputBg,
               border: Border.all(color: s.border),
               borderRadius: BorderRadius.circular(
-                  NavigationSidebarThemeData.radiusMd),
+                  s.radiusMd),
             ),
             child: Row(children: [
               for (final opt in const [(false, 'DARK'), (true, 'LIGHT')])
@@ -388,7 +388,7 @@ class _Footer extends StatelessWidget {
               color: s.inputBg,
               border: Border.all(color: s.border),
               borderRadius: BorderRadius.circular(
-                  NavigationSidebarThemeData.radiusLg),
+                  s.radiusLg),
             ),
             child: Row(children: [
               Container(
@@ -440,7 +440,7 @@ class _FauxPage extends StatelessWidget {
     final muted = BoxDecoration(
       color: s.surface,
       borderRadius: BorderRadius.circular(
-          NavigationSidebarThemeData.radiusMd),
+          s.radiusMd),
       border: Border.all(color: s.border),
     );
 
@@ -512,7 +512,7 @@ class _SegCtrl extends StatelessWidget {
         color: s.inputBg,
         border: Border.all(color: s.border),
         borderRadius: BorderRadius.circular(
-            NavigationSidebarThemeData.radiusMd),
+            s.radiusMd),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -529,7 +529,7 @@ class _SegCtrl extends StatelessWidget {
                     ? NavigationSidebarThemeData.accent
                     : Colors.transparent,
                 borderRadius:
-                    BorderRadius.circular(NavigationSidebarThemeData.radiusSm),
+                    BorderRadius.circular(s.radiusSm),
               ),
               child: Text(options[i],
                   style: TextStyle(

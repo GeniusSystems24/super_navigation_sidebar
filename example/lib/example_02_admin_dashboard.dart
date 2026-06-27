@@ -245,7 +245,7 @@ class _ActivePage extends StatelessWidget {
                 color: s.surface,
                 border: Border.all(color: s.border),
                 borderRadius: BorderRadius.circular(
-                    NavigationSidebarThemeData.radiusLg),
+                    s.radiusLg),
               ),
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -304,7 +304,7 @@ class _QuickNavBtn extends StatelessWidget {
           color: s.inputBg,
           border: Border.all(color: s.border),
           borderRadius: BorderRadius.circular(
-              NavigationSidebarThemeData.radiusMd),
+              s.radiusMd),
         ),
         child: Text(label,
             style: TextStyle(
@@ -340,7 +340,7 @@ class _ShortcutModeToggle extends StatelessWidget {
           color: s.inputBg,
           border: Border.all(color: s.border),
           borderRadius:
-              BorderRadius.circular(NavigationSidebarThemeData.radiusMd),
+              BorderRadius.circular(s.radiusMd),
         ),
         child: Row(mainAxisSize: MainAxisSize.min, children: [
           for (final o in _opts)
@@ -355,7 +355,7 @@ class _ShortcutModeToggle extends StatelessWidget {
                       ? NavigationSidebarThemeData.accent
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(
-                      NavigationSidebarThemeData.radiusSm),
+                      s.radiusSm),
                 ),
                 child: Row(mainAxisSize: MainAxisSize.min, children: [
                   Icon(o.$2,
@@ -394,7 +394,7 @@ class _ModeToggle extends StatelessWidget {
           color: s.inputBg,
           border: Border.all(color: s.border),
           borderRadius: BorderRadius.circular(
-              NavigationSidebarThemeData.radiusMd),
+              s.radiusMd),
         ),
         child: Row(
             mainAxisAlignment: MainAxisAlignment.center,

@@ -315,7 +315,7 @@ class _FooterHelp extends StatelessWidget {
           color: s.inputBg,
           border: Border.all(color: s.border),
           borderRadius: BorderRadius.circular(
-              NavigationSidebarThemeData.radiusMd),
+              s.radiusMd),
         ),
         child: const Icon(Icons.info_outline,
             size: 18, color: NavigationSidebarThemeData.accent),
@@ -328,7 +328,7 @@ class _FooterHelp extends StatelessWidget {
         color: s.inputBg,
         border: Border.all(color: s.border),
         borderRadius: BorderRadius.circular(
-            NavigationSidebarThemeData.radiusLg),
+            s.radiusLg),
       ),
       child: Row(children: [
         Container(
@@ -371,7 +371,7 @@ class _Seg extends StatelessWidget {
         color: s.inputBg,
         border: Border.all(color: s.border),
         borderRadius:
-            BorderRadius.circular(NavigationSidebarThemeData.radiusMd),
+            BorderRadius.circular(s.radiusMd),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -388,7 +388,7 @@ class _Seg extends StatelessWidget {
                     ? NavigationSidebarThemeData.accent
                     : Colors.transparent,
                 borderRadius: BorderRadius.circular(
-                    NavigationSidebarThemeData.radiusSm),
+                    s.radiusSm),
               ),
               child: Text(options[i],
                   style: TextStyle(
@@ -429,7 +429,7 @@ class _Toggle extends StatelessWidget {
                   ? NavigationSidebarThemeData.accent.withOpacity(0.4)
                   : s.border),
           borderRadius: BorderRadius.circular(
-              NavigationSidebarThemeData.radiusMd),
+              s.radiusMd),
         ),
         child: Text(label,
             style: TextStyle(

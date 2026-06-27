@@ -5,7 +5,7 @@ Realistic, copy-ready recipes. Each assumes the import +
 
 ---
 
-## 1 · Full responsive app shell
+## 1 · Full responsive shell with NavigationSidebarAppBar
 
 ```dart
 class _AppShellState extends State<AppShell> {
@@ -21,13 +21,15 @@ class _AppShellState extends State<AppShell> {
       final sidebar = NavigationSidebar<String>(
         controller: _nav, mode: mode,
         header: (ctx, collapsed) => _Brand(collapsed: collapsed),
-        footer: (ctx, collapsed) => _HelpCard(collapsed: collapsed),
         onNavigate: (node) => setState(() => _screen = node.value!),
       );
+
       if (mode == NavSidebarMode.drawer) {
         return Scaffold(
-          appBar: AppBar(
-            leading: IconButton(icon: const Icon(Icons.menu), onPressed: _nav.openDrawer),
+          appBar: NavigationSidebarAppBar(
+            controller: _nav,
+            mode: NavSidebarMode.drawer,
+            pageTitle: NavBreadcrumb<String>(controller: _nav),
           ),
           body: Stack(children: [
             Positioned.fill(child: _PageFor(screen: _screen)),
@@ -35,7 +37,22 @@ class _AppShellState extends State<AppShell> {
           ]),
         );
       }
-      return Row(children: [sidebar, Expanded(child: _PageFor(screen: _screen))]);
+
+      return Row(children: [
+        sidebar,
+        Expanded(child: Column(children: [
+          NavigationSidebarAppBar(
+            controller: _nav,
+            mode: mode,
+            showCollapseToggle: true,
+            pageTitle: NavBreadcrumb<String>(controller: _nav),
+            globalSearch: NavigationSidebarSearchField(controller: _nav,
+                hint: 'Search…'),
+            actions: [_NotificationBell(), _UserAvatar()],
+          ),
+          Expanded(child: _PageFor(screen: _screen)),
+        ])),
+      ]);
     });
   }
 
@@ -46,34 +63,94 @@ class _AppShellState extends State<AppShell> {
 
 ---
 
-## 2 · Deep-link navigation from page content
+## 2 · Localization — Arabic RTL
 
 ```dart
-TextButton(
-  onPressed: () =>
-      NavigationSidebarController.of<String>(context)?.navigate('journals'),
-  child: const Text('Go to Journals'),
-);
+Directionality(
+  textDirection: TextDirection.rtl,
+  child: NavigationSidebar<String>(
+    controller: nav,
+    mode: mode,
+    localizations: NavigationSidebarLocalizations.arabic,
+  ),
+)
 
-// Breadcrumb:
-final ancestors = NavOps.ancestorsOf<String>(_nav.sections, _nav.active ?? '');
+// Custom partial override:
+NavigationSidebar<String>(
+  controller: nav, mode: mode,
+  localizations: const NavigationSidebarLocalizations(
+    searchHint: 'Buscar navegación…',
+    lockedDefault: 'Acceso restringido',
+  ),
+)
 ```
 
 ---
 
-## 3 · Live badge updates + collapse toggle
+## 3 · Navigation safety — locked/disabled nodes
+
+```dart
+// navigate() returns bool — false means refused:
+final ok = nav.navigate('wire'); // false if locked
+
+// onNavigate is NEVER fired for locked or disabled nodes:
+NavigationSidebar<String>(
+  controller: nav,
+  mode: mode,
+  onNavigate: (node) {
+    // Safe — guaranteed not locked/disabled here.
+    setState(() => _screen = node.value!);
+  },
+)
+
+// Locked node definition:
+NavNode(id: 'wire', label: 'Wire/SWIFT', value: 'wire',
+        locked: true, lockMessage: 'Requires Treasury Approver role');
+
+// Disabled node:
+NavNode(id: 'beta', label: 'Beta', value: 'beta', enabled: false);
+```
+
+---
+
+## 4 · Deep immutability + duplicate ID validation
+
+```dart
+// Children/items are List.unmodifiable — mutation throws:
+final node = NavNode(id: 'p', label: 'Parent',
+    children: [NavNode(id: 'c', label: 'Child')]);
+node.children.add(NavNode(id: 'x', label: 'X')); // UnsupportedError!
+
+// Validate IDs before building the controller:
+final dups = NavOps.findDuplicateIds<String>(sections);
+assert(dups.isEmpty, 'Duplicate nav ids: $dups');
+
+// NOTE: No const NavNode / const NavSection in 1.2+
+// Replace: const NavNode(...) → NavNode(...)
+```
+
+---
+
+## 5 · Live badge updates + collapse toggle
 
 ```dart
 // Hot-swap sections to update badge counts:
 _nav.replaceSections(updatedSections);
 
-// Hamburger toggle:
-IconButton(icon: const Icon(Icons.view_sidebar_outlined), onPressed: _nav.toggleCollapsed);
+// AppBar collapse toggle (built-in):
+NavigationSidebarAppBar(
+  controller: _nav,
+  mode: NavSidebarMode.expanded,
+  showCollapseToggle: true,
+)
+// Or manually:
+IconButton(icon: const Icon(Icons.view_sidebar_outlined),
+           onPressed: _nav.toggleCollapsed);
 ```
 
 ---
 
-## 4 · Custom theme + RTL
+## 6 · Custom theme + RTL
 
 ```dart
 final warmTheme = NavigationSidebarThemeData.light.copyWith(
@@ -87,7 +164,11 @@ Theme(
   data: Theme.of(context).copyWith(extensions: [warmTheme]),
   child: Directionality(
     textDirection: TextDirection.rtl,
-    child: NavigationSidebar<String>(controller: nav, mode: NavSidebarMode.expanded),
+    child: NavigationSidebar<String>(
+      controller: nav,
+      mode: NavSidebarMode.expanded,
+      localizations: NavigationSidebarLocalizations.arabic,
+    ),
   ),
 )
 ```

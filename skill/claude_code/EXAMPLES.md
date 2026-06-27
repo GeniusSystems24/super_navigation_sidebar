@@ -21,9 +21,6 @@ class _AppShellState extends State<AppShell> {
   String _screen = 'dashboard';
   NavSidebarMode? _prevMode;
 
-  // Sync the controller's collapsed flag with the mode ONLY when the
-  // breakpoint changes — so an explicit user toggle within a breakpoint
-  // is preserved.
   void _syncMode(NavSidebarMode mode) {
     if (mode == _prevMode) return;
     _prevMode = mode;
@@ -51,11 +48,10 @@ class _AppShellState extends State<AppShell> {
 
       if (mode == NavSidebarMode.drawer) {
         return Scaffold(
-          appBar: AppBar(
-            leading: IconButton(
-              icon: const Icon(Icons.menu),
-              onPressed: _nav.openDrawer,
-            ),
+          appBar: NavigationSidebarAppBar(
+            controller: _nav,
+            mode: NavSidebarMode.drawer,
+            pageTitle: NavBreadcrumb<String>(controller: _nav),
           ),
           body: Stack(children: [
             Positioned.fill(child: _PageFor(screen: _screen)),
@@ -63,7 +59,20 @@ class _AppShellState extends State<AppShell> {
           ]),
         );
       }
-      return Row(children: [sidebar, Expanded(child: _PageFor(screen: _screen))]);
+      return Row(children: [
+        sidebar,
+        Expanded(
+          child: Column(children: [
+            NavigationSidebarAppBar(
+              controller: _nav,
+              mode: mode,
+              showCollapseToggle: true,
+              pageTitle: NavBreadcrumb<String>(controller: _nav),
+            ),
+            Expanded(child: _PageFor(screen: _screen)),
+          ]),
+        ),
+      ]);
     });
   }
 
@@ -74,22 +83,62 @@ class _AppShellState extends State<AppShell> {
 
 ---
 
-## 2 · Deep-link navigation from inside page content
+## 2 · AppBar with global search, workspace switcher, user info
+
+```dart
+NavigationSidebarAppBar(
+  controller: nav,
+  mode: mode,
+  showCollapseToggle: true,
+
+  // Breadcrumb reads ancestor path from the controller live:
+  pageTitle: NavBreadcrumb<String>(
+    controller: nav,
+    separator: '  ›  ',
+  ),
+
+  // Global search drives the sidebar filter:
+  globalSearch: NavigationSidebarSearchField(
+    controller: nav,
+    hint: 'Search accounts, journals, reports…',
+  ),
+
+  // Middle slot: workspace switcher, env badge, etc.
+  middle: _WorkspaceSwitcher(),
+
+  // Trailing actions:
+  actions: [
+    _NotificationBell(count: 4),
+    const SizedBox(width: 4),
+    _UserAvatar(initials: 'AR'),
+  ],
+)
+```
+
+---
+
+## 3 · Deep-link navigation from inside page content
 
 `navigate(id)` auto-expands every ancestor module and closes the drawer.
 `NavigationSidebarController.of<T>(context)` makes it available anywhere
-in the subtree:
+in the subtree. `navigate()` returns `bool` — use it to guard callbacks:
 
 ```dart
 // From a page widget inside the shell:
 TextButton(
-  onPressed: () =>
-      NavigationSidebarController.of<String>(context)?.navigate('journals'),
+  onPressed: () {
+    final ok = NavigationSidebarController
+        .of<String>(context)
+        ?.navigate('journals');
+    if (ok == true) {
+      // navigation applied — safe to update local state
+    }
+  },
   child: const Text('Go to Journals'),
 );
 
 // From a router / push notification handler (outside the tree):
-_nav.navigate('accountTree');  // expands Accounts ▸ Chart of Accounts, highlights leaf
+_nav.navigate('accountTree');  // expands ancestors, highlights leaf
 
 // Breadcrumb from ancestors:
 final ancestors = NavOps.ancestorsOf<String>(_nav.sections, _nav.active ?? '');
@@ -98,7 +147,7 @@ final labels = ancestors.map((id) => _nav.node(id)?.label ?? id).join(' › ');
 
 ---
 
-## 3 · Live badge updates + collapse toggle
+## 4 · Live badge updates + collapse toggle
 
 ```dart
 // Badges carry a tone — pill on expanded rows, dot on rail/collapsed icons:
@@ -106,50 +155,180 @@ NavNode(id: 'inbox',  label: 'Inbox',  icon: Icons.inbox_outlined, value: 'inbox
         badge: NavBadge('9+', tone: NavBadgeTone.danger));
 NavNode(id: 'sync',   label: 'Sync',   icon: Icons.sync, value: 'sync',
         badge: NavBadge('Live', tone: NavBadgeTone.success));
-NavNode(id: 'audit',  label: 'Audit Log', icon: Icons.lock_outline, value: 'audit',
-        badge: NavBadge('12', tone: NavBadgeTone.muted));
 
 // Hot-swap sections (e.g. after an API call updates badge counts):
 _nav.replaceSections(updatedSections);
 
-// Hamburger / rail toggle in the app bar:
-IconButton(
-  icon: const Icon(Icons.view_sidebar_outlined),
-  onPressed: _nav.toggleCollapsed,
-);
+// Collapse toggle in an AppBar:
+NavigationSidebarAppBar(
+  controller: _nav,
+  mode: NavSidebarMode.expanded,
+  showCollapseToggle: true,
+)
+// Or manually:
+IconButton(icon: const Icon(Icons.view_sidebar_outlined), onPressed: _nav.toggleCollapsed);
 ```
 
 ---
 
-## 4 · Custom theme + RTL + branded colours
+## 5 · Localization — Arabic RTL
+
+```dart
+Directionality(
+  textDirection: TextDirection.rtl,
+  child: NavigationSidebar<String>(
+    controller: nav,
+    mode: NavSidebarMode.expanded,
+    localizations: NavigationSidebarLocalizations.arabic,
+  ),
+)
+
+// AppBar also localizes its semantic labels:
+NavigationSidebarAppBar(
+  controller: nav,
+  mode: NavSidebarMode.drawer,
+  localizations: NavigationSidebarLocalizations.arabic,
+)
+```
+
+---
+
+## 6 · Custom localization (partial override)
+
+```dart
+// Only override the strings you need — the rest stay English:
+const myL10n = NavigationSidebarLocalizations(
+  searchHint: 'Buscar navegación…',
+  searchEmpty: 'Sin resultados para «{query}»',
+  quickAccessTitle: 'Acceso Rápido',
+  addToQuickAccess: 'Agregar a Acceso Rápido',
+  removeFromQuickAccess: 'Quitar de Acceso Rápido',
+  lockedDefault: 'Acceso restringido',
+);
+
+NavigationSidebar<String>(
+  controller: nav,
+  mode: mode,
+  localizations: myL10n,
+  searchable: true,
+  favoritable: true,
+)
+```
+
+---
+
+## 7 · Permission-gated + status-dotted nodes (ERP)
+
+```dart
+// Locked node — dimmed, lock glyph, navigation refused, onNavigate never fires:
+NavNode(id: 'wire', label: 'Wire / SWIFT', icon: Icons.bolt_outlined, value: 'wire',
+        locked: true, lockMessage: 'Requires Treasury Approver role');
+
+// Disabled node — shown but not clickable, onNavigate never fires:
+NavNode(id: 'beta', label: 'Beta Feature', value: 'beta', enabled: false);
+
+// Status dot — purely informational, does not block navigation:
+NavNode(id: 'fy25q3', label: 'FY2025 · Q3', value: 'fy25q3',
+        status: NavNodeStatus.open);      // green
+NavNode(id: 'fy25q2', label: 'FY2025 · Q2', value: 'fy25q2',
+        status: NavNodeStatus.closed);    // grey
+NavNode(id: 'fy25q1', label: 'FY2025 · Q1', value: 'fy25q1',
+        status: NavNodeStatus.locked);    // red
+NavNode(id: 'recon',  label: 'Reconciliation', value: 'recon',
+        status: NavNodeStatus.attention); // amber
+
+// onNavigate is only called when navigation succeeds:
+NavigationSidebar<String>(
+  controller: nav,
+  mode: mode,
+  onNavigate: (node) {
+    // Safe — this is NEVER called for locked or disabled nodes.
+    setState(() => _screen = node.value!);
+  },
+)
+```
+
+---
+
+## 8 · Deep immutability + duplicate ID validation
+
+```dart
+// Children and items are unmodifiable after construction.
+// External mutation throws UnsupportedError:
+final node = NavNode(id: 'parent', label: 'Parent', children: [
+  NavNode(id: 'child', label: 'Child'),
+]);
+node.children.add(NavNode(id: 'x', label: 'X')); // throws!
+
+// Debug-build duplicate ID assertion fires automatically in the controller.
+// For explicit validation in tests or before constructing the controller:
+final dups = NavOps.findDuplicateIds<String>(mySections);
+assert(dups.isEmpty, 'Duplicate nav ids: $dups');
+
+// IMPORTANT: constructors are no longer const (1.2+).
+// Replace:  const NavNode(...)   with:  NavNode(...)
+// Replace:  const NavSection(...)  with:  NavSection(...)
+```
+
+---
+
+## 9 · Custom theme + RTL + branded colours
 
 ```dart
 // Warm sidebar — every copyWith field explained:
 final warmTheme = NavigationSidebarThemeData.light.copyWith(
-  bg:           const Color(0xFFF7F3EE), // page backdrop — parchment
-  surface:      const Color(0xFFFFFFFF), // sidebar panel
-  inputBg:      const Color(0xFFEEE9E2), // boxed-icon fill / chip bg
-  hover:        const Color(0xFFEAE4DB), // row hover tint
-  border:       const Color(0xFFDDD7CE), // hairline
-  borderStrong: const Color(0xFFBBB4A8), // flyout edge
-  guide:        const Color(0xFFCEC8C0), // │ ├ └ connectors
-  fg1:          const Color(0xFF1A1714), // active label
-  fg2:          const Color(0xFF3D3830), // row label
-  fg3:          const Color(0xFF7A7268), // icons / group labels
-  fg4:          const Color(0xFFBBB4A8), // section eyebrows
+  bg:           const Color(0xFFF7F3EE),
+  surface:      const Color(0xFFFFFFFF),
+  inputBg:      const Color(0xFFEEE9E2),
+  hover:        const Color(0xFFEAE4DB),
+  border:       const Color(0xFFDDD7CE),
+  borderStrong: const Color(0xFFBBB4A8),
+  guide:        const Color(0xFFCEC8C0),
+  fg1:          const Color(0xFF1A1714),
+  fg2:          const Color(0xFF3D3830),
+  fg3:          const Color(0xFF7A7268),
+  fg4:          const Color(0xFFBBB4A8),
 );
 
-// Apply via Theme override:
 Theme(
   data: Theme.of(context).copyWith(extensions: [warmTheme]),
-  child: Directionality(             // RTL wraps the whole sidebar
+  child: Directionality(
     textDirection: TextDirection.rtl,
     child: NavigationSidebar<String>(
       controller: nav,
       mode: NavSidebarMode.expanded,
       showGuides: true,
-      railFlyouts: false,            // disable flyouts in warm brand
+      localizations: NavigationSidebarLocalizations.arabic,
     ),
   ),
 )
+```
+
+---
+
+## 10 · Quick Access favorites
+
+```dart
+// Pre-seed favorites in the controller:
+NavigationSidebarController<String>(
+  sections: sections,
+  active: 'dashboard',
+  favorites: {'journalEntry', 'trialBalance', 'approvals'},
+);
+
+// Enable the UI (star toggles + Quick Access band at top):
+NavigationSidebar<String>(
+  controller: nav,
+  mode: mode,
+  favoritable: true,
+  quickAccessTitle: 'Quick Access', // or via localizations
+);
+
+// Persist favorites by listening and saving the id set:
+nav.addListener(() {
+  prefs.setStringList('favorites', nav.favorites.toList());
+});
+
+// Restore on startup:
+nav.setFavorites(prefs.getStringList('favorites') ?? []);
 ```

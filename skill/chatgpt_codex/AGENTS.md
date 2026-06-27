@@ -10,7 +10,7 @@ package.
 
 ```
 name:    super_navigation_sidebar
-version: 1.0.0
+version: 1.2.1
 import:  package:super_navigation_sidebar/super_navigation_sidebar.dart
 ```
 
@@ -29,7 +29,7 @@ Apply this skill when the user asks for:
 
 ```yaml
 dependencies:
-  super_navigation_sidebar: ^1.0.0
+  super_navigation_sidebar: ^1.2.1
 ```
 
 ### 2 · Register the theme extension
@@ -74,14 +74,14 @@ MaterialApp(
 
 ### `NavigationSidebarController<T>` key methods
 
-| Method | Effect |
-|---|---|
-| `navigate(id)` | Set active + open ancestors + close drawer. |
-| `toggleCollapsed()` | expanded ↔ rail. |
-| `openDrawer()` / `closeDrawer()` | Drawer state. |
-| `expandAll()` / `collapseAll()` | Bulk expansion. |
-| `replaceSections(s)` | Hot-swap section forest. |
-| `of<T>(context)` | Scope accessor from page content (may be null). |
+| Method | Returns | Effect |
+|---|---|---|
+| `navigate(id)` | `bool` | Set active + open ancestors + close drawer. `false` if locked/disabled/missing. |
+| `toggleCollapsed()` | `void` | expanded ↔ rail. |
+| `openDrawer()` / `closeDrawer()` | `void` | Drawer state. |
+| `expandAll()` / `collapseAll()` | `void` | Bulk expansion. |
+| `replaceSections(s)` | `void` | Hot-swap section forest (validates duplicates in debug). |
+| `of<T>(context)` | `controller?` | Scope accessor from page content (may be null). |
 
 ### `NavigationSidebar<T>` key props
 
@@ -97,13 +97,34 @@ MaterialApp(
 | `favoritable` | `false` | Per-row star + synthesized Quick Access band. |
 | `header` | `null` | `(ctx, collapsed) → Widget` slot. |
 | `footer` | `null` | `(ctx, collapsed) → Widget` slot. |
-| `onNavigate` | `null` | Called alongside `controller.navigate`. |
+| `localizations` | English | `NavigationSidebarLocalizations` — all UI strings. |
+| `onNavigate` | `null` | Called **only when navigation succeeds** (never for locked/disabled nodes). |
+
+---
+
+## New in 1.2
+
+- **`NavigationSidebarAppBar`** — connected `PreferredSizeWidget` with hamburger
+  (drawer mode) / collapse toggle (desktop). Slots: `pageTitle`, `globalSearch`,
+  `middle`, `actions`, custom `builder`.
+- **`NavBreadcrumb<T>`** — reads ancestor path from the controller live.
+- **`NavigationSidebarSearchField`** — compact field driving `controller.setQuery`.
+- **`NavigationSidebarLocalizations`** — all user-facing strings in one class.
+  Arabic preset: `NavigationSidebarLocalizations.arabic`.
+- **Deep immutability** — `NavNode.children` and `NavSection.items` are
+  `List.unmodifiable` after construction.
+- **Duplicate ID validation** — debug assertion in the controller constructor.
+  Programmatic: `NavOps.findDuplicateIds<T>(sections)`.
+- **Navigation safety** — `navigate()` returns `bool`; `onNavigate` only fires
+  on `true`.
+- **⚠ Breaking:** `NavNode` / `NavSection` constructors are no longer `const`.
+  Remove `const` keyword from call sites.
 
 ---
 
 ## Patterns
 
-### Pattern A — Responsive shell
+### Pattern A — Responsive shell with AppBar
 
 ```dart
 LayoutBuilder(builder: (context, c) {
@@ -113,11 +134,27 @@ LayoutBuilder(builder: (context, c) {
 
   if (mode == NavSidebarMode.drawer) {
     return Scaffold(
-      appBar: AppBar(leading: IconButton(icon: const Icon(Icons.menu), onPressed: nav.openDrawer)),
+      appBar: NavigationSidebarAppBar(
+        controller: nav,
+        mode: NavSidebarMode.drawer,
+        pageTitle: NavBreadcrumb<String>(controller: nav),
+      ),
       body: Stack(children: [Positioned.fill(child: page), Positioned.fill(child: sidebar)]),
     );
   }
-  return Row(children: [sidebar, Expanded(child: page)]);
+  return Row(children: [
+    sidebar,
+    Expanded(child: Column(children: [
+      NavigationSidebarAppBar(
+        controller: nav,
+        mode: mode,
+        showCollapseToggle: true,
+        pageTitle: NavBreadcrumb<String>(controller: nav),
+        globalSearch: NavigationSidebarSearchField(controller: nav),
+      ),
+      Expanded(child: page),
+    ])),
+  ]);
 })
 ```
 
@@ -136,10 +173,24 @@ _nav.replaceSections(updatedSections);
 
 ---
 
-## RTL
+## Pattern B — Localization (Arabic)
 
 ```dart
-Directionality(textDirection: TextDirection.rtl, child: NavigationSidebar(...))
+Directionality(
+  textDirection: TextDirection.rtl,
+  child: NavigationSidebar<String>(
+    controller: nav,
+    mode: mode,
+    localizations: NavigationSidebarLocalizations.arabic,
+  ),
+)
+```
+
+## Pattern C — Deep-link from page content
+
+```dart
+final ok = NavigationSidebarController.of<String>(context)?.navigate('journals');
+// ok == false means the node was locked or disabled — safe to check.
 ```
 
 ---
@@ -151,3 +202,5 @@ Directionality(textDirection: TextDirection.rtl, child: NavigationSidebar(...))
 - Using `value` as the nav key — `navigate()` uses `id`; `value` is your payload.
 - Placing the drawer in a `Row` instead of a `Stack + Positioned.fill`.
 - Forgetting `ThemeData(extensions: [NavigationSidebarThemeData.light])`.
+- Using `const NavNode(…)` or `const NavSection(…)` — constructors are non-const since 1.2.
+- Expecting `onNavigate` to fire for locked/disabled nodes — it never does.

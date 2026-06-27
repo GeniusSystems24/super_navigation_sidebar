@@ -13,9 +13,24 @@
 // set (auto-opening the active node's ancestors), the collapsed (rail) flag,
 // the mobile-drawer open flag, and an optional search query for the filter.
 //
+// NAVIGATION SAFETY
+// -----------------
+// navigate() now returns a bool indicating whether navigation was actually
+// applied. It returns false (and is a no-op) for locked or disabled nodes.
+// The sidebar's onNavigate callback is only fired when navigate() returns true,
+// so host apps never receive callbacks for gated destinations.
+//
+// DUPLICATE ID VALIDATION
+// -----------------------
+// In debug builds the controller asserts that every NavNode.id is unique
+// across the entire tree. A duplicate triggers an assertion failure with a
+// clear message listing the offending ids. Call NavOps.findDuplicateIds() for
+// a programmatic check in tests or host-side validation.
+//
 //   File: lib/src/controller.dart
 // ============================================================
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'models.dart';
 
@@ -35,6 +50,10 @@ class NavigationSidebarController<T> extends ChangeNotifier {
         _collapsed = collapsed,
         _drawerOpen = drawerOpen,
         _autoExpandActive = autoExpandActive {
+    assert(
+      _debugAssertNoDuplicates(_sections),
+      // Message is produced inside _debugAssertNoDuplicates via assert().
+    );
     if (_autoExpandActive && active != null) {
       _expanded.addAll(NavOps.ancestorsOf<T>(_sections, active));
     }
@@ -63,7 +82,8 @@ class NavigationSidebarController<T> extends ChangeNotifier {
   /// Whether [id] is on the path to the active node (used to accent-tint an
   /// ancestor module/group even while the leaf itself is the active row).
   bool ownsActive(NavNodeId id) =>
-      _active != null && NavOps.ancestorsOf<T>(_sections, _active!).contains(id);
+      _active != null &&
+      NavOps.ancestorsOf<T>(_sections, _active!).contains(id);
 
   NavNode<T>? node(NavNodeId id) => NavOps.find<T>(_sections, id);
 
@@ -98,12 +118,20 @@ class NavigationSidebarController<T> extends ChangeNotifier {
   }
 
   // ── navigation ─────────────────────────────────────────────
-  /// Make [id] the active destination. Auto-opens its ancestor modules and
-  /// closes the mobile drawer (so a drawer tap navigates *and* dismisses).
-  /// Refuses disabled and [NavNode.locked] (permission-gated) nodes.
-  void navigate(NavNodeId id) {
+  /// Make [id] the active destination and return `true`.
+  ///
+  /// Returns `false` without changing state when:
+  /// - [id] does not exist in the tree.
+  /// - The node has [NavNode.enabled] == `false`.
+  /// - The node has [NavNode.locked] == `true` (permission-gated).
+  ///
+  /// Auto-opens ancestor modules and closes the mobile drawer on success.
+  ///
+  /// [NavigationSidebar.onNavigate] is only called when this returns `true`,
+  /// ensuring locked and disabled nodes can never trigger host navigation.
+  bool navigate(NavNodeId id) {
     final n = node(id);
-    if (n == null || !n.enabled || n.locked) return;
+    if (n == null || !n.enabled || n.locked) return false;
     var changed = false;
     if (_active != id) {
       _active = id;
@@ -119,6 +147,7 @@ class NavigationSidebarController<T> extends ChangeNotifier {
       changed = true;
     }
     if (changed) notifyListeners();
+    return true;
   }
 
   // ── expansion ──────────────────────────────────────────────
@@ -200,15 +229,43 @@ class NavigationSidebarController<T> extends ChangeNotifier {
 
   // ── host-driven reload ─────────────────────────────────────
   /// Replace the whole section forest (e.g. permissions changed).
+  ///
+  /// Validates for duplicate ids in debug builds. Clears [active] if the
+  /// previously active node no longer exists in the new tree.
   void replaceSections(List<NavSection<T>> sections) {
+    assert(_debugAssertNoDuplicates(sections));
     _sections = List.unmodifiable(sections);
     if (_active != null && node(_active!) == null) _active = null;
     notifyListeners();
   }
 
+  // ── duplicate-id debug validation ─────────────────────────
+  /// Asserts that [sections] contains no duplicate [NavNodeId]s.
+  ///
+  /// Called automatically in the constructor and [replaceSections] in debug
+  /// builds. The assert short-circuits in release builds (zero cost).
+  ///
+  /// Use [NavOps.findDuplicateIds] for a programmatic check in tests.
+  static bool _debugAssertNoDuplicates<T>(List<NavSection<T>> sections) {
+    assert(() {
+      final dups = NavOps.findDuplicateIds<T>(sections);
+      assert(
+        dups.isEmpty,
+        'NavigationSidebarController: duplicate NavNode IDs detected: '
+        '[${dups.join(', ')}]. Every NavNode.id must be unique across the '
+        'entire navigation tree. Duplicate IDs cause undefined navigation '
+        'behaviour — the controller cannot reliably resolve expansion, '
+        'active state or ancestor paths when multiple nodes share an id.',
+      );
+      return true;
+    }());
+    return true;
+  }
+
   // ── InheritedNotifier access ───────────────────────────────
   static NavigationSidebarController<T>? of<T>(BuildContext context) {
-    final scope = context.dependOnInheritedWidgetOfExactType<NavigationSidebarScope<T>>();
+    final scope =
+        context.dependOnInheritedWidgetOfExactType<NavigationSidebarScope<T>>();
     return scope?.controller;
   }
 }
@@ -216,7 +273,8 @@ class NavigationSidebarController<T> extends ChangeNotifier {
 /// Exposes a [NavigationSidebarController] to the subtree so any descendant
 /// (a page, a custom header/footer) can read/drive the sidebar and rebuild
 /// when it changes.
-class NavigationSidebarScope<T> extends InheritedNotifier<NavigationSidebarController<T>> {
+class NavigationSidebarScope<T>
+    extends InheritedNotifier<NavigationSidebarController<T>> {
   const NavigationSidebarScope({
     super.key,
     required NavigationSidebarController<T> controller,

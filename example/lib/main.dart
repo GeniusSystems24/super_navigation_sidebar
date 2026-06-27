@@ -11,6 +11,7 @@ import 'example_01_responsive_shell.dart';
 import 'example_02_admin_dashboard.dart';
 import 'example_03_theme_rtl.dart';
 import 'example_04_erp_banking.dart';
+import 'example_05_appbar_integration.dart';
 import 'navigation_sidebar_demo.dart';
 
 void main() => runApp(const ExampleApp());
@@ -106,6 +107,16 @@ class LauncherScreen extends StatelessWidget {
         preview: const _SidebarThumb(
             mode: _Mode.expanded, activeIndex: 2, badges: true, erp: true),
         screen: const ErpBankingExample(),
+      ),
+      _Demo(
+        title: 'AppBar integration',
+        subtitle:
+            'NavigationSidebarAppBar connected to the same controller — '
+            'breadcrumb, global search, collapse toggle, workspace switcher, '
+            'notifications and user avatar. Toggle between drawer and desktop layouts.',
+        badge: 'appbar · breadcrumb · search',
+        preview: const _SidebarThumb(mode: _Mode.expanded, activeIndex: 0),
+        screen: const AppBarIntegrationExample(),
       ),
       _Demo(
         title: 'Full component workbench',
@@ -272,7 +283,7 @@ class _DemoCardState extends State<_DemoCard> {
                     ? NavigationSidebarThemeData.accent.withOpacity(0.55)
                     : s.border),
             borderRadius:
-                BorderRadius.circular(NavigationSidebarThemeData.radiusXl),
+                BorderRadius.circular(s.radiusXl),
             boxShadow: _h ? NavigationSidebarThemeData.popShadow : null,
           ),
           clipBehavior: Clip.antiAlias,
@@ -736,7 +747,7 @@ class _VersionPill extends StatelessWidget {
         border: Border.all(
             color: NavigationSidebarThemeData.accent.withOpacity(0.35)),
       ),
-      child: const Text('v1.0.0',
+      child: const Text('v1.2.1',
           style: TextStyle(
               fontFamily: NavigationSidebarThemeData.monoFont,
               fontSize: 10.5,
@@ -788,7 +799,7 @@ class _ThemeToggle extends StatelessWidget {
             color: s.surface,
             border: Border.all(color: s.borderStrong),
             borderRadius:
-                BorderRadius.circular(NavigationSidebarThemeData.radiusMd),
+                BorderRadius.circular(s.radiusMd),
           ),
           child: Row(children: [
             Icon(dark ? Icons.dark_mode_outlined : Icons.light_mode_outlined,

@@ -295,7 +295,7 @@ class _Page extends StatelessWidget {
             color: s.surface,
             border: Border.all(color: s.border),
             borderRadius:
-                BorderRadius.circular(NavigationSidebarThemeData.radiusLg),
+                BorderRadius.circular(s.radiusLg),
           ),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text('Try the ERP capabilities',
