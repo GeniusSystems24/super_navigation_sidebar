@@ -80,6 +80,18 @@ class NavigationSidebarAppBar extends StatelessWidget
   /// providing a custom widget.
   final Widget? leading;
 
+  // ── back button ───────────────────────────────────────
+  /// Show a back button in the leading-most position — before the pane toggle,
+  /// in the top-left corner — mirroring NavigationView's back button.
+  ///
+  /// The button is enabled only while [NavigationSidebarController.canGoBack]
+  /// is `true` (bind that to your router's can-pop state, à la
+  /// `IsBackEnabled`). Tapping it while enabled calls [onBack].
+  final bool showBackButton;
+
+  /// Called when an enabled back button is tapped.
+  final VoidCallback? onBack;
+
   // ── content slots ──────────────────────────────────────────
   /// Main heading — typically a [Text] with the app or screen name.
   final Widget? title;
@@ -148,6 +160,8 @@ class NavigationSidebarAppBar extends StatelessWidget
     required this.controller,
     required this.mode,
     this.leading,
+    this.showBackButton = false,
+    this.onBack,
     this.title,
     this.pageTitle,
     this.actions,
@@ -211,6 +225,17 @@ class NavigationSidebarAppBar extends StatelessWidget
   ) {
     return Row(
       children: [
+        // ── back button ───────────────────────────────────────
+        if (showBackButton) ...[
+          _BackButton(
+            controller: controller,
+            theme: t,
+            localizations: localizations,
+            onBack: onBack,
+          ),
+          const SizedBox(width: 4),
+        ],
+
         // ── leading ───────────────────────────────────────────
         _leading(context, t, collapsed),
 
@@ -341,11 +366,13 @@ class _AppBarIconButton extends StatefulWidget {
   final IconData icon;
   final NavigationSidebarThemeData theme;
   final VoidCallback onTap;
+  final bool enabled;
 
   const _AppBarIconButton({
     required this.icon,
     required this.theme,
     required this.onTap,
+    this.enabled = true,
   });
 
   @override
@@ -358,12 +385,15 @@ class _AppBarIconButtonState extends State<_AppBarIconButton> {
   @override
   Widget build(BuildContext context) {
     final t = widget.theme;
+    final enabled = widget.enabled;
     return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _hover = true),
-      onExit: (_) => setState(() => _hover = false),
+      cursor: enabled
+          ? SystemMouseCursors.click
+          : SystemMouseCursors.basic,
+      onEnter: enabled ? (_) => setState(() => _hover = true) : null,
+      onExit: enabled ? (_) => setState(() => _hover = false) : null,
       child: GestureDetector(
-        onTap: widget.onTap,
+        onTap: enabled ? widget.onTap : null,
         behavior: HitTestBehavior.opaque,
         child: AnimatedContainer(
           duration: NavigationSidebarThemeData.durFast,
@@ -371,12 +401,46 @@ class _AppBarIconButtonState extends State<_AppBarIconButton> {
           height: t.toolbarButtonSize,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: _hover ? t.hover : Colors.transparent,
+            color: enabled && _hover ? t.hover : Colors.transparent,
             borderRadius:
                 BorderRadius.circular(t.radiusMd),
           ),
-          child: Icon(widget.icon, size: t.toolbarIconSize, color: t.fg2),
+          child: Icon(widget.icon,
+              size: t.toolbarIconSize,
+              color: enabled ? t.fg2 : t.fg4),
         ),
+      ),
+    );
+  }
+}
+
+// ── Back button (enabled from controller.canGoBack) ───────────────
+class _BackButton extends StatelessWidget {
+  final NavigationSidebarController controller;
+  final NavigationSidebarThemeData theme;
+  final NavigationSidebarLocalizations localizations;
+  final VoidCallback? onBack;
+
+  const _BackButton({
+    required this.controller,
+    required this.theme,
+    required this.localizations,
+    required this.onBack,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final enabled = controller.canGoBack;
+    final rtl = Directionality.of(context) == TextDirection.rtl;
+    return Semantics(
+      button: true,
+      enabled: enabled,
+      label: localizations.semanticBack,
+      child: _AppBarIconButton(
+        icon: rtl ? Icons.arrow_forward : Icons.arrow_back,
+        theme: theme,
+        enabled: enabled,
+        onTap: () => onBack?.call(),
       ),
     );
   }

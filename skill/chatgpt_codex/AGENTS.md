@@ -10,7 +10,7 @@ package.
 
 ```
 name:    super_navigation_sidebar
-version: 1.2.1
+version: 1.2.0
 import:  package:super_navigation_sidebar/super_navigation_sidebar.dart
 ```
 
@@ -29,7 +29,7 @@ Apply this skill when the user asks for:
 
 ```yaml
 dependencies:
-  super_navigation_sidebar: ^1.2.1
+  super_navigation_sidebar: ^1.2.0
 ```
 
 ### 2 · Register the theme extension

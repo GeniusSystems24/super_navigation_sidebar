@@ -7,9 +7,11 @@
 //   NavigationSidebar · NavigationSidebarController ·
 //   NavigationSidebarScope · NavigationSidebarThemeData ·
 //   NavigationSidebarLocalizations · NavigationSidebarAppBar ·
-//   NavBreadcrumb · NavigationSidebarSearchField ·
+//   NavigationShell · NavBreadcrumb · NavigationSidebarSearchField ·
 //   NavSection · NavNode · NavBadge · NavBadgeTone · NavNodeRole ·
 //   NavNodeId · NavNodeStatus · NavSidebarMode · NavSidebarBreakpoints ·
+//   NavSectionPlacement · NavShellHeaderLayout · NavPaneBehavior ·
+//   NavSelectionIndicator · NavShellSlotBuilder ·
 //   NavOps · NavSidebarSlotBuilder · NavShortcutMode
 
 export 'src/models.dart';
@@ -18,3 +20,4 @@ export 'src/localizations.dart';
 export 'src/controller.dart';
 export 'src/sidebar.dart';
 export 'src/appbar.dart';
+export 'src/shell.dart';

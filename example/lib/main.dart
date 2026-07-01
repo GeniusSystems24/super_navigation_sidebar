@@ -12,6 +12,7 @@ import 'example_02_admin_dashboard.dart';
 import 'example_03_theme_rtl.dart';
 import 'example_04_erp_banking.dart';
 import 'example_05_appbar_integration.dart';
+import 'example_06_navigation_shell.dart';
 import 'navigation_sidebar_demo.dart';
 
 void main() => runApp(const ExampleApp());
@@ -93,8 +94,8 @@ class LauncherScreen extends StatelessWidget {
             'Three themes (Dark / Light / Warm) built with copyWith, an LTR/RTL '
             'toggle, plus showGuides and railFlyouts switches.',
         badge: 'theming · RTL',
-        preview:
-            const _SidebarThumb(mode: _Mode.expanded, activeIndex: 0, warm: true),
+        preview: const _SidebarThumb(
+            mode: _Mode.expanded, activeIndex: 0, warm: true),
         screen: const ThemeRtlExample(),
       ),
       _Demo(
@@ -110,13 +111,23 @@ class LauncherScreen extends StatelessWidget {
       ),
       _Demo(
         title: 'AppBar integration',
-        subtitle:
-            'NavigationSidebarAppBar connected to the same controller — '
+        subtitle: 'NavigationSidebarAppBar connected to the same controller — '
             'breadcrumb, global search, collapse toggle, workspace switcher, '
             'notifications and user avatar. Toggle between drawer and desktop layouts.',
         badge: 'appbar · breadcrumb · search',
         preview: const _SidebarThumb(mode: _Mode.expanded, activeIndex: 0),
         screen: const AppBarIntegrationExample(),
+      ),
+      _Demo(
+        title: 'Integrated NavigationShell',
+        subtitle:
+            'The 2.0 shell composes app bar + pane + content in one widget. '
+            'Live toggles for header layout (spanning · inset), pane behavior '
+            '(push · overlay), Fluent bar indicator, a working back button and '
+            'pinned footer nav items.',
+        badge: 'shell · back · overlay · footer',
+        preview: const _SidebarThumb(mode: _Mode.expanded, activeIndex: 1),
+        screen: const NavigationShellExample(),
       ),
       _Demo(
         title: 'Full component workbench',
@@ -282,8 +293,7 @@ class _DemoCardState extends State<_DemoCard> {
                 color: _h
                     ? NavigationSidebarThemeData.accent.withOpacity(0.55)
                     : s.border),
-            borderRadius:
-                BorderRadius.circular(s.radiusXl),
+            borderRadius: BorderRadius.circular(s.radiusXl),
             boxShadow: _h ? NavigationSidebarThemeData.popShadow : null,
           ),
           clipBehavior: Clip.antiAlias,
@@ -336,9 +346,8 @@ class _DemoCardState extends State<_DemoCard> {
                       ),
                       Icon(Icons.arrow_outward,
                           size: 16,
-                          color: _h
-                              ? NavigationSidebarThemeData.accent
-                              : s.fg3),
+                          color:
+                              _h ? NavigationSidebarThemeData.accent : s.fg3),
                     ]),
                     const SizedBox(height: 6),
                     Text(widget.demo.subtitle,
@@ -409,10 +418,16 @@ class _SidebarThumb extends StatelessWidget {
           ]
         : <(IconData, String, NavBadgeTone?)>[
             (Icons.dashboard_outlined, 'Dashboard', null),
-            (Icons.menu_book_outlined, 'Accounts',
-                badges ? NavBadgeTone.success : null),
-            (Icons.receipt_long_outlined, 'Journals',
-                badges ? NavBadgeTone.danger : null),
+            (
+              Icons.menu_book_outlined,
+              'Accounts',
+              badges ? NavBadgeTone.success : null
+            ),
+            (
+              Icons.receipt_long_outlined,
+              'Journals',
+              badges ? NavBadgeTone.danger : null
+            ),
             (Icons.storefront_outlined, 'Inventory', null),
             (Icons.settings_outlined, 'Settings', null),
           ];
@@ -446,9 +461,7 @@ class _SidebarThumb extends StatelessWidget {
         decoration: BoxDecoration(
           color: active ? accent.withOpacity(0.16) : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
-          border: active
-              ? Border.all(color: accent.withOpacity(0.5))
-              : null,
+          border: active ? Border.all(color: accent.withOpacity(0.5)) : null,
         ),
         child: Stack(clipBehavior: Clip.none, children: [
           Icon(icon, size: 15, color: active ? accent : s.fg3),
@@ -514,8 +527,7 @@ class _SidebarThumb extends StatelessWidget {
                       : toneColor(tone).withOpacity(0.18),
                   borderRadius: BorderRadius.circular(999),
                 ),
-                child: Text(
-                    tone == NavBadgeTone.success ? 'Live' : '9+',
+                child: Text(tone == NavBadgeTone.success ? 'Live' : '9+',
                     style: TextStyle(
                         fontFamily: NavigationSidebarThemeData.monoFont,
                         fontSize: 7,
@@ -525,9 +537,10 @@ class _SidebarThumb extends StatelessWidget {
             if (star)
               Icon(Icons.star_rounded,
                   size: 11,
-                  color: active ? Colors.white : NavigationSidebarThemeData.accent),
-            if (locked)
-              Icon(Icons.lock_outline, size: 10, color: s.fg3),
+                  color: active
+                      ? Colors.white
+                      : NavigationSidebarThemeData.accent),
+            if (locked) Icon(Icons.lock_outline, size: 10, color: s.fg3),
           ]),
         ),
       );
@@ -543,8 +556,8 @@ class _SidebarThumb extends StatelessWidget {
             color: s.surface,
             border: Border(right: BorderSide(color: s.border)),
           ),
-          padding: EdgeInsets.symmetric(
-              horizontal: isRail ? 9 : 10, vertical: 10),
+          padding:
+              EdgeInsets.symmetric(horizontal: isRail ? 9 : 10, vertical: 10),
           child: Column(
             crossAxisAlignment:
                 isRail ? CrossAxisAlignment.center : CrossAxisAlignment.start,
@@ -556,8 +569,7 @@ class _SidebarThumb extends StatelessWidget {
                   height: 26,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                      color: accent,
-                      borderRadius: BorderRadius.circular(7)),
+                      color: accent, borderRadius: BorderRadius.circular(7)),
                   child: const Text('GL',
                       style: TextStyle(
                           fontFamily: NavigationSidebarThemeData.displayFont,
@@ -572,12 +584,10 @@ class _SidebarThumb extends StatelessWidget {
                     height: 22,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                        color: accent,
-                        borderRadius: BorderRadius.circular(6)),
+                        color: accent, borderRadius: BorderRadius.circular(6)),
                     child: const Text('GL',
                         style: TextStyle(
-                            fontFamily:
-                                NavigationSidebarThemeData.displayFont,
+                            fontFamily: NavigationSidebarThemeData.displayFont,
                             fontSize: 8,
                             fontWeight: FontWeight.w800,
                             color: Colors.white)),
@@ -585,8 +595,7 @@ class _SidebarThumb extends StatelessWidget {
                   const SizedBox(width: 7),
                   Text('GeniusLink',
                       style: TextStyle(
-                          fontFamily:
-                              NavigationSidebarThemeData.displayFont,
+                          fontFamily: NavigationSidebarThemeData.displayFont,
                           fontSize: 11,
                           fontWeight: FontWeight.w800,
                           color: s.fg1)),
@@ -647,8 +656,7 @@ class _SidebarThumb extends StatelessWidget {
                     const SizedBox(width: 6),
                     Text('Need help?',
                         style: TextStyle(
-                            fontFamily:
-                                NavigationSidebarThemeData.bodyFont,
+                            fontFamily: NavigationSidebarThemeData.bodyFont,
                             fontSize: 9,
                             fontWeight: FontWeight.w600,
                             color: s.fg2)),
@@ -747,7 +755,7 @@ class _VersionPill extends StatelessWidget {
         border: Border.all(
             color: NavigationSidebarThemeData.accent.withOpacity(0.35)),
       ),
-      child: const Text('v1.2.1',
+      child: const Text('v2.0.0',
           style: TextStyle(
               fontFamily: NavigationSidebarThemeData.monoFont,
               fontSize: 10.5,
@@ -798,8 +806,7 @@ class _ThemeToggle extends StatelessWidget {
           decoration: BoxDecoration(
             color: s.surface,
             border: Border.all(color: s.borderStrong),
-            borderRadius:
-                BorderRadius.circular(s.radiusMd),
+            borderRadius: BorderRadius.circular(s.radiusMd),
           ),
           child: Row(children: [
             Icon(dark ? Icons.dark_mode_outlined : Icons.light_mode_outlined,

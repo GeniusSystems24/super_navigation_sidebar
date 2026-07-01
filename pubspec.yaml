@@ -3,9 +3,12 @@ description: >
   A themeable, responsive app navigation sidebar for Flutter. Three modes —
   expanded tree with connectors, icon-only rail with hover flyouts, and
   off-canvas drawer with scrim. Typed NavNode<T> tree, badges, shortcuts,
-  header/footer slots, RTL, localization, accessibility, AppBar integration.
+  header/footer slots, RTL, localization, accessibility, AppBar integration,
+  and an integrated NavigationShell (app bar + pane + content).
   Zero third-party dependencies.
-version: 1.2.1
+
+version: 2.0.0
+
 homepage: https://github.com/GeniusSystems24/super_navigation_sidebar
 repository: https://github.com/GeniusSystems24/super_navigation_sidebar
 issue_tracker: https://github.com/GeniusSystems24/super_navigation_sidebar/issues

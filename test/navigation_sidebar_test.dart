@@ -197,7 +197,8 @@ void main() {
     });
 
     test('copyWith re-wraps children as unmodifiable', () {
-      final original = NavNode(id: 'p', label: 'Parent', children: [
+      final original =
+          NavNode(id: 'p', label: 'Parent', children: [
         NavNode(id: 'c1', label: 'C1'),
       ]);
       final copy = original.copyWith(
@@ -219,7 +220,8 @@ void main() {
       expect(section.items.length, 1);
 
       mutableItems.add(NavNode(id: 'b', label: 'B'));
-      expect(section.items.length, 1, reason: 'items should be unmodifiable');
+      expect(section.items.length, 1,
+          reason: 'items should be unmodifiable');
 
       expect(
         () => (section.items as List).add(NavNode(id: 'x', label: 'X')),
@@ -291,8 +293,7 @@ void main() {
       expect(nav.active, 'journalEntry');
     });
 
-    test('navigate() returns false and does not change active for locked node',
-        () {
+    test('navigate() returns false and does not change active for locked node', () {
       final before = nav.active;
       final result = nav.navigate('wire');
       expect(result, isFalse);
@@ -404,7 +405,8 @@ void main() {
       nav.setFavorites(['journalEntry', 'dashboard']);
       final nodes = nav.favoriteNodes;
       // dashboard appears before journalEntry in the tree
-      expect(nodes.map((n) => n.id).toList(), ['dashboard', 'journalEntry']);
+      expect(nodes.map((n) => n.id).toList(),
+          ['dashboard', 'journalEntry']);
     });
 
     test('favorites set is unmodifiable', () {
@@ -491,7 +493,7 @@ void main() {
 
     test('clears active when it no longer exists', () {
       nav.replaceSections([
-        NavSection<String>(title: 'New', items: [
+        NavSection(title: 'New', items: [
           NavNode(id: 'newNode', label: 'New Node'),
         ]),
       ]);
@@ -610,11 +612,13 @@ void main() {
 
       expect(navigated, isNull,
           reason: 'locked node must never trigger onNavigate');
-      expect(nav.active, 'dashboard', reason: 'active must not change');
+      expect(nav.active, 'dashboard',
+          reason: 'active must not change');
       nav.dispose();
     });
 
-    testWidgets('onNavigate does NOT fire for a disabled node', (tester) async {
+    testWidgets('onNavigate does NOT fire for a disabled node',
+        (tester) async {
       final nav = NavigationSidebarController<String>(
         sections: _basicSections(),
         active: 'dashboard',
@@ -800,7 +804,8 @@ void main() {
     expect(nav.drawerOpen, isFalse);
 
     await tester.pumpWidget(MaterialApp(
-      theme: ThemeData(extensions: const [NavigationSidebarThemeData.dark]),
+      theme: ThemeData(
+          extensions: const [NavigationSidebarThemeData.dark]),
       home: Scaffold(
         appBar: NavigationSidebarAppBar(
           controller: nav,
@@ -829,7 +834,8 @@ void main() {
     expect(nav.collapsed, isFalse);
 
     await tester.pumpWidget(MaterialApp(
-      theme: ThemeData(extensions: const [NavigationSidebarThemeData.dark]),
+      theme: ThemeData(
+          extensions: const [NavigationSidebarThemeData.dark]),
       home: Scaffold(
         appBar: NavigationSidebarAppBar(
           controller: nav,
@@ -869,7 +875,8 @@ void main() {
     );
 
     await tester.pumpWidget(MaterialApp(
-      theme: ThemeData(extensions: const [NavigationSidebarThemeData.dark]),
+      theme: ThemeData(
+          extensions: const [NavigationSidebarThemeData.dark]),
       home: Scaffold(
         body: NavBreadcrumb<String>(controller: nav),
       ),
@@ -897,7 +904,8 @@ void main() {
     });
 
     test('ancestorsOf returns correct path', () {
-      final ancestors = NavOps.ancestorsOf<String>(sections, 'journalEntry');
+      final ancestors =
+          NavOps.ancestorsOf<String>(sections, 'journalEntry');
       expect(ancestors, containsAll(['financeHub', 'ledgerGroup']));
     });
 
@@ -920,5 +928,241 @@ void main() {
       final leaves = NavOps.leafIds<String>(finance);
       expect(leaves, containsAll(['journalEntry', 'wire']));
     });
+  });
+
+  // ══════════════════════════════════════════════════════════
+  // 21. NavigationSidebarController.canGoBack (2.0)
+  // ══════════════════════════════════════════════════════════
+  group('NavigationSidebarController.canGoBack', () {
+    late NavigationSidebarController<String> nav;
+    setUp(() =>
+        nav = NavigationSidebarController<String>(sections: _basicSections()));
+    tearDown(() => nav.dispose());
+
+    test('defaults to false', () {
+      expect(nav.canGoBack, isFalse);
+    });
+
+    test('setter updates and notifies once', () {
+      int calls = 0;
+      nav.addListener(() => calls++);
+      nav.canGoBack = true;
+      expect(nav.canGoBack, isTrue);
+      expect(calls, 1);
+      nav.canGoBack = true; // unchanged
+      expect(calls, 1);
+    });
+
+    test('seeded via constructor', () {
+      final n = NavigationSidebarController<String>(
+          sections: _basicSections(), canGoBack: true);
+      expect(n.canGoBack, isTrue);
+      n.dispose();
+    });
+  });
+
+  // ══════════════════════════════════════════════════════════
+  // 22. NavSection placement (2.0)
+  // ══════════════════════════════════════════════════════════
+  group('NavSection placement', () {
+    test('defaults to body', () {
+      final s =
+          NavSection(title: 'X', items: [NavNode(id: 'a', label: 'A')]);
+      expect(s.placement, NavSectionPlacement.body);
+    });
+
+    test('footer placement is retained', () {
+      final s = NavSection(
+        title: 'F',
+        placement: NavSectionPlacement.footer,
+        items: [NavNode(id: 'set2', label: 'Settings')],
+      );
+      expect(s.placement, NavSectionPlacement.footer);
+    });
+  });
+
+  testWidgets('footer section renders a pinned nav item that navigates',
+      (tester) async {
+    final sections = [
+      NavSection(title: 'Main', items: [
+        NavNode(id: 'home', label: 'Home', icon: Icons.home, value: 'home'),
+      ]),
+      NavSection(
+        title: '',
+        placement: NavSectionPlacement.footer,
+        items: [
+          NavNode(
+              id: 'settingsFooter',
+              label: 'Settings',
+              icon: Icons.settings,
+              value: 'settingsFooter'),
+        ],
+      ),
+    ];
+    final nav = NavigationSidebarController<String>(
+        sections: sections, active: 'home');
+    NavNode<String>? navigated;
+
+    await tester.pumpWidget(_wrap(
+      Row(children: [
+        NavigationSidebar<String>(
+          controller: nav,
+          mode: NavSidebarMode.expanded,
+          onNavigate: (n) => navigated = n,
+        ),
+        const Expanded(child: SizedBox()),
+      ]),
+    ));
+
+    expect(find.text('Settings'), findsOneWidget);
+    await tester.tap(find.text('Settings'));
+    await tester.pump();
+    expect(navigated?.id, 'settingsFooter');
+    nav.dispose();
+  });
+
+  // ══════════════════════════════════════════════════════════
+  // 23. AppBar back button (2.0)
+  // ══════════════════════════════════════════════════════════
+  group('NavigationSidebarAppBar back button', () {
+    testWidgets('hidden unless showBackButton', (tester) async {
+      final nav =
+          NavigationSidebarController<String>(sections: _basicSections());
+      await tester.pumpWidget(MaterialApp(
+        theme: ThemeData(
+            extensions: const [NavigationSidebarThemeData.dark]),
+        home: Scaffold(
+          appBar: NavigationSidebarAppBar(
+              controller: nav, mode: NavSidebarMode.expanded),
+          body: const SizedBox(),
+        ),
+      ));
+      expect(find.byIcon(Icons.arrow_back), findsNothing);
+      nav.dispose();
+    });
+
+    testWidgets('enabled tap fires onBack when canGoBack', (tester) async {
+      final nav = NavigationSidebarController<String>(
+          sections: _basicSections(), canGoBack: true);
+      var backs = 0;
+      await tester.pumpWidget(MaterialApp(
+        theme: ThemeData(
+            extensions: const [NavigationSidebarThemeData.dark]),
+        home: Scaffold(
+          appBar: NavigationSidebarAppBar(
+            controller: nav,
+            mode: NavSidebarMode.expanded,
+            showBackButton: true,
+            onBack: () => backs++,
+          ),
+          body: const SizedBox(),
+        ),
+      ));
+      expect(find.byIcon(Icons.arrow_back), findsOneWidget);
+      await tester.tap(find.byIcon(Icons.arrow_back));
+      await tester.pump();
+      expect(backs, 1);
+      nav.dispose();
+    });
+
+    testWidgets('disabled does not fire onBack when !canGoBack',
+        (tester) async {
+      final nav =
+          NavigationSidebarController<String>(sections: _basicSections());
+      var backs = 0;
+      await tester.pumpWidget(MaterialApp(
+        theme: ThemeData(
+            extensions: const [NavigationSidebarThemeData.dark]),
+        home: Scaffold(
+          appBar: NavigationSidebarAppBar(
+            controller: nav,
+            mode: NavSidebarMode.expanded,
+            showBackButton: true,
+            onBack: () => backs++,
+          ),
+          body: const SizedBox(),
+        ),
+      ));
+      await tester.tap(find.byIcon(Icons.arrow_back), warnIfMissed: false);
+      await tester.pump();
+      expect(backs, 0);
+      nav.dispose();
+    });
+  });
+
+  // ══════════════════════════════════════════════════════════
+  // 24. NavigationShell (2.0)
+  // ══════════════════════════════════════════════════════════
+  group('NavigationShell', () {
+    testWidgets('spanning layout renders app bar, pane and body',
+        (tester) async {
+      final nav = NavigationSidebarController<String>(
+          sections: _basicSections(), active: 'dashboard');
+      await tester.pumpWidget(MaterialApp(
+        theme: ThemeData(
+            extensions: const [NavigationSidebarThemeData.dark]),
+        home: NavigationShell<String>(
+          controller: nav,
+          mode: NavSidebarMode.expanded,
+          appBarBuilder: (ctx, mode) => NavigationSidebarAppBar(
+              controller: nav, mode: mode, title: const Text('Shell App')),
+          sidebarBuilder: (ctx, mode) =>
+              NavigationSidebar<String>(controller: nav, mode: mode),
+          body: const Text('BODY CONTENT'),
+        ),
+      ));
+      await tester.pumpAndSettle();
+      expect(find.text('Shell App'), findsOneWidget);
+      expect(find.text('BODY CONTENT'), findsOneWidget);
+      expect(find.text('Dashboard'), findsWidgets);
+      nav.dispose();
+    });
+
+    testWidgets('drawer mode wires the hamburger to openDrawer',
+        (tester) async {
+      final nav =
+          NavigationSidebarController<String>(sections: _basicSections());
+      await tester.pumpWidget(MaterialApp(
+        theme: ThemeData(
+            extensions: const [NavigationSidebarThemeData.dark]),
+        home: NavigationShell<String>(
+          controller: nav,
+          mode: NavSidebarMode.drawer,
+          appBarBuilder: (ctx, mode) =>
+              NavigationSidebarAppBar(controller: nav, mode: mode),
+          sidebarBuilder: (ctx, mode) =>
+              NavigationSidebar<String>(controller: nav, mode: mode),
+          body: const Text('BODY'),
+        ),
+      ));
+      await tester.pumpAndSettle();
+      expect(find.text('BODY'), findsOneWidget);
+      expect(find.byIcon(Icons.menu_rounded), findsOneWidget);
+      await tester.tap(find.byIcon(Icons.menu_rounded));
+      await tester.pump();
+      expect(nav.drawerOpen, isTrue);
+      nav.dispose();
+    });
+  });
+
+  testWidgets('bar selection indicator renders without error',
+      (tester) async {
+    final nav = NavigationSidebarController<String>(
+        sections: _basicSections(), active: 'dashboard');
+    await tester.pumpWidget(MaterialApp(
+      theme: ThemeData(extensions: [
+        NavigationSidebarThemeData.dark
+            .copyWith(selectionIndicator: NavSelectionIndicator.bar),
+      ]),
+      home: Scaffold(
+        body: Row(children: [
+          NavigationSidebar<String>(
+              controller: nav, mode: NavSidebarMode.expanded),
+          const Expanded(child: SizedBox()),
+        ]),
+      ),
+    ));
+    expect(tester.takeException(), isNull);
+    nav.dispose();
   });
 }

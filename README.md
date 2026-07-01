@@ -1,6 +1,6 @@
 # super_navigation_sidebar
 
-[![pub package](https://img.shields.io/badge/pub-v1.2.1-4A7CFF.svg)](https://pub.dev/packages/super_navigation_sidebar)
+[![pub package](https://img.shields.io/badge/pub-v2.0.0-4A7CFF.svg)](https://pub.dev/packages/super_navigation_sidebar)
 [![flutter](https://img.shields.io/badge/Flutter-%E2%89%A53.10-1DB88A.svg)](https://flutter.dev)
 [![style](https://img.shields.io/badge/style-MVC-F97316.svg)](#architecture)
 [![license](https://img.shields.io/badge/license-MIT-64748B.svg)](#license)
@@ -27,6 +27,18 @@ localization, accessibility, RTL. Zero third-party dependencies.
   toggle. Slots: `title`, `pageTitle`, `globalSearch`, `middle`, `actions`,
   custom `builder`. `NavBreadcrumb<T>` and `NavigationSidebarSearchField` are
   ready-made slot widgets.
+- 🧱 **Integrated `NavigationShell`** — one widget composes the app bar, pane
+  and content in the Microsoft NavigationView arrangement: full-width spanning
+  header or inset, push or overlay pane behavior, adaptive by width, and correct
+  content margins — no hand-wired Row/Column/Stack.
+- ⬅️ **Back button** — `NavigationSidebarAppBar.showBackButton` + `onBack`,
+  enabled from `controller.canGoBack` (à la `IsBackEnabled`), in the top-left
+  corner mirroring RTL.
+- 📌 **Footer nav items** — `NavSection.placement: NavSectionPlacement.footer`
+  pins Settings / Help to the pane bottom, sharing the one selection model
+  (NavigationView's `FooterMenuItems`).
+- 🎯 **Fluent selection indicator** — `selectionIndicator: NavSelectionIndicator.bar`
+  swaps the fill for a leading accent pill in the tree **and** the rail.
 - 🌳 **Typed `NavNode<T>` tree** — each node carries a strongly-typed `value`
   (route, screen enum, …); `node.value` reads with no casting.
 - 🎭 **Role derived from position** — depth-0 leaf = *direct*; depth-0 branch
@@ -68,7 +80,7 @@ localization, accessibility, RTL. Zero third-party dependencies.
 
 ```yaml
 dependencies:
-  super_navigation_sidebar: ^1.2.1
+  super_navigation_sidebar: ^2.0.0
 ```
 
 ```bash
@@ -187,6 +199,99 @@ class _AppShellState extends State<AppShell> {
   @override
   void dispose() { _nav.dispose(); super.dispose(); }
 }
+```
+
+---
+
+## Integrated shell (`NavigationShell`)
+
+`NavigationShell<T>` composes the app bar, the navigation pane and the page
+content in the Microsoft NavigationView arrangement — so you stop hand-wiring
+`Row` / `Column` / `Stack` and getting the alignment subtly wrong. The bar's
+leading zone (back button + pane toggle) lines up directly over the pane.
+
+```
+┌────────────────────────────────────┐
+│  App bar  (full width)              │   spanning: back + toggle
+├──────────┬────────────────────────┤   sit over the pane
+│  Pane    │  Content (padded)        │
+└──────────┴────────────────────────┘
+```
+
+```dart
+NavigationShell<String>(
+  controller: _nav,
+  headerLayout: NavShellHeaderLayout.spanning, // or .inset
+  paneBehavior: NavPaneBehavior.push,          // or .overlay
+  appBarBuilder: (ctx, mode) => NavigationSidebarAppBar(
+    controller: _nav,
+    mode: mode,
+    showBackButton: true,
+    onBack: _goBack,
+    pageTitle: NavBreadcrumb<String>(controller: _nav),
+    globalSearch: NavigationSidebarSearchField(controller: _nav),
+    actions: [NotificationBell(), UserAvatar()],
+  ),
+  sidebarBuilder: (ctx, mode) => NavigationSidebar<String>(
+    controller: _nav,
+    mode: mode,
+    onNavigate: (n) => setState(() => _screen = n.value!),
+  ),
+  body: PageFor(screen: _screen),
+)
+```
+
+| Property | Type | Description |
+|---|---|---|
+| `controller` | `NavigationSidebarController<T>` | **Required.** Shared by bar + pane. |
+| `sidebarBuilder` | `NavShellSlotBuilder` | **Required.** Builds the pane for the resolved mode. |
+| `body` | `Widget` | **Required.** Page content. |
+| `appBarBuilder` | `NavShellSlotBuilder?` | Builds the app bar; omit for none. |
+| `mode` | `NavSidebarMode?` | Force a mode; `null` = adaptive from width. |
+| `breakpoints` | `NavSidebarBreakpoints` | Width thresholds when adaptive. |
+| `headerLayout` | `NavShellHeaderLayout` | `spanning` (default) or `inset`. |
+| `paneBehavior` | `NavPaneBehavior` | `push` (default) or `overlay`. |
+| `contentPadding` | `EdgeInsetsGeometry?` | Content margins (24 / 12 px default). |
+
+> **Overlay tip:** with `paneBehavior: NavPaneBehavior.overlay`, construct the
+> controller with `collapsed: true` so the pane starts closed and opens as a
+> flyout over the content.
+
+### Back button
+
+```dart
+// Bind can-pop to the controller (à la NavigationView IsBackEnabled):
+_nav.canGoBack = router.canPop();
+
+NavigationSidebarAppBar(
+  controller: _nav, mode: mode,
+  showBackButton: true,
+  onBack: () => router.pop(),
+)
+```
+
+### Footer navigation items
+
+```dart
+NavSection(
+  title: '',
+  placement: NavSectionPlacement.footer, // pinned to the pane bottom
+  items: [
+    NavNode(id: 'help', label: 'Help', icon: Icons.help_outline, value: 'help'),
+    NavNode(id: 'settings', label: 'Settings',
+            icon: Icons.settings_outlined, value: 'settings'),
+  ],
+)
+```
+
+### Fluent selection indicator
+
+```dart
+ThemeData(extensions: [
+  NavigationSidebarThemeData.dark.copyWith(
+    selectionIndicator: NavSelectionIndicator.bar, // leading accent pill
+  ),
+]);
 ```
 
 ---
@@ -524,8 +629,9 @@ lib/
     ├── sidebar.dart         NavigationSidebar<T> widget
     │                        _NavRow · _RailItem · _RailFlyout · _FlyoutRow
     │                        _NavBadgeChip · _ShortcutHint · _StarButton
-    └── appbar.dart          NavigationSidebarAppBar · NavBreadcrumb<T>
-                             NavigationSidebarSearchField
+    ├── appbar.dart          NavigationSidebarAppBar · NavBreadcrumb<T>
+    │                        NavigationSidebarSearchField
+    └── shell.dart           NavigationShell<T> · NavShellSlotBuilder
 ```
 
 **MVC:** immutable `NavNode<T>` models → `NavigationSidebarController<T>`

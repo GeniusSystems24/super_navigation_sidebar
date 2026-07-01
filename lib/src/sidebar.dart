@@ -71,6 +71,12 @@ class NavigationSidebar<T> extends StatefulWidget {
   final bool showGuides;
   final bool railFlyouts;
 
+  /// Show a pane-toggle (collapse ↔ expand) button pinned to the top of the
+  /// pane — the NavigationView "menu button" placement. Off by default; enable
+  /// it when the pane is used without a [NavigationSidebarAppBar] that already
+  /// carries the toggle (e.g. an inset-header [NavigationShell]).
+  final bool showPaneToggle;
+
   /// How keyboard-shortcut hints appear on expanded-tree rows.
   ///
   /// **Note:** [NavNode.shortcut] values are visual hints only. The sidebar
@@ -118,6 +124,7 @@ class NavigationSidebar<T> extends StatefulWidget {
     this.drawerTitle,
     this.showGuides = true,
     this.railFlyouts = true,
+    this.showPaneToggle = false,
     this.shortcutMode = NavShortcutMode.onHover,
     this.searchable = false,
     this.searchHint,
@@ -204,6 +211,113 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
       widget.mode == NavSidebarMode.rail ||
       (widget.mode != NavSidebarMode.drawer && _controller.collapsed);
 
+  /// Sections that flow in the scrollable pane body.
+  List<NavSection<T>> get _bodySections => [
+        for (final s in _controller.sections)
+          if (s.placement == NavSectionPlacement.body) s
+      ];
+
+  /// Sections pinned to the bottom of the pane (e.g. Settings / Help).
+  List<NavSection<T>> get _footerSections => [
+        for (final s in _controller.sections)
+          if (s.placement == NavSectionPlacement.footer) s
+      ];
+
+  // Pane toggle (top-of-pane menu button).
+  Widget _paneToggleRow(NavigationSidebarThemeData t, bool railed) {
+    return Padding(
+      padding: const EdgeInsetsDirectional.only(bottom: 2),
+      child: Align(
+        alignment:
+            railed ? Alignment.center : AlignmentDirectional.centerStart,
+        child: Semantics(
+          button: true,
+          label: _l10n.semanticToggleSidebar,
+          child: Tooltip(
+            message: _l10n.semanticToggleSidebar,
+            waitDuration: const Duration(milliseconds: 450),
+            child: MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: _controller.toggleCollapsed,
+                child: Container(
+                  width: 36,
+                  height: 36,
+                  alignment: Alignment.center,
+                  child: Icon(
+                    railed ? Icons.menu_rounded : Icons.menu_open_rounded,
+                    size: 20,
+                    color: t.fg2,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Pinned footer sections (expanded).
+  Widget _expandedFooter(
+      NavigationSidebarThemeData t, List<NavSection<T>> footers) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(12, 8, 12, 6),
+          child: Divider(height: 1, color: t.border),
+        ),
+        for (final sec in footers) ...[
+          if (sec.title.trim().isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 4, 12, 6),
+              child: Text(
+                sec.title.toUpperCase(),
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 10,
+                  letterSpacing: 1.4,
+                  color: t.fg4,
+                ),
+              ),
+            ),
+          for (final node in sec.items) _treeNode(t, node, 0, null),
+        ],
+      ],
+    );
+  }
+
+  // Pinned footer sections (rail).
+  Widget _railFooter(
+      NavigationSidebarThemeData t, List<NavSection<T>> footers) {
+    return Column(
+      children: [
+        Container(
+          width: 26,
+          height: 1,
+          margin: const EdgeInsets.symmetric(vertical: 5),
+          color: t.border,
+        ),
+        for (final sec in footers)
+          for (final node in sec.items)
+            _RailItem<T>(
+              key: ValueKey('rail-footer-${node.id}'),
+              node: node,
+              active: node.hasChildren
+                  ? _controller.ownsActive(node.id)
+                  : _controller.isActive(node.id),
+              activeId: _controller.active,
+              flyouts: widget.railFlyouts,
+              rtl: _rtl,
+              localizations: _l10n,
+              onNavigate: _go,
+            ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return NavigationSidebarScope<T>(
@@ -278,11 +392,16 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
 
   Widget _panelContents(NavigationSidebarThemeData t,
       {required bool railed, required bool drawer}) {
+    final footers = _footerSections;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          if (widget.showPaneToggle && !drawer) ...[
+            _paneToggleRow(t, railed),
+            const SizedBox(height: 4),
+          ],
           if (drawer) ...[
             _drawerHeader(t),
             const SizedBox(height: 2),
@@ -302,6 +421,8 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
           Expanded(
             child: railed ? _railNav(t) : _expandedNav(t),
           ),
+          if (footers.isNotEmpty)
+            railed ? _railFooter(t, footers) : _expandedFooter(t, footers),
           if (widget.footer != null) ...[
             const SizedBox(height: 12),
             widget.footer!(context, railed),
@@ -386,7 +507,7 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (showQuickAccess) _quickAccess(t),
-            for (final sec in _controller.sections) ...[
+            for (final sec in _bodySections) ...[
               Padding(
                 padding: const EdgeInsets.fromLTRB(12, 12, 12, 6),
                 child: Text(
@@ -575,7 +696,7 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
         primary: false,
         child: Column(
           children: [
-            for (var si = 0; si < _controller.sections.length; si++) ...[
+            for (var si = 0; si < _bodySections.length; si++) ...[
               if (si > 0)
                 Container(
                   width: 26,
@@ -583,7 +704,7 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
                   margin: const EdgeInsets.symmetric(vertical: 5),
                   color: t.border,
                 ),
-              for (final node in _controller.sections[si].items)
+              for (final node in _bodySections[si].items)
                 _RailItem<T>(
                   key: ValueKey('rail-${node.id}'),
                   node: node,
@@ -715,11 +836,15 @@ class _NavRowState<T> extends State<_NavRow<T>> {
             ? t.radiusLg
             : t.radiusMd;
 
+    final barStyle = t.selectionIndicator == NavSelectionIndicator.bar;
+    final bool isLeafRow =
+        widget.role == NavNodeRole.direct || widget.role == NavNodeRole.item;
+    final bool showBar = barStyle && widget.active && isLeafRow;
     Color bg = Colors.transparent;
-    if (widget.role == NavNodeRole.direct && widget.active) {
+    if (widget.role == NavNodeRole.direct && widget.active && !barStyle) {
       bg = NavigationSidebarThemeData.accent;
-    } else if (widget.role == NavNodeRole.item && widget.active) {
-      bg = t.accentFill(0.10);
+    } else if (widget.active && isLeafRow) {
+      bg = t.accentFill(barStyle ? 0.14 : 0.10);
     } else if (_hover) {
       bg = t.hover;
     }
@@ -766,16 +891,34 @@ class _NavRowState<T> extends State<_NavRow<T>> {
             child: _withTooltip(
               Opacity(
                 opacity: widget.node.locked ? 0.55 : 1.0,
-                child: AnimatedContainer(
-                  duration: NavigationSidebarThemeData.durFast,
-                  height: h,
-                  padding:
-                      EdgeInsetsDirectional.only(start: pad, end: 10),
-                  decoration: BoxDecoration(
-                    color: bg,
-                    borderRadius: BorderRadius.circular(radius),
-                  ),
-                  child: content,
+                child: Stack(
+                  children: [
+                    AnimatedContainer(
+                      duration: NavigationSidebarThemeData.durFast,
+                      height: h,
+                      padding:
+                          EdgeInsetsDirectional.only(start: pad, end: 10),
+                      decoration: BoxDecoration(
+                        color: bg,
+                        borderRadius: BorderRadius.circular(radius),
+                      ),
+                      child: content,
+                    ),
+                    if (showBar)
+                      PositionedDirectional(
+                        start: 0,
+                        top: t.indicatorInset,
+                        bottom: t.indicatorInset,
+                        child: Container(
+                          width: t.indicatorThickness,
+                          decoration: BoxDecoration(
+                            color: NavigationSidebarThemeData.accent,
+                            borderRadius:
+                                BorderRadius.circular(t.indicatorThickness),
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ),
             ),
@@ -876,8 +1019,14 @@ class _NavRowState<T> extends State<_NavRow<T>> {
 
   Widget _moduleOrDirect(NavigationSidebarThemeData t) {
     final isDirect = widget.role == NavNodeRole.direct;
+    final barStyle = t.selectionIndicator == NavSelectionIndicator.bar;
+    final fillActive = isDirect && widget.active && !barStyle;
     final Color tint = isDirect
-        ? (widget.active ? Colors.white : t.fg2)
+        ? (fillActive
+            ? Colors.white
+            : (widget.active
+                ? NavigationSidebarThemeData.accent
+                : t.fg2))
         : (widget.ownsActive ? NavigationSidebarThemeData.accent : t.fg2);
     final bold = widget.active || widget.ownsActive;
     final moduleDot =
@@ -904,8 +1053,8 @@ class _NavRowState<T> extends State<_NavRow<T>> {
           const SizedBox(width: 6),
           _NavBadgeChip(badge: widget.node.badge!),
         ],
-        _shortcutInline(onAccent: isDirect && widget.active),
-        if (isDirect) _trailing(t, onAccent: widget.active),
+        _shortcutInline(onAccent: fillActive),
+        if (isDirect) _trailing(t, onAccent: fillActive),
         if (moduleDot) ...[
           const SizedBox(width: 6),
           Container(
@@ -1116,10 +1265,11 @@ class _RailItemState<T> extends State<_RailItem<T>> {
     final isInteractive =
         widget.node.enabled && !widget.node.locked;
 
+    final barStyle = t.selectionIndicator == NavSelectionIndicator.bar;
     Color bg = Colors.transparent;
     Color fg = t.fg2;
     if (widget.active) {
-      if (isModule) {
+      if (isModule || barStyle) {
         bg = t.accentFill(0.12);
         fg = NavigationSidebarThemeData.accent;
       } else {
@@ -1186,6 +1336,20 @@ class _RailItemState<T> extends State<_RailItem<T>> {
                           size: t.railIconSize,
                           color: fg),
                     ),
+                    if (barStyle && widget.active && !isModule)
+                      PositionedDirectional(
+                        start: 0,
+                        top: t.railButton * 0.28,
+                        bottom: t.railButton * 0.28,
+                        child: Container(
+                          width: t.indicatorThickness,
+                          decoration: BoxDecoration(
+                            color: NavigationSidebarThemeData.accent,
+                            borderRadius:
+                                BorderRadius.circular(t.indicatorThickness),
+                          ),
+                        ),
+                      ),
                     if (hasBadge)
                       PositionedDirectional(
                         end: 6,

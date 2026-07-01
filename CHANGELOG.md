@@ -6,6 +6,90 @@ versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [2.0.0] — 2026-07-01
+
+The **AppBar ↔ SideBar integration** release. Aligns the package with
+Microsoft's [NavigationView](https://learn.microsoft.com/en-us/windows/apps/design/controls/navigationview)
+guidelines: a single integrated shell, a back button in the top-left corner, a
+top-of-pane menu button, footer navigation items, and the Fluent selection
+indicator. **Additive — no breaking API changes from 1.2.x.**
+
+### Added — `NavigationShell<T>` (integrated app scaffold)
+
+One widget composes the app bar, the navigation pane and the page content in
+the correct NavigationView arrangement, so hosts no longer hand-wire
+`Row` / `Column` / `Stack` (and get the alignment subtly wrong).
+
+- **`headerLayout`** — `NavShellHeaderLayout.spanning` (default) puts a
+  full-width app bar across the top with the pane below it, so the bar's
+  leading zone (back button + pane toggle) lines up directly over the pane —
+  the WinUI Gallery arrangement. `inset` keeps the pane full-height with the
+  bar above the content only.
+- **`paneBehavior`** — `NavPaneBehavior.push` (default) reflows content as the
+  pane widens (Left mode); `overlay` keeps a rail in-flow and floats the full
+  pane over the content with an animated scrim (LeftCompact / LeftMinimal).
+- **Adaptive by width** — resolves `expanded` / `rail` / `drawer` from
+  `NavSidebarBreakpoints`, or force a fixed `mode`. Content gets NavigationView's
+  recommended margins (24 px desktop, 12 px in drawer) via `contentPadding`.
+- `appBarBuilder` / `sidebarBuilder` receive the resolved mode; `body` is the
+  page. Drawer mode wires the hamburger and off-canvas overlay automatically.
+
+### Added — Back button
+
+- **`NavigationSidebarController.canGoBack`** — bind to your router's can-pop
+  state (the analogue of NavigationView's `IsBackEnabled`).
+- **`NavigationSidebarAppBar.showBackButton`** + **`onBack`** — renders a back
+  button in the leading-most position (top-left corner). It is enabled only
+  while `controller.canGoBack` is `true`, mirrors RTL, and calls `onBack` when
+  tapped. `NavigationSidebarLocalizations.semanticBack` labels it.
+
+### Added — Footer navigation items
+
+- **`NavSection.placement`** (`NavSectionPlacement.body` | `footer`) — footer
+  sections pin to the bottom of the pane (e.g. *Settings*, *Help*) while body
+  sections scroll, in both expanded and rail modes. Footer items share the one
+  selection model: they highlight when active and take part in breadcrumbs,
+  search and `navigate()` exactly like any other node. Mirrors
+  NavigationView's `FooterMenuItems`.
+
+### Added — Fluent selection indicator
+
+- **`NavigationSidebarThemeData.selectionIndicator`**
+  (`NavSelectionIndicator.fill` | `bar`). `fill` is the original look
+  (unchanged default). `bar` draws a vertical accent pill on the leading edge
+  of the active leaf over a tinted background — the Fluent NavigationView
+  indicator — in the tree **and** on the rail. Tunable via `indicatorThickness`
+  (3) and `indicatorInset` (9), both lerp-animated.
+
+### Added — Top-of-pane menu button
+
+- **`NavigationSidebar.showPaneToggle`** — renders a collapse ↔ expand button
+  pinned to the top of the pane (the NavigationView "menu button" placement),
+  for panes used without an app bar that already carries the toggle (e.g. an
+  inset-header shell).
+
+### Added — Misc
+
+- **`NavigationSidebarThemeData.headerHeight`** (52) — fixed content-header band
+  height token for shells.
+- New enums exported: `NavSectionPlacement`, `NavShellHeaderLayout`,
+  `NavPaneBehavior`, `NavSelectionIndicator`, and the `NavShellSlotBuilder`
+  typedef.
+- Example **06 · Integrated NavigationShell**
+  (`example_06_navigation_shell.dart`) — live toggles for header layout, pane
+  behavior, selection indicator, a working back-history button and pinned
+  footer items.
+
+### Migration
+
+Nothing required. Every addition is opt-in and existing call sites compile
+unchanged. To adopt the Fluent look set
+`selectionIndicator: NavSelectionIndicator.bar` on your theme extension; to
+adopt the integrated layout, wrap your existing `NavigationSidebarAppBar` +
+`NavigationSidebar` in a `NavigationShell`.
+
+---
+
 ## [1.2.1] — 2026-06-27
 
 ### Added — Theme size customisation

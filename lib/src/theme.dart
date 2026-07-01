@@ -141,6 +141,21 @@ class NavigationSidebarThemeData
   /// geometry). Default: **19**.
   final double gutter;
 
+  // ── SELECTION INDICATOR & HEADER ───────────────────────────
+  /// How the active leaf row is highlighted.
+  /// Default: [NavSelectionIndicator.fill] (unchanged original look).
+  final NavSelectionIndicator selectionIndicator;
+
+  /// Thickness of the [NavSelectionIndicator.bar] pill. Default: **3**.
+  final double indicatorThickness;
+
+  /// Vertical inset of the [NavSelectionIndicator.bar] pill from the top and
+  /// bottom of its row. Default: **9**.
+  final double indicatorInset;
+
+  /// Fixed height of a [NavigationShell] content header band. Default: **52**.
+  final double headerHeight;
+
   // ── constructor ────────────────────────────────────────────
   const NavigationSidebarThemeData({
     // ── colors (required) ────────────────────────────────────
@@ -175,22 +190,26 @@ class NavigationSidebarThemeData
     this.radiusLg = 10,
     this.radiusXl = 12,
     this.gutter = 19,
+    this.selectionIndicator = NavSelectionIndicator.fill,
+    this.indicatorThickness = 3,
+    this.indicatorInset = 9,
+    this.headerHeight = 52,
   });
 
   // ── brand + semantic palette (const — never lerped) ────────
-  static const Color accent = Color(0xFF4A7CFF);
+  static const Color accent  = Color(0xFF4A7CFF);
   static const Color success = Color(0xFF1DB88A);
   static const Color warning = Color(0xFFF97316);
-  static const Color danger = Color(0xFFEF4444);
+  static const Color danger  = Color(0xFFEF4444);
 
   // ── typography ─────────────────────────────────────────────
   static const String displayFont = 'Manrope';
-  static const String bodyFont = 'Inter';
-  static const String monoFont = 'JetBrainsMono';
+  static const String bodyFont    = 'Inter';
+  static const String monoFont    = 'JetBrainsMono';
 
   // ── motion ─────────────────────────────────────────────────
-  static const Duration durFast = Duration(milliseconds: 150);
-  static const Duration durBase = Duration(milliseconds: 240);
+  static const Duration durFast   = Duration(milliseconds: 150);
+  static const Duration durBase   = Duration(milliseconds: 240);
   static const Duration durDrawer = Duration(milliseconds: 280);
   static const Curve curveStandard = Cubic(0.4, 0, 0.2, 1);
 
@@ -220,45 +239,41 @@ class NavigationSidebarThemeData
   /// Row height for [role] — convenience for the view layer.
   double rowHeight(NavNodeRole role) {
     switch (role) {
-      case NavNodeRole.direct:
-        return directHeight;
-      case NavNodeRole.module:
-        return moduleHeight;
-      case NavNodeRole.group:
-        return groupHeight;
-      case NavNodeRole.item:
-        return itemHeight;
+      case NavNodeRole.direct: return directHeight;
+      case NavNodeRole.module: return moduleHeight;
+      case NavNodeRole.group:  return groupHeight;
+      case NavNodeRole.item:   return itemHeight;
     }
   }
 
   // ── presets ────────────────────────────────────────────────
   static const NavigationSidebarThemeData dark = NavigationSidebarThemeData(
-    bg: Color(0xFF111318),
-    surface: Color(0xFF1E2025),
-    inputBg: Color(0xFF33353A),
-    hover: Color(0xFF2F3540),
-    border: Color(0x66434654),
+    bg:           Color(0xFF111318),
+    surface:      Color(0xFF1E2025),
+    inputBg:      Color(0xFF33353A),
+    hover:        Color(0xFF2F3540),
+    border:       Color(0x66434654),
     borderStrong: Color(0xFF434654),
-    guide: Color(0xFF434654),
-    fg1: Color(0xFFE2E2E9),
-    fg2: Color(0xFFC3C6D7),
-    fg3: Color(0xFF8D90A0),
-    fg4: Color(0xFF44474E),
+    guide:        Color(0xFF434654),
+    fg1:          Color(0xFFE2E2E9),
+    fg2:          Color(0xFFC3C6D7),
+    fg3:          Color(0xFF8D90A0),
+    fg4:          Color(0xFF44474E),
     // sizes use their defaults
   );
 
   static const NavigationSidebarThemeData light = NavigationSidebarThemeData(
-    bg: Color(0xFFF7F8FA),
-    surface: Color(0xFFFFFFFF),
-    inputBg: Color(0xFFF1F3F8),
-    hover: Color(0xFFEEF1F7),
-    border: Color(0xFFE2E8F0),
+    bg:           Color(0xFFF7F8FA),
+    surface:      Color(0xFFFFFFFF),
+    inputBg:      Color(0xFFF1F3F8),
+    hover:        Color(0xFFEEF1F7),
+    border:       Color(0xFFE2E8F0),
     borderStrong: Color(0xFFC2C6D6),
-    guide: Color(0xFFC2C6D6),
-    fg1: Color(0xFF0F172A),
-    fg2: Color(0xFF424754),
-    fg3: Color(0xFF64748B),
-    fg4: Color(0xFFC2C6D6),
+    guide:        Color(0xFFC2C6D6),
+    fg1:          Color(0xFF0F172A),
+    fg2:          Color(0xFF424754),
+    fg3:          Color(0xFF64748B),
+    fg4:          Color(0xFFC2C6D6),
     // sizes use their defaults
   );
 
@@ -276,26 +291,26 @@ class NavigationSidebarThemeData
     switch (tone) {
       case NavBadgeTone.accent:
         return (
-          bg: accent.withOpacity(0.16),
-          fg: accent,
+          bg:     accent.withOpacity(0.16),
+          fg:     accent,
           border: accent.withOpacity(0.34),
         );
       case NavBadgeTone.success:
         return (
-          bg: success.withOpacity(0.16),
-          fg: const Color(0xFF2BBE7C),
+          bg:     success.withOpacity(0.16),
+          fg:     const Color(0xFF2BBE7C),
           border: success.withOpacity(0.34),
         );
       case NavBadgeTone.warning:
         return (
-          bg: warning.withOpacity(0.16),
-          fg: const Color(0xFFE0A23B),
+          bg:     warning.withOpacity(0.16),
+          fg:     const Color(0xFFE0A23B),
           border: warning.withOpacity(0.34),
         );
       case NavBadgeTone.danger:
         return (
-          bg: danger.withOpacity(0.16),
-          fg: const Color(0xFFF26464),
+          bg:     danger.withOpacity(0.16),
+          fg:     const Color(0xFFF26464),
           border: danger.withOpacity(0.34),
         );
       case NavBadgeTone.muted:
@@ -306,16 +321,11 @@ class NavigationSidebarThemeData
   /// Resolves a [NavNodeStatus] to its status-dot colour (null = no dot).
   Color? statusColor(NavNodeStatus status) {
     switch (status) {
-      case NavNodeStatus.none:
-        return null;
-      case NavNodeStatus.open:
-        return success;
-      case NavNodeStatus.closed:
-        return fg4;
-      case NavNodeStatus.locked:
-        return danger;
-      case NavNodeStatus.attention:
-        return warning;
+      case NavNodeStatus.none:      return null;
+      case NavNodeStatus.open:      return success;
+      case NavNodeStatus.closed:    return fg4;
+      case NavNodeStatus.locked:    return danger;
+      case NavNodeStatus.attention: return warning;
     }
   }
 
@@ -354,38 +364,46 @@ class NavigationSidebarThemeData
     double? radiusLg,
     double? radiusXl,
     double? gutter,
+    NavSelectionIndicator? selectionIndicator,
+    double? indicatorThickness,
+    double? indicatorInset,
+    double? headerHeight,
   }) =>
       NavigationSidebarThemeData(
-        bg: bg ?? this.bg,
-        surface: surface ?? this.surface,
-        inputBg: inputBg ?? this.inputBg,
-        hover: hover ?? this.hover,
-        border: border ?? this.border,
+        bg:           bg           ?? this.bg,
+        surface:      surface      ?? this.surface,
+        inputBg:      inputBg      ?? this.inputBg,
+        hover:        hover        ?? this.hover,
+        border:       border       ?? this.border,
         borderStrong: borderStrong ?? this.borderStrong,
-        guide: guide ?? this.guide,
-        fg1: fg1 ?? this.fg1,
-        fg2: fg2 ?? this.fg2,
-        fg3: fg3 ?? this.fg3,
-        fg4: fg4 ?? this.fg4,
-        directHeight: directHeight ?? this.directHeight,
-        moduleHeight: moduleHeight ?? this.moduleHeight,
-        groupHeight: groupHeight ?? this.groupHeight,
-        itemHeight: itemHeight ?? this.itemHeight,
-        railButton: railButton ?? this.railButton,
-        railIconSize: railIconSize ?? this.railIconSize,
-        widthExpanded: widthExpanded ?? this.widthExpanded,
-        widthRail: widthRail ?? this.widthRail,
-        widthDrawer: widthDrawer ?? this.widthDrawer,
-        iconTop: iconTop ?? this.iconTop,
-        iconItem: iconItem ?? this.iconItem,
-        itemBox: itemBox ?? this.itemBox,
+        guide:        guide        ?? this.guide,
+        fg1:          fg1          ?? this.fg1,
+        fg2:          fg2          ?? this.fg2,
+        fg3:          fg3          ?? this.fg3,
+        fg4:          fg4          ?? this.fg4,
+        directHeight:      directHeight      ?? this.directHeight,
+        moduleHeight:      moduleHeight      ?? this.moduleHeight,
+        groupHeight:       groupHeight       ?? this.groupHeight,
+        itemHeight:        itemHeight        ?? this.itemHeight,
+        railButton:        railButton        ?? this.railButton,
+        railIconSize:      railIconSize      ?? this.railIconSize,
+        widthExpanded:     widthExpanded     ?? this.widthExpanded,
+        widthRail:         widthRail         ?? this.widthRail,
+        widthDrawer:       widthDrawer       ?? this.widthDrawer,
+        iconTop:           iconTop           ?? this.iconTop,
+        iconItem:          iconItem          ?? this.iconItem,
+        itemBox:           itemBox           ?? this.itemBox,
         toolbarButtonSize: toolbarButtonSize ?? this.toolbarButtonSize,
-        toolbarIconSize: toolbarIconSize ?? this.toolbarIconSize,
-        radiusSm: radiusSm ?? this.radiusSm,
-        radiusMd: radiusMd ?? this.radiusMd,
-        radiusLg: radiusLg ?? this.radiusLg,
-        radiusXl: radiusXl ?? this.radiusXl,
-        gutter: gutter ?? this.gutter,
+        toolbarIconSize:   toolbarIconSize   ?? this.toolbarIconSize,
+        radiusSm:          radiusSm          ?? this.radiusSm,
+        radiusMd:          radiusMd          ?? this.radiusMd,
+        radiusLg:          radiusLg          ?? this.radiusLg,
+        radiusXl:          radiusXl          ?? this.radiusXl,
+        gutter:            gutter            ?? this.gutter,
+        selectionIndicator: selectionIndicator ?? this.selectionIndicator,
+        indicatorThickness: indicatorThickness ?? this.indicatorThickness,
+        indicatorInset:     indicatorInset     ?? this.indicatorInset,
+        headerHeight:       headerHeight       ?? this.headerHeight,
       );
 
   @override
@@ -396,38 +414,43 @@ class NavigationSidebarThemeData
     if (other is! NavigationSidebarThemeData) return this;
     return NavigationSidebarThemeData(
       // colors — smooth interpolation
-      bg: Color.lerp(bg, other.bg, t)!,
-      surface: Color.lerp(surface, other.surface, t)!,
-      inputBg: Color.lerp(inputBg, other.inputBg, t)!,
-      hover: Color.lerp(hover, other.hover, t)!,
-      border: Color.lerp(border, other.border, t)!,
+      bg:           Color.lerp(bg,           other.bg,           t)!,
+      surface:      Color.lerp(surface,      other.surface,      t)!,
+      inputBg:      Color.lerp(inputBg,      other.inputBg,      t)!,
+      hover:        Color.lerp(hover,        other.hover,        t)!,
+      border:       Color.lerp(border,       other.border,       t)!,
       borderStrong: Color.lerp(borderStrong, other.borderStrong, t)!,
-      guide: Color.lerp(guide, other.guide, t)!,
-      fg1: Color.lerp(fg1, other.fg1, t)!,
-      fg2: Color.lerp(fg2, other.fg2, t)!,
-      fg3: Color.lerp(fg3, other.fg3, t)!,
-      fg4: Color.lerp(fg4, other.fg4, t)!,
+      guide:        Color.lerp(guide,        other.guide,        t)!,
+      fg1:          Color.lerp(fg1,          other.fg1,          t)!,
+      fg2:          Color.lerp(fg2,          other.fg2,          t)!,
+      fg3:          Color.lerp(fg3,          other.fg3,          t)!,
+      fg4:          Color.lerp(fg4,          other.fg4,          t)!,
       // sizes — linear interpolation (enables animated theme switches)
-      directHeight: lerpDouble(directHeight, other.directHeight, t)!,
-      moduleHeight: lerpDouble(moduleHeight, other.moduleHeight, t)!,
-      groupHeight: lerpDouble(groupHeight, other.groupHeight, t)!,
-      itemHeight: lerpDouble(itemHeight, other.itemHeight, t)!,
-      railButton: lerpDouble(railButton, other.railButton, t)!,
-      railIconSize: lerpDouble(railIconSize, other.railIconSize, t)!,
-      widthExpanded: lerpDouble(widthExpanded, other.widthExpanded, t)!,
-      widthRail: lerpDouble(widthRail, other.widthRail, t)!,
-      widthDrawer: lerpDouble(widthDrawer, other.widthDrawer, t)!,
-      iconTop: lerpDouble(iconTop, other.iconTop, t)!,
-      iconItem: lerpDouble(iconItem, other.iconItem, t)!,
-      itemBox: lerpDouble(itemBox, other.itemBox, t)!,
-      toolbarButtonSize:
-          lerpDouble(toolbarButtonSize, other.toolbarButtonSize, t)!,
-      toolbarIconSize: lerpDouble(toolbarIconSize, other.toolbarIconSize, t)!,
-      radiusSm: lerpDouble(radiusSm, other.radiusSm, t)!,
-      radiusMd: lerpDouble(radiusMd, other.radiusMd, t)!,
-      radiusLg: lerpDouble(radiusLg, other.radiusLg, t)!,
-      radiusXl: lerpDouble(radiusXl, other.radiusXl, t)!,
-      gutter: lerpDouble(gutter, other.gutter, t)!,
+      directHeight:      lerpDouble(directHeight,      other.directHeight,      t)!,
+      moduleHeight:      lerpDouble(moduleHeight,      other.moduleHeight,      t)!,
+      groupHeight:       lerpDouble(groupHeight,        other.groupHeight,       t)!,
+      itemHeight:        lerpDouble(itemHeight,         other.itemHeight,        t)!,
+      railButton:        lerpDouble(railButton,         other.railButton,        t)!,
+      railIconSize:      lerpDouble(railIconSize,       other.railIconSize,      t)!,
+      widthExpanded:     lerpDouble(widthExpanded,      other.widthExpanded,     t)!,
+      widthRail:         lerpDouble(widthRail,          other.widthRail,         t)!,
+      widthDrawer:       lerpDouble(widthDrawer,        other.widthDrawer,       t)!,
+      iconTop:           lerpDouble(iconTop,            other.iconTop,           t)!,
+      iconItem:          lerpDouble(iconItem,           other.iconItem,          t)!,
+      itemBox:           lerpDouble(itemBox,            other.itemBox,           t)!,
+      toolbarButtonSize: lerpDouble(toolbarButtonSize,  other.toolbarButtonSize, t)!,
+      toolbarIconSize:   lerpDouble(toolbarIconSize,    other.toolbarIconSize,   t)!,
+      radiusSm:          lerpDouble(radiusSm,           other.radiusSm,          t)!,
+      radiusMd:          lerpDouble(radiusMd,           other.radiusMd,          t)!,
+      radiusLg:          lerpDouble(radiusLg,           other.radiusLg,          t)!,
+      radiusXl:          lerpDouble(radiusXl,           other.radiusXl,          t)!,
+      gutter:            lerpDouble(gutter,             other.gutter,            t)!,
+      // enum — snap at the midpoint (cannot be interpolated)
+      selectionIndicator:
+          t < 0.5 ? selectionIndicator : other.selectionIndicator,
+      indicatorThickness: lerpDouble(indicatorThickness, other.indicatorThickness, t)!,
+      indicatorInset:     lerpDouble(indicatorInset,     other.indicatorInset,     t)!,
+      headerHeight:       lerpDouble(headerHeight,       other.headerHeight,       t)!,
     );
   }
 }

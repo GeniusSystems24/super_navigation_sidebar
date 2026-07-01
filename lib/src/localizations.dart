@@ -101,6 +101,9 @@ class NavigationSidebarLocalizations {
   /// Semantic label for the hamburger / open-drawer button in drawer mode.
   final String semanticOpenDrawer;
 
+  /// Semantic label for the back button in [NavigationSidebarAppBar].
+  final String semanticBack;
+
   const NavigationSidebarLocalizations({
     this.searchHint = 'Search navigation…',
     this.searchEmpty = 'No matches for "{query}"',
@@ -118,6 +121,7 @@ class NavigationSidebarLocalizations {
     this.semanticDisabled = 'disabled',
     this.semanticToggleSidebar = 'Toggle sidebar',
     this.semanticOpenDrawer = 'Open navigation',
+    this.semanticBack = 'Back',
   });
 
   // ── Built-in presets ───────────────────────────────────────
@@ -142,6 +146,7 @@ class NavigationSidebarLocalizations {
     semanticDisabled: 'غير متاح',
     semanticToggleSidebar: 'تبديل الشريط الجانبي',
     semanticOpenDrawer: 'فتح القائمة',
+    semanticBack: 'رجوع',
   );
 
   // ── Helpers ────────────────────────────────────────────────
@@ -181,7 +186,8 @@ class NavigationSidebarLocalizations {
           other.semanticLocked == semanticLocked &&
           other.semanticDisabled == semanticDisabled &&
           other.semanticToggleSidebar == semanticToggleSidebar &&
-          other.semanticOpenDrawer == semanticOpenDrawer;
+          other.semanticOpenDrawer == semanticOpenDrawer &&
+          other.semanticBack == semanticBack;
 
   @override
   int get hashCode => Object.hash(
@@ -190,5 +196,6 @@ class NavigationSidebarLocalizations {
         lockedDefault, shortcutPrefix, shortcutSeparator,
         semanticExpanded, semanticCollapsed, semanticLocked,
         semanticDisabled, semanticToggleSidebar, semanticOpenDrawer,
+        semanticBack,
       );
 }

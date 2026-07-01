@@ -239,9 +239,18 @@ class NavSection<T> {
   /// Top-level nodes in this section. Always an unmodifiable list.
   final List<NavNode<T>> items;
 
+  /// Whether this band flows in the pane body or is pinned to the footer.
+  ///
+  /// Footer sections (e.g. *Settings*, *Help*) stay pinned to the bottom of
+  /// the pane while body sections scroll. Both share one selection model.
+  final NavSectionPlacement placement;
+
   /// Creates a nav section whose [items] list is deeply immutable.
-  NavSection({required this.title, required List<NavNode<T>> items})
-      : items = List.unmodifiable(items);
+  NavSection({
+    required this.title,
+    required List<NavNode<T>> items,
+    this.placement = NavSectionPlacement.body,
+  }) : items = List.unmodifiable(items);
 }
 
 /// How the sidebar is currently presented. The view can derive this from the
@@ -255,6 +264,57 @@ enum NavSidebarMode {
 
   /// Off-canvas drawer slid over the content (small screens), with a scrim.
   drawer,
+}
+
+/// Where a [NavSection] is laid out within the pane.
+///
+/// Mirrors Microsoft NavigationView's split between `MenuItems` (top of pane)
+/// and `FooterMenuItems` (pinned to the bottom — e.g. *Settings*, *Account*,
+/// *Help*). Footer sections share the same selection model as body sections:
+/// a footer destination highlights when active and participates in
+/// breadcrumbs, search and `navigate()` exactly like any other node.
+enum NavSectionPlacement {
+  /// Default — flows in the scrollable body of the pane, top-down.
+  body,
+
+  /// Pinned to the bottom of the pane, above the free-form `footer` slot.
+  footer,
+}
+
+/// Where a [NavigationShell] places its app bar relative to the pane.
+enum NavShellHeaderLayout {
+  /// The app bar spans the full width across the very top; the pane sits below
+  /// it on the leading side. The back button and pane toggle in the bar's
+  /// leading zone line up directly over the pane — the Microsoft
+  /// NavigationView + TitleBar arrangement used by the WinUI Gallery.
+  spanning,
+
+  /// The pane occupies the full height on the leading side; the app bar is
+  /// inset above the content only, to the side of the pane.
+  inset,
+}
+
+/// How an expanded pane affects the content when it opens in a
+/// [NavigationShell].
+enum NavPaneBehavior {
+  /// The pane widens in-flow and pushes the content aside — Microsoft's
+  /// *Left* display mode. Content reflows to the narrower width.
+  push,
+
+  /// A rail is always shown in-flow; opening the pane floats the full-width
+  /// panel over the content with a scrim, leaving the content layout
+  /// untouched — Microsoft's *LeftCompact* / *LeftMinimal* display modes.
+  overlay,
+}
+
+/// Visual treatment of the active-row selection indicator.
+enum NavSelectionIndicator {
+  /// The whole leaf row fills with the accent colour (the original look).
+  fill,
+
+  /// A vertical accent pill is drawn on the row's leading edge over a subtle
+  /// tinted background — the Fluent NavigationView selection indicator.
+  bar,
 }
 
 /// Width thresholds that map an available width to a [NavSidebarMode] — the
