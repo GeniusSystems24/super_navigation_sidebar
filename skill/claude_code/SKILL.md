@@ -2,10 +2,11 @@
 name: super-navigation-sidebar
 description: >
   How to use the super_navigation_sidebar Flutter package — a themeable,
-  responsive app navigation sidebar with expanded / rail / drawer modes, typed
-  NavNode<T> tree, badges, shortcuts, AppBar integration, localization,
-  accessibility, deep immutability. Use when building or modifying a Flutter
-  app's left-nav.
+  responsive app navigation sidebar with expanded / rail / drawer modes, a typed
+  NavNode<T> tree, badges, shortcut hints, NavigationShell + AppBar integration,
+  footer sections, Fluent selection indicator, back button, localization,
+  accessibility, RTL and deep immutability. Use when building or modifying a
+  Flutter app's left-nav.
 ---
 
 # super_navigation_sidebar · NavigationSidebar
@@ -14,7 +15,11 @@ A themeable, responsive **app navigation sidebar**. One data model (titled
 **sections** of a **node tree**) renders in three modes the host picks from
 the available width: a full **expanded** labelled tree with `│ ├ └`
 connectors, an icon-only **rail** whose modules open hover flyouts, and an
-off-canvas **drawer** with a scrim.
+off-canvas **drawer** with a scrim. Zero third-party dependencies.
+
+> **Live preview:** open [`docs/preview.html`](../../docs/preview.html) — a
+> faithful browser recreation whose controls toggle every feature (modes,
+> themes, selection indicator, RTL, search, favorites, footer, back button).
 
 ## Import & theme
 
@@ -35,7 +40,56 @@ NavigationSidebar<String>(
   mode: NavSidebarMode.expanded,
   onNavigate: (node) => openScreen(node.value!),
 );
+```
 
+### Integrated shell (recommended) — `NavigationShell<T>`
+
+`NavigationShell` composes the app bar, the pane and the content in the
+Microsoft-NavigationView arrangement, so you stop hand-wiring Row/Column/Stack.
+It resolves the mode (fixed or adaptive by width) and drives two builders:
+
+```dart
+NavigationShell<String>(
+  controller: _nav,
+  headerLayout: NavShellHeaderLayout.spanning, // or .inset
+  paneBehavior: NavPaneBehavior.push,          // or .overlay
+  appBarBuilder: (ctx, mode) => NavigationSidebarAppBar(
+    controller: _nav,
+    mode: mode,
+    showBackButton: true,
+    onBack: _goBack,
+    pageTitle: NavBreadcrumb<String>(controller: _nav),
+    globalSearch: NavigationSidebarSearchField(controller: _nav),
+    actions: [NotificationBell(), UserAvatar()],
+  ),
+  sidebarBuilder: (ctx, mode) => NavigationSidebar<String>(
+    controller: _nav,
+    mode: mode,
+    onNavigate: (n) => setState(() => _screen = n.value!),
+  ),
+  body: PageFor(screen: _screen),
+);
+```
+
+| Property | Type | Notes |
+|---|---|---|
+| `controller` | `NavigationSidebarController<T>` | **Required.** Shared by bar + pane. |
+| `sidebarBuilder` | `NavShellSlotBuilder` | **Required.** Builds the pane for the mode. |
+| `body` | `Widget` | **Required.** Page content. |
+| `appBarBuilder` | `NavShellSlotBuilder?` | Builds the bar; omit for none. |
+| `mode` | `NavSidebarMode?` | Force a mode; `null` = adaptive from width. |
+| `breakpoints` | `NavSidebarBreakpoints` | Width thresholds when adaptive. |
+| `headerLayout` | `NavShellHeaderLayout` | `spanning` (bar full-width above pane, default) or `inset` (pane full-height, bar above content only). |
+| `paneBehavior` | `NavPaneBehavior` | `push` (pane reflows content, default) or `overlay` (rail in-flow, full pane floats over a scrim). |
+| `contentPadding` | `EdgeInsetsGeometry?` | Content margins (24 / 12 px default). |
+
+> **Overlay tip:** with `paneBehavior: NavPaneBehavior.overlay`, construct the
+> controller with `collapsed: true` so the pane starts closed and opens as a
+> flyout over the content.
+
+### Manual responsive shell (no `NavigationShell`)
+
+```dart
 // Responsive shell (host derives mode from width):
 LayoutBuilder(builder: (context, c) {
   final mode = const NavSidebarBreakpoints().modeFor(c.maxWidth);
@@ -102,6 +156,24 @@ NavSection(title: 'Finance', items: [
 | Depth-≥1 branch | `group` | Uppercase bullet header. |
 | Depth-≥1 leaf | `item` | Boxed icon + label. |
 
+### `NavSection` — footer placement
+
+```dart
+NavSection(
+  title: '',
+  placement: NavSectionPlacement.footer, // pins items to pane bottom
+  items: [
+    NavNode(id: 'help',     label: 'Help',     icon: Icons.help_outline,     value: 'help'),
+    NavNode(id: 'settings', label: 'Settings', icon: Icons.settings_outlined, value: 'settings'),
+  ],
+);
+```
+
+`NavSectionPlacement.body` (default) flows in the scrollable area; `.footer`
+pins to the bottom, above any free-form `footer` slot. Footer items share the
+one selection model — they highlight, appear in breadcrumbs, search and
+`navigate()` exactly like body nodes.
+
 ## Options & slots
 
 ```dart
@@ -110,7 +182,11 @@ NavigationSidebar<T>(
   mode: NavSidebarMode.expanded,
   showGuides: true,                // │ ├ └ connectors
   railFlyouts: true,               // module hover flyouts in rail
+  showPaneToggle: false,           // top-of-pane menu button (collapse ↔ expand);
+                                   // enable when there is no AppBar carrying the toggle
   shortcutMode: NavShortcutMode.onHover, // onHover / always / hidden
+  searchable: true,                // built-in filter field + match highlight
+  favoritable: true,               // per-row star + synthesized Quick Access band
   drawerTitle: 'Navigation',       // overrides localizations.drawerTitle
   searchHint: 'Search…',          // overrides localizations.searchHint
   quickAccessTitle: 'Quick Access',
@@ -205,6 +281,7 @@ NavigationSidebarSearchField(
 // English (default — no configuration needed):
 NavigationSidebar<String>(controller: nav, mode: mode)
 
+
 // Arabic preset (pair with RTL Directionality):
 NavigationSidebar<String>(
   controller: nav, mode: mode,
@@ -233,29 +310,77 @@ Strings available: `searchHint` · `searchEmpty` (use `{query}` placeholder) ·
 
 ```dart
 final nav = NavigationSidebarController<String>(
-  sections: sections, active: 'dashboard',
+  sections: sections,
+  active: 'dashboard',
+  expanded: {'accountsHub'},
+  favorites: {'journalEntry'},
+  collapsed: false,        // start railed (use true for overlay panes)
+  canGoBack: false,        // bind to router can-pop
+  autoExpandActive: true,  // auto-open the active node's ancestors
 );
 
 // Navigation (returns bool — true = applied, false = refused):
-final ok = nav.navigate('settingsHub');  // sets active, opens ancestors, closes drawer
+final ok = nav.navigate('settingsHub'); // sets active, opens ancestors, closes drawer
 // Returns false (and fires NO onNavigate) for locked / disabled / missing nodes.
 
 // Expansion:
-nav.toggleNode(id); nav.expandAll(); nav.collapseAll();
+nav.expand(id); nav.collapse(id); nav.toggleNode(id); nav.expandAll(); nav.collapseAll();
 
 // Rail / drawer:
-nav.toggleCollapsed();  // expanded ↔ rail
-nav.openDrawer();       // mobile
+nav.toggleCollapsed(); nav.collapsed = true;    // expanded ↔ rail
+nav.openDrawer(); nav.closeDrawer(); nav.toggleDrawer();
+
+// Back state (bind to your router's can-pop):
+nav.canGoBack = router.canPop();
+
+// Search / favorites:
+nav.setQuery('journals'); nav.matchSet();
+nav.toggleFavorite(id); nav.setFavorites({'a', 'b'});
+
+// Data:
+nav.replaceSections(newSections); // hot-swap after a role change
+
+// Reads: sections · active · activeValue · collapsed · drawerOpen · filtering ·
+//        isActive(id) · isExpanded(id) · ownsActive(id) · node(id) ·
+//        favorites · favoriteNodes · isFavorite(id)
 
 // Duplicate ID validation (debug builds only):
 // The controller asserts no duplicate IDs in the constructor and replaceSections.
 // Use NavOps.findDuplicateIds<T>(sections) for a programmatic check.
 
-// Data:
-nav.replaceSections(newSections); // hot-swap after a role change
-
-// From inside page content:
+// From inside page content (published via NavigationSidebarScope<T>):
 NavigationSidebarController.of<String>(context)?.navigate('dashboard');
+```
+
+### Back button
+
+```dart
+// In the controller constructor:
+final nav = NavigationSidebarController<String>(
+  sections: sections, active: 'dashboard',
+  canGoBack: false, // start disabled
+);
+
+// Bind to your router:
+routerDelegate.addListener(() => nav.canGoBack = router.canPop());
+
+// Wire in the AppBar:
+NavigationSidebarAppBar(
+  controller: nav,
+  mode: mode,
+  showBackButton: true,    // enabled automatically while canGoBack == true
+  onBack: () => router.pop(),
+);
+```
+
+### `NavigationSidebarScope<T>`
+
+The sidebar publishes its controller via an `InheritedWidget` so any page
+widget in the subtree can navigate without receiving the controller directly:
+
+```dart
+// Any descendant:
+NavigationSidebarController.of<String>(context)?.navigate('journals');
 ```
 
 ## Deep immutability
@@ -285,6 +410,20 @@ NavBadge('3')                                 // accent (default)
 NavBadge('Live', tone: NavBadgeTone.success)  // green pill / dot
 NavBadge('9+',   tone: NavBadgeTone.danger)   // red
 NavBadge('12',   tone: NavBadgeTone.muted)    // grey
+```
+
+## Fluent selection indicator
+
+```dart
+ThemeData(extensions: [
+  NavigationSidebarThemeData.dark.copyWith(
+    selectionIndicator: NavSelectionIndicator.bar, // leading accent pill over a
+                                                   // tinted row (tree AND rail)
+    indicatorThickness: 3,  // pill width  (default 3)
+    indicatorInset: 9,      // top/bottom inset (default 9)
+  ),
+]);
+// Default is NavSelectionIndicator.fill (active direct row fills with accent).
 ```
 
 ## Theming
@@ -326,6 +465,11 @@ NavigationSidebarThemeData.light.copyWith(
 
   // ── indent ────────────────────────────────────────────
   gutter: 22,    // indent per nesting level   (default 19)
+
+  // ── selection indicator ───────────────────────────────
+  selectionIndicator: NavSelectionIndicator.bar,
+  indicatorThickness: 3,
+  indicatorInset: 9,
 )
 ```
 
@@ -341,17 +485,23 @@ Directionality(textDirection: TextDirection.rtl, child: NavigationSidebar(...))
 
 ## Gotchas
 
-1. **Host derives `mode`** — use `LayoutBuilder` + `NavSidebarBreakpoints`.
-2. **Role is positional** — depth determines visual treatment, not a field.
-3. **`value` vs `id`** — `value` is your screen key; `id` is the nav identity.
-4. **Drawer must overlay** — place in `Stack + Positioned.fill`.
-5. **Register the theme** — without it the dark preset is used.
-6. **Shortcuts are visual hints only** — wire keystrokes yourself via `Shortcuts`/`Actions`.
-7. **No `const NavNode/NavSection`** — constructors are non-const since 1.2.
+1. **Prefer `NavigationShell`** for the whole app frame; drop to manual
+   Row/Column/Stack only when you need bespoke layout.
+2. **Host derives `mode`** — `NavSidebarBreakpoints().modeFor(width)`, or let
+   `NavigationShell` do it.
+3. **Role is positional** — depth determines visual treatment, not a field.
+4. **`value` vs `id`** — `value` is your screen key; `id` is the nav identity.
+5. **Drawer must overlay** — `Stack + Positioned.fill` (or use `NavigationShell`).
+6. **Register the theme** — without it the dark preset is used.
+7. **Shortcuts are visual hints only** — wire keystrokes yourself.
+8. **No `const NavNode/NavSection`** — constructors are non-const since 1.2.
+9. **`navigate()` returns `bool`** — void call sites compile unchanged.
+10. **Overlay pane** — construct the controller with `collapsed: true`.
 
 ## Reference
 
+- **Live preview:** `../../docs/preview.html` (interactive, all features).
 - **Examples (read first):** `EXAMPLES.md` in this folder.
-- Source: `lib/src/` (models · theme · localizations · controller · sidebar · appbar)
+- Source: `lib/src/` — models · theme · localizations · controller · sidebar · appbar · shell.
 - README: `../../README.md`
 - Example app: `../../example/lib/`

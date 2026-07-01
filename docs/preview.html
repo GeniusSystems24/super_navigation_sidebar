@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>super_navigation_sidebar · Live Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<style>
+/* ============================================================
+   super_navigation_sidebar — interactive preview
+   A faithful HTML recreation of the Flutter widget, using the
+   exact design tokens from lib/src/theme.dart, so every feature
+   can be demonstrated live in the browser.
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background:
+    radial-gradient(1200px 700px at 12% -10%, #1b1e29 0%, transparent 60%),
+    radial-gradient(1000px 600px at 100% 0%, #17212e 0%, transparent 55%),
+    #0a0b0e;
+  color: #e6e8ef;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+.mono { font-family: 'JetBrains Mono', monospace; }
+.msr {
+  font-family: 'Material Symbols Rounded';
+  font-weight: normal; font-style: normal;
+  line-height: 1; letter-spacing: normal; text-transform: none;
+  display: inline-block; white-space: nowrap; word-wrap: normal;
+  direction: ltr; -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased; user-select: none;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* ── page shell ─────────────────────────────────────────── */
+.page { max-width: 1360px; margin: 0 auto; padding: 34px 26px 80px; }
+
+.masthead { display: flex; align-items: flex-start; gap: 20px; flex-wrap: wrap; margin-bottom: 24px; }
+.brand-mark {
+  width: 52px; height: 52px; border-radius: 14px; flex: none;
+  background: linear-gradient(150deg, #4A7CFF, #7d5cff);
+  display: grid; place-items: center;
+  box-shadow: 0 10px 30px -8px rgba(74,124,255,.6);
+}
+.brand-mark .msr { color: #fff; font-variation-settings: 'FILL' 1, 'wght' 500, 'opsz' 40; font-size: 30px; }
+.masthead h1 { font-family: 'Manrope', sans-serif; font-size: 27px; font-weight: 800; margin: 2px 0 4px; letter-spacing: -.5px; }
+.masthead h1 .mono { color: #8b90a3; font-weight: 600; font-size: 15px; }
+.masthead p { margin: 0; color: #9aa0b2; font-size: 14.5px; max-width: 640px; line-height: 1.55; }
+.pkg-pills { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.pkg-pill {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600;
+  padding: 5px 10px; border-radius: 999px; border: 1px solid #2b2f3c;
+  color: #b9bdcb; background: #14161d;
+}
+.pkg-pill b { color: #4A7CFF; }
+
+/* ── control deck (the demo chrome — clearly not the product) ── */
+.deck {
+  background: linear-gradient(180deg, #14161d, #101219);
+  border: 1px solid #262a37; border-radius: 18px;
+  padding: 16px 18px; margin-bottom: 20px;
+  display: flex; flex-wrap: wrap; gap: 18px 26px; align-items: center;
+}
+.ctl { display: flex; flex-direction: column; gap: 7px; }
+.ctl > label {
+  font-size: 10px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase;
+  color: #6b7185; font-family: 'JetBrains Mono', monospace;
+}
+.seg { display: inline-flex; background: #0c0e14; border: 1px solid #2a2e3b; border-radius: 10px; padding: 3px; gap: 2px; }
+.seg button {
+  border: 0; background: transparent; color: #a9aec0; cursor: pointer;
+  font-family: 'Inter', sans-serif; font-size: 12.5px; font-weight: 600;
+  padding: 6px 12px; border-radius: 7px; display: inline-flex; align-items: center; gap: 6px;
+  transition: all .16s cubic-bezier(.4,0,.2,1);
+}
+.seg button .msr { font-size: 17px; }
+.seg button:hover { color: #e6e8ef; }
+.seg button[aria-pressed="true"] { background: #4A7CFF; color: #fff; box-shadow: 0 4px 12px -4px rgba(74,124,255,.7); }
+.toggles { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  display: inline-flex; align-items: center; gap: 7px; cursor: pointer; user-select: none;
+  background: #0c0e14; border: 1px solid #2a2e3b; border-radius: 9px;
+  padding: 7px 11px; font-size: 12.5px; font-weight: 600; color: #a9aec0;
+  transition: all .16s;
+}
+.chip .dot { width: 15px; height: 15px; border-radius: 5px; border: 1.5px solid #3a3f4f; display: grid; place-items: center; transition: all .16s; }
+.chip .dot .msr { font-size: 12px; color: #fff; opacity: 0; transform: scale(.5); transition: all .16s; }
+.chip[aria-pressed="true"] { color: #e6e8ef; border-color: #3d5bd6; background: #141a2b; }
+.chip[aria-pressed="true"] .dot { background: #4A7CFF; border-color: #4A7CFF; }
+.chip[aria-pressed="true"] .dot .msr { opacity: 1; transform: scale(1); }
+
+/* ── the app frame (renders the product with the chosen theme) ── */
+.frame-wrap { position: relative; }
+.frame {
+  --dur: 240ms; --curve: cubic-bezier(.4,0,.2,1);
+  border-radius: 16px; overflow: hidden; height: 720px;
+  border: 1px solid var(--borderStrong);
+  box-shadow: 0 40px 80px -30px rgba(0,0,0,.7);
+  display: flex; flex-direction: column; position: relative;
+  background: var(--bg); color: var(--fg1);
+  font-family: 'Inter', sans-serif;
+}
+
+/* THEME TOKENS — exact values from theme.dart */
+.frame[data-theme="dark"] {
+  --bg:#111318; --surface:#1E2025; --inputBg:#33353A; --hover:#2F3540;
+  --border:#434654; --borderRGBA: rgba(67,70,84,.4); --borderStrong:#434654; --guide:#434654;
+  --fg1:#E2E2E9; --fg2:#C3C6D7; --fg3:#8D90A0; --fg4:#44474E;
+}
+.frame[data-theme="light"] {
+  --bg:#F7F8FA; --surface:#FFFFFF; --inputBg:#F1F3F8; --hover:#EEF1F7;
+  --border:#E2E8F0; --borderRGBA:#E2E8F0; --borderStrong:#C2C6D6; --guide:#C2C6D6;
+  --fg1:#0F172A; --fg2:#424754; --fg3:#64748B; --fg4:#C2C6D6;
+}
+.frame {
+  --accent:#4A7CFF; --success:#1DB88A; --warning:#F97316; --danger:#EF4444;
+  --accentFill:rgba(74,124,255,.12);
+}
+
+/* ── app bar ─────────────────────────────────────────────── */
+.appbar {
+  height: 56px; flex: none; display: flex; align-items: center; gap: 4px;
+  padding: 0 16px; background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.tbtn {
+  width: 36px; height: 36px; border-radius: 8px; border: 0; background: transparent;
+  color: var(--fg2); display: grid; place-items: center; cursor: pointer; flex: none;
+  transition: background .15s;
+}
+.tbtn:hover { background: var(--hover); }
+.tbtn:disabled { color: var(--fg4); cursor: default; background: transparent; }
+.tbtn .msr { font-size: 20px; }
+.appbar .title { font-family: 'Manrope', sans-serif; font-size: 16px; font-weight: 700; color: var(--fg1); margin-left: 8px; white-space: nowrap; }
+.breadcrumb { font-size: 13.5px; color: var(--fg3); margin-left: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.breadcrumb .sep { opacity: .55; padding: 0 2px; }
+.breadcrumb b { color: var(--fg2); font-weight: 600; }
+.appbar .grow { flex: 1; }
+.global-search {
+  height: 36px; max-width: 420px; flex: 1 1 220px; margin: 0 12px;
+  display: flex; align-items: center; gap: 8px; padding: 0 4px 0 10px;
+  background: var(--inputBg); border: 1px solid var(--border); border-radius: 8px;
+}
+.global-search .msr { font-size: 15px; color: var(--fg3); }
+.global-search input {
+  border: 0; background: transparent; outline: none; flex: 1; min-width: 0;
+  font-family: 'Inter', sans-serif; font-size: 13px; color: var(--fg1);
+}
+.global-search input::placeholder { color: var(--fg4); }
+.avatar {
+  width: 32px; height: 32px; border-radius: 50%; flex: none;
+  background: linear-gradient(140deg, #4A7CFF, #7d5cff); color: #fff;
+  display: grid; place-items: center; font-weight: 700; font-size: 12.5px; font-family: 'Manrope', sans-serif;
+}
+.bell { position: relative; }
+.bell .badge-dot { position: absolute; top: 7px; right: 7px; width: 7px; height: 7px; border-radius: 50%; background: var(--danger); border: 1.5px solid var(--surface); }
+
+/* ── body row: pane + content ────────────────────────────── */
+.body-row { flex: 1; display: flex; min-height: 0; position: relative; }
+
+/* ── sidebar pane ────────────────────────────────────────── */
+.pane {
+  background: var(--surface); border-inline-end: 1px solid var(--border);
+  flex: none; overflow: hidden; display: flex; flex-direction: column;
+  transition: width var(--dur) var(--curve);
+  width: 248px;
+}
+.frame[data-mode="rail"] .pane { width: 76px; }
+.pane-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 16px 14px; display: flex; flex-direction: column; }
+.pane-scroll::-webkit-scrollbar { width: 8px; }
+.pane-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; }
+
+.pane-header { display: flex; align-items: center; gap: 10px; height: 34px; margin-bottom: 12px; padding: 0 2px; }
+.pane-header .logo { width: 30px; height: 30px; border-radius: 9px; flex: none; background: linear-gradient(150deg,#4A7CFF,#7d5cff); display: grid; place-items: center; }
+.pane-header .logo .msr { color: #fff; font-size: 19px; font-variation-settings: 'FILL' 1; }
+.pane-header .wm { display: flex; flex-direction: column; line-height: 1.15; white-space: nowrap; overflow: hidden; }
+.pane-header .wm .n { font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 14.5px; color: var(--fg1); }
+.pane-header .wm .s { font-size: 10.5px; color: var(--fg3); }
+.frame[data-mode="rail"] .pane-header { justify-content: center; }
+.frame[data-mode="rail"] .pane-header .wm { display: none; }
+
+/* built-in search field */
+.side-search {
+  height: 36px; flex: none; display: flex; align-items: center; gap: 8px;
+  padding: 0 4px 0 10px; margin-bottom: 10px;
+  background: var(--inputBg); border: 1px solid var(--border); border-radius: 8px;
+}
+.side-search .msr { font-size: 15px; color: var(--fg3); }
+.side-search input { border: 0; background: transparent; outline: none; flex: 1; min-width: 0; font-size: 12.5px; color: var(--fg1); font-family: 'Inter', sans-serif; }
+.side-search input::placeholder { color: var(--fg4); }
+.side-search .clr { border: 0; background: transparent; color: var(--fg3); cursor: pointer; padding: 4px; border-radius: 6px; display: none; }
+.side-search .clr .msr { font-size: 14px; }
+
+/* section eyebrow */
+.sec-title {
+  font-size: 10px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase;
+  color: var(--fg4); padding: 12px 12px 6px; display: flex; align-items: center; gap: 6px;
+}
+.sec-title .msr { font-size: 13px; color: var(--accent); }
+
+/* ── tree rows ───────────────────────────────────────────── */
+.row {
+  position: relative; display: flex; align-items: center; gap: 0;
+  border-radius: 10px; cursor: pointer; user-select: none;
+  transition: background .15s;
+}
+.row.role-group, .row.role-item { border-radius: 8px; }
+.row:hover:not(.disabled):not(.active-fill) { background: var(--hover); }
+.row.disabled, .row.locked { cursor: not-allowed; }
+.row.locked { opacity: .55; }
+.row .rlabel {
+  flex: 1; min-width: 0; font-size: 13.5px; font-weight: 500; color: var(--fg2);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.row .rlabel mark { background: transparent; color: var(--accent); font-weight: 800; }
+.row .lead {
+  width: 20px; text-align: center; flex: none; color: var(--fg2);
+  margin-inline-end: 12px;
+}
+.row .lead .msr { font-size: 20px; }
+
+/* direct / module (depth 0) */
+.row.role-direct, .row.role-module { height: 42px; padding-inline: 13px 10px; }
+.row.role-module .rlabel, .row.role-direct .rlabel { font-size: 13.5px; }
+.row.role-module.owns .lead, .row.role-module.owns .rlabel { color: var(--accent); }
+.row.role-module.owns .rlabel { font-weight: 600; }
+
+/* active fill (direct) */
+.row.active-fill { background: var(--accent); }
+.row.active-fill .lead, .row.active-fill .rlabel { color: #fff; }
+.row.active-fill .rlabel { font-weight: 600; }
+
+/* active bar (fluent indicator) */
+.row.active-tint { background: var(--accentFill); }
+.row.active-tint .lead, .row.active-tint .rlabel { color: var(--accent); }
+.row.active-tint .rlabel { font-weight: 600; }
+.row .selbar {
+  position: absolute; inset-inline-start: 0; top: 9px; bottom: 9px; width: 3px;
+  border-radius: 3px; background: var(--accent); display: none;
+}
+.row.show-bar .selbar { display: block; }
+
+/* chevron */
+.chev { flex: none; color: var(--fg3); margin-inline-start: 4px; transition: transform .24s var(--curve); }
+.chev .msr { font-size: 16px; }
+.row.open .chev { transform: rotate(180deg); }
+
+/* group header (depth ≥1 branch) */
+.row.role-group { height: 36px; }
+.row.role-group .bullet { width: 6px; height: 6px; border-radius: 50%; background: var(--fg4); margin-inline: 0 9px; flex: none; }
+.row.role-group.owns .bullet { background: var(--accent); }
+.row.role-group .rlabel { text-transform: uppercase; font-size: 11.5px; font-weight: 600; letter-spacing: .3px; color: var(--fg3); }
+.row.role-group.owns .rlabel { color: var(--accent); }
+
+/* item (depth ≥1 leaf) */
+.row.role-item { height: 38px; padding-inline-end: 10px; }
+.item-box {
+  width: 28px; height: 28px; border-radius: 8px; flex: none; display: grid; place-items: center;
+  border: 1px solid var(--border); background: var(--surface); margin-inline-end: 10px;
+  transition: all .15s;
+}
+.item-box .msr { font-size: 16px; color: var(--fg3); }
+.row.role-item .rlabel { font-size: 12.5px; }
+.row.role-item.active-tint .item-box { border-color: var(--accent); background: var(--accentFill); }
+.row.role-item.active-tint .item-box .msr { color: var(--accent); }
+.row.role-item.active-tint .rlabel { color: var(--accent); font-weight: 600; }
+
+/* status dot */
+.status-dot { width: 7px; height: 7px; border-radius: 50%; flex: none; margin-inline-end: 7px; }
+
+/* badge chip */
+.badge {
+  font-family: 'JetBrains Mono', monospace; font-size: 9.5px; font-weight: 700; line-height: 1.1;
+  padding: 3px 6px; border-radius: 999px; border: 1px solid; margin-inline-start: 6px; flex: none;
+}
+.badge.small { font-size: 9px; padding: 2px 5px; }
+.badge.accent  { background: rgba(74,124,255,.16);  color: #4A7CFF; border-color: rgba(74,124,255,.34); }
+.badge.success { background: rgba(29,184,138,.16);   color: #2BBE7C; border-color: rgba(29,184,138,.34); }
+.badge.warning { background: rgba(249,115,22,.16);   color: #E0A23B; border-color: rgba(249,115,22,.34); }
+.badge.danger  { background: rgba(239,68,68,.16);    color: #F26464; border-color: rgba(239,68,68,.34); }
+.badge.muted   { background: var(--inputBg);         color: var(--fg3); border-color: var(--border); }
+.row.active-fill .badge.accent { background: rgba(255,255,255,.22); color:#fff; border-color: rgba(255,255,255,.4); }
+
+/* shortcut keycaps */
+.kbd { display: inline-flex; align-items: center; gap: 3px; margin-inline-start: 6px; flex: none; }
+.kbd .cap {
+  min-width: 17px; text-align: center; padding: 1.5px 5px; border-radius: 6px;
+  background: var(--surface); border: 1px solid var(--border);
+  font-family: 'JetBrains Mono', monospace; font-size: 9.5px; font-weight: 700; color: var(--fg3);
+  box-shadow: 0 1px 0 var(--guide);
+}
+.kbd .arw { color: var(--fg3); opacity: .65; }
+.kbd .arw .msr { font-size: 10px; }
+.row.active-fill .kbd .cap { background: rgba(255,255,255,.2); border-color: rgba(255,255,255,.38); color:#fff; box-shadow:none; }
+
+/* star */
+.star { border: 0; background: transparent; cursor: pointer; color: var(--fg3); padding: 0; margin-inline-start: 6px; flex: none; display: none; }
+.star .msr { font-size: 15px; }
+.star.on { display: inline-block; color: var(--accent); }
+.row:hover .star { display: inline-block; }
+.row.active-fill .star, .row.active-fill .star.on { color: #fff; }
+
+/* lock glyph */
+.lockg { color: var(--fg3); margin-inline-start: 6px; flex: none; }
+.lockg .msr { font-size: 13px; }
+
+/* module collapsed-badge dot */
+.moddot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); margin-inline-start: 6px; flex: none; }
+
+/* tree connectors */
+.children { position: relative; }
+.connector { position: absolute; background: var(--guide); }
+.frame[data-guides="off"] .connector { display: none; }
+
+/* quick access divider */
+.qa-div { height: 1px; background: var(--border); margin: 8px 12px 2px; }
+.pane-foot { flex: none; padding: 0 14px 16px; }
+.foot-div { height: 1px; background: var(--border); margin: 8px 0 6px; }
+
+/* empty search state */
+.empty { text-align: center; padding: 30px 24px; color: var(--fg3); }
+.empty .msr { font-size: 26px; color: var(--fg4); }
+.empty p { margin: 10px 0 0; font-size: 12.5px; }
+
+/* ── rail mode ───────────────────────────────────────────── */
+.railcol { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.railbtn {
+  width: 44px; height: 44px; border-radius: 10px; position: relative;
+  display: grid; place-items: center; cursor: pointer; color: var(--fg2);
+  transition: background .15s;
+}
+.railbtn:hover:not(.active-fill) { background: var(--hover); }
+.railbtn .msr { font-size: 22px; }
+.railbtn.active-fill { background: var(--accent); color: #fff; }
+.railbtn.active-tint { background: var(--accentFill); color: var(--accent); }
+.railbtn .selbar { position: absolute; inset-inline-start: 2px; top: 12px; bottom: 12px; width: 3px; border-radius: 3px; background: var(--accent); display: none; }
+.railbtn.show-bar .selbar { display: block; }
+.railbtn .rdot { position: absolute; top: 6px; inset-inline-end: 6px; width: 7px; height: 7px; border-radius: 50%; border: 1.5px solid var(--surface); }
+.railbtn .rlock { position: absolute; bottom: 6px; inset-inline-end: 6px; color: var(--fg3); }
+.railbtn .rlock .msr { font-size: 10px; }
+.railbtn.locked { opacity: .5; cursor: not-allowed; }
+.rail-div { width: 26px; height: 1px; background: var(--border); margin: 5px 0; }
+
+/* flyout */
+.flyout {
+  position: fixed; width: 248px; z-index: 60; padding: 8px;
+  background: var(--surface); border: 1px solid var(--borderStrong); border-radius: 12px;
+  box-shadow: 0 12px 32px -8px rgba(0,0,0,.45); max-height: 360px; overflow-y: auto;
+}
+.flyout-head { display: flex; align-items: center; gap: 9px; padding: 4px 8px 10px; }
+.flyout-head .msr { font-size: 17px; color: var(--fg2); }
+.flyout-head .t { font-size: 13px; font-weight: 600; color: var(--fg1); }
+.flyout-div { height: 1px; background: var(--border); margin-bottom: 4px; }
+.flyout-grp { font-size: 9.5px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--fg4); padding: 6px 8px 3px; }
+.flyrow {
+  height: 34px; display: flex; align-items: center; gap: 10px; padding: 0 8px;
+  border-radius: 8px; cursor: pointer; transition: background .12s;
+}
+.flyrow:hover:not(.locked) { background: var(--hover); }
+.flyrow.active { background: var(--accentFill); }
+.flyrow.locked { opacity: .55; cursor: not-allowed; }
+.flyrow .fbox { width: 24px; height: 24px; border-radius: 7px; display: grid; place-items: center; border: 1px solid var(--border); flex: none; }
+.flyrow.active .fbox { border-color: var(--accent); }
+.flyrow .fbox .msr { font-size: 13px; color: var(--fg3); }
+.flyrow.active .fbox .msr { color: var(--accent); }
+.flyrow .fl { flex: 1; font-size: 12.5px; font-weight: 500; color: var(--fg1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.flyrow.active .fl { color: var(--accent); font-weight: 600; }
+
+/* ── drawer mode ─────────────────────────────────────────── */
+.frame[data-mode="drawer"] .pane { display: none; }
+.scrim { position: absolute; inset: 0; background: rgba(8,9,12,.55); z-index: 40; opacity: 0; pointer-events: none; transition: opacity .28s var(--curve); }
+.frame[data-mode="drawer"][data-drawer="open"] .scrim { opacity: 1; pointer-events: auto; }
+.drawer {
+  position: absolute; top: 0; bottom: 0; inset-inline-start: 0; width: 280px; z-index: 50;
+  background: var(--surface); border-inline-end: 1px solid var(--border);
+  transform: translateX(-105%); transition: transform .28s var(--curve);
+  display: none; flex-direction: column; box-shadow: 0 12px 32px -8px rgba(0,0,0,.5);
+}
+[dir="rtl"] .drawer { transform: translateX(105%); }
+.frame[data-mode="drawer"] .drawer { display: flex; }
+.frame[data-mode="drawer"][data-drawer="open"] .drawer { transform: translateX(0); }
+.drawer-head { display: flex; align-items: center; height: 30px; padding: 16px 14px 0; }
+.drawer-head .dt { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 1.4px; color: var(--fg4); text-transform: uppercase; }
+.drawer-head .grow { flex: 1; }
+.drawer-close { border: 0; background: transparent; color: var(--fg3); cursor: pointer; padding: 6px; border-radius: 6px; }
+.drawer-close .msr { font-size: 18px; }
+.drawer .pane-scroll { padding: 8px 14px 16px; }
+
+/* ── content ─────────────────────────────────────────────── */
+.content { flex: 1; min-width: 0; overflow-y: auto; padding: 24px; }
+.frame[data-mode="drawer"] .content { padding: 12px; }
+.page-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; color: var(--fg3); }
+.page-h { font-family: 'Manrope', sans-serif; font-size: 26px; font-weight: 800; letter-spacing: -.4px; color: var(--fg1); margin: 6px 0 4px; }
+.page-sub { color: var(--fg3); font-size: 14px; margin: 0 0 22px; max-width: 560px; line-height: 1.55; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; }
+.card .k { font-size: 11px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: var(--fg3); display: flex; align-items: center; gap: 7px; }
+.card .k .msr { font-size: 15px; color: var(--accent); }
+.card .v { font-family: 'Manrope', sans-serif; font-size: 25px; font-weight: 800; color: var(--fg1); margin-top: 10px; }
+.card .d { font-size: 12px; margin-top: 4px; font-weight: 600; }
+.card .d.up { color: var(--success); }
+.card .d.dn { color: var(--danger); }
+
+/* callout under content */
+.feat-note {
+  margin-top: 22px; padding: 14px 16px; border-radius: 12px;
+  background: var(--inputBg); border: 1px solid var(--border);
+  font-size: 12.5px; color: var(--fg2); line-height: 1.6; display: flex; gap: 10px;
+}
+.feat-note .msr { font-size: 18px; color: var(--accent); flex: none; }
+.feat-note code { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--accent); background: rgba(74,124,255,.1); padding: 1px 5px; border-radius: 5px; }
+
+/* legend below the frame */
+.legend { margin-top: 22px; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px,1fr)); gap: 12px; }
+.legend .li { background: #101219; border: 1px solid #242835; border-radius: 12px; padding: 13px 15px; }
+.legend .li h4 { margin: 0 0 4px; font-size: 13px; font-weight: 700; color: #dfe2ec; display: flex; align-items: center; gap: 8px; }
+.legend .li h4 .msr { font-size: 17px; color: #4A7CFF; }
+.legend .li p { margin: 0; font-size: 12px; color: #939aad; line-height: 1.5; }
+.legend .li code { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #8fa9ff; }
+
+.footer-note { margin-top: 30px; text-align: center; color: #5b6072; font-size: 12px; }
+.footer-note code { font-family: 'JetBrains Mono', monospace; color: #8b90a3; }
+
+@media (max-width: 720px) {
+  .frame { height: 620px; }
+  .masthead h1 { font-size: 22px; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- masthead -->
+  <header class="masthead">
+    <div class="brand-mark"><span class="msr">dock_to_right</span></div>
+    <div>
+      <h1>super_navigation_sidebar <span class="mono">v2.0.0</span></h1>
+      <p>A themeable, responsive Flutter navigation sidebar. One data model renders in three modes — a full <b>expanded</b> tree with connectors, an icon-only <b>rail</b> with hover flyouts, and an off-canvas <b>drawer</b>. This page is a faithful browser recreation — every control below drives the real widget behavior.</p>
+      <div class="pkg-pills">
+        <span class="pkg-pill"><b>3</b> layout modes</span>
+        <span class="pkg-pill">typed <b>NavNode&lt;T&gt;</b></span>
+        <span class="pkg-pill">AppBar + Shell</span>
+        <span class="pkg-pill">RTL / a11y</span>
+        <span class="pkg-pill"><b>0</b> dependencies</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- control deck -->
+  <section class="deck" aria-label="Preview controls">
+    <div class="ctl">
+      <label>Mode</label>
+      <div class="seg" id="segMode">
+        <button data-mode="expanded" aria-pressed="true"><span class="msr">view_sidebar</span>Expanded</button>
+        <button data-mode="rail" aria-pressed="false"><span class="msr">view_week</span>Rail</button>
+        <button data-mode="drawer" aria-pressed="false"><span class="msr">menu</span>Drawer</button>
+      </div>
+    </div>
+    <div class="ctl">
+      <label>Theme</label>
+      <div class="seg" id="segTheme">
+        <button data-theme="dark" aria-pressed="true"><span class="msr">dark_mode</span>Dark</button>
+        <button data-theme="light" aria-pressed="false"><span class="msr">light_mode</span>Light</button>
+      </div>
+    </div>
+    <div class="ctl">
+      <label>Selection indicator</label>
+      <div class="seg" id="segInd">
+        <button data-ind="fill" aria-pressed="true">Fill</button>
+        <button data-ind="bar" aria-pressed="false">Bar (Fluent)</button>
+      </div>
+    </div>
+    <div class="ctl">
+      <label>Direction</label>
+      <div class="seg" id="segDir">
+        <button data-dir="ltr" aria-pressed="true">LTR · EN</button>
+        <button data-dir="rtl" aria-pressed="false">RTL · عربي</button>
+      </div>
+    </div>
+    <div class="ctl">
+      <label>Feature toggles</label>
+      <div class="toggles" id="toggles">
+        <button class="chip" data-flag="guides" aria-pressed="true"><span class="dot"><span class="msr">check</span></span>Tree guides</button>
+        <button class="chip" data-flag="searchable" aria-pressed="true"><span class="dot"><span class="msr">check</span></span>In-pane search</button>
+        <button class="chip" data-flag="favoritable" aria-pressed="true"><span class="dot"><span class="msr">check</span></span>Favorites</button>
+        <button class="chip" data-flag="back" aria-pressed="true"><span class="dot"><span class="msr">check</span></span>Back button</button>
+        <button class="chip" data-flag="shortcuts" aria-pressed="false"><span class="dot"><span class="msr">check</span></span>Always-on shortcuts</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- app frame -->
+  <div class="frame-wrap">
+    <div class="frame" id="frame" data-theme="dark" data-mode="expanded" data-guides="on" data-drawer="closed" data-ind="fill">
+
+      <!-- app bar -->
+      <div class="appbar" id="appbar"></div>
+
+      <!-- body -->
+      <div class="body-row">
+        <div class="scrim" id="scrim"></div>
+        <aside class="pane" id="pane"></aside>
+        <aside class="drawer" id="drawer"></aside>
+        <main class="content" id="content"></main>
+      </div>
+    </div>
+  </div>
+
+  <!-- feature legend -->
+  <section class="legend">
+    <div class="li"><h4><span class="msr">account_tree</span>Positional roles</h4><p>Depth-0 leaf = <code>direct</code>, branch = <code>module</code>; nested branch = <code>group</code>, leaf = <code>item</code>. No role field.</p></div>
+    <div class="li"><h4><span class="msr">lock</span>Permission gating</h4><p><code>locked</code> + <code>lockMessage</code> dim the row, block nav, and show the reason on hover — try <b>Wire / SWIFT</b>.</p></div>
+    <div class="li"><h4><span class="msr">circle</span>Status dots</h4><p><code>NavNodeStatus</code> marks fiscal-period state: open · closed · locked · attention.</p></div>
+    <div class="li"><h4><span class="msr">bolt</span>Rail flyouts</h4><p>In rail mode, hovering a module opens a grouped flyout of its leaves.</p></div>
+    <div class="li"><h4><span class="msr">star</span>Quick Access</h4><p><code>favoritable</code> adds per-row stars and a synthesized favorites band pinned on top.</p></div>
+    <div class="li"><h4><span class="msr">search</span>Filter + highlight</h4><p><code>searchable</code> matches every level, auto-expands hits and highlights the matched run.</p></div>
+  </section>
+
+  <p class="footer-note">Live recreation for docs · exact tokens from <code>lib/src/theme.dart</code> · the Flutter package is the source of truth.</p>
+</div>
+
+<script>
+/* ════════════════════════════════════════════════════════════
+   DATA MODEL — mirrors NavSection / NavNode from models.dart.
+   ════════════════════════════════════════════════════════════ */
+const B = (text, tone='accent') => ({ text, tone });          // NavBadge
+const N = (o) => ({ children: [], enabled: true, locked: false, status: 'none', ...o }); // NavNode
+
+const SECTIONS = [
+  { title: 'Overview', placement: 'body', items: [
+    N({ id:'dashboard', label:'Dashboard', icon:'space_dashboard', value:'dashboard', shortcut:['g','d'] }),
+    N({ id:'insights', label:'Insights', icon:'monitoring', value:'insights', badge:B('New','success') }),
+  ]},
+  { title: 'Finance', placement: 'body', items: [
+    N({ id:'accounts', label:'Accounts', icon:'menu_book', children:[
+      N({ id:'coa', label:'Chart of Accounts', children:[
+        N({ id:'accList', label:'Account List', icon:'list_alt', value:'accList' }),
+        N({ id:'accTree', label:'Account Tree', icon:'account_tree', value:'accTree', badge:B('3'), shortcut:['g','t'] }),
+      ]}),
+      N({ id:'periods', label:'Fiscal Periods', children:[
+        N({ id:'fy25q3', label:'FY2025 · Q3', icon:'event_available', value:'fy25q3', status:'open' }),
+        N({ id:'fy25q2', label:'FY2025 · Q2', icon:'event_busy', value:'fy25q2', status:'closed' }),
+        N({ id:'fy24', label:'FY2024 · Sealed', icon:'lock_clock', value:'fy24', status:'locked' }),
+      ]}),
+    ]}),
+    N({ id:'journals', label:'Journals', icon:'receipt_long', children:[
+      N({ id:'journalEntry', label:'Journal Entry', icon:'edit_note', value:'journalEntry', shortcut:['g','j'] }),
+      N({ id:'recurring', label:'Recurring', icon:'repeat', value:'recurring', badge:B('2','warning'), status:'attention' }),
+      N({ id:'trialBalance', label:'Trial Balance', icon:'balance', value:'trialBalance' }),
+    ]}),
+    N({ id:'payments', label:'Payments', icon:'payments', children:[
+      N({ id:'ach', label:'ACH Batch', icon:'account_balance', value:'ach' }),
+      N({ id:'wire', label:'Wire / SWIFT', icon:'bolt', value:'wire', locked:true, lockMessage:'Requires Treasury Approver role' }),
+      N({ id:'checks', label:'Check Run', icon:'note', value:'checks', enabled:false }),
+    ]}),
+  ]},
+  { title: 'Workspace', placement: 'body', items: [
+    N({ id:'reports', label:'Reports', icon:'summarize', value:'reports', badge:B('9+','danger') }),
+    N({ id:'audit', label:'Audit Log', icon:'history', value:'audit' }),
+  ]},
+  { title: '', placement: 'footer', items: [
+    N({ id:'help', label:'Help & Docs', icon:'help', value:'help' }),
+    N({ id:'settings', label:'Settings', icon:'settings', value:'settings', shortcut:['g','s'] }),
+  ]},
+];
+
+const L10N = {
+  ltr: { searchHint:'Search navigation…', drawerTitle:'Navigation', quickAccess:'Quick Access',
+         empty:q=>`No matches for "${q}"`, addFav:'Add to Quick Access', remFav:'Remove from Quick Access',
+         appTitle:'Meridian', product:'Meridian ERP', workspace:'Treasury' },
+  rtl: { searchHint:'البحث في القائمة…', drawerTitle:'القائمة', quickAccess:'الوصول السريع',
+         empty:q=>`لا توجد نتائج لـ "${q}"`, addFav:'إضافة للوصول السريع', remFav:'إزالة من الوصول السريع',
+         appTitle:'ميريديان', product:'ميريديان إدارة', workspace:'الخزينة' },
+};
+
+const AR_LABELS = {
+  dashboard:'لوحة التحكم', insights:'التحليلات', accounts:'الحسابات', coa:'شجرة الحسابات',
+  accList:'قائمة الحسابات', accTree:'هيكل الحسابات', periods:'الفترات المالية',
+  fy25q3:'٢٠٢٥ · الربع ٣', fy25q2:'٢٠٢٥ · الربع ٢', fy24:'٢٠٢٤ · مقفلة',
+  journals:'القيود', journalEntry:'قيد يومية', recurring:'قيود متكررة', trialBalance:'ميزان المراجعة',
+  payments:'المدفوعات', ach:'دفعة ACH', wire:'تحويل / SWIFT', checks:'دفعة شيكات',
+  reports:'التقارير', audit:'سجل التدقيق', help:'المساعدة', settings:'الإعدادات',
+  'Chart of Accounts':'شجرة الحسابات', 'Fiscal Periods':'الفترات المالية',
+};
+const AR_SECTIONS = { 'Overview':'نظرة عامة', 'Finance':'المالية', 'Workspace':'مساحة العمل' };
+
+/* ════════════════════════════════════════════════════════════
+   CONTROLLER — mirrors NavigationSidebarController.
+   ════════════════════════════════════════════════════════════ */
+const state = {
+  mode: 'expanded', theme: 'dark', ind: 'fill', dir: 'ltr',
+  guides: true, searchable: true, favoritable: true, back: true, shortcuts: false,
+  active: 'accTree',
+  expanded: new Set(['accounts','coa']),
+  favorites: new Set(['journalEntry','trialBalance']),
+  collapsed: false, drawerOpen: false, query: '',
+};
+
+// geometry helpers (theme.dart)
+const GUTTER = 19;
+const contentInset = d => 13 + d * GUTTER;
+const lineInset = d => contentInset(d) + 10;
+const ELBOW = GUTTER - 8;
+const rowH = role => ({ direct:42, module:42, group:36, item:38 }[role]);
+
+const roleOf = (depth, hasChildren) =>
+  hasChildren ? (depth === 0 ? 'module' : 'group') : (depth === 0 ? 'direct' : 'item');
+
+function walk(sections, visit, path=[]) {
+  for (const s of sections) rec(s.items, []);
+  function rec(nodes, p) { for (const n of nodes) { visit(n, p); if (n.children.length) rec(n.children, [...p, n]); } }
+}
+function findNode(id) { let hit=null; walk(SECTIONS, n=>{ if(n.id===id) hit=n; }); return hit; }
+function ancestorsOf(id) {
+  let res=null;
+  (function rec(nodes, path){ for(const n of nodes){ if(n.id===id){res=path;return;} if(n.children.length) rec(n.children,[...path,n.id]); } })
+    (SECTIONS.flatMap(s=>s.items), []);
+  return res || [];
+}
+function ownsActive(id) { return state.active!=null && ancestorsOf(state.active).includes(id); }
+function subtreeHasBadge(n) { if(n.badge) return true; return n.children.some(subtreeHasBadge); }
+function favoriteNodes() { const out=[]; walk(SECTIONS, n=>{ if(state.favorites.has(n.id)) out.push(n); }); return out; }
+
+// search match set (controller.matchSet)
+function matchSet() {
+  const q = state.query.trim().toLowerCase();
+  if (!q) return null;
+  const matched=new Set(), onPath=new Set();
+  (function rec(nodes, path){
+    for(const n of nodes){
+      if(labelOf(n).toLowerCase().includes(q)){ matched.add(n.id); path.forEach(p=>onPath.add(p)); }
+      if(n.children.length) rec(n.children, [...path, n.id]);
+    }
+  })(SECTIONS.flatMap(s=>s.items), []);
+  return new Set([...matched, ...onPath]);
+}
+
+function navigate(id) {
+  const n = findNode(id);
+  if (!n || !n.enabled || n.locked) return false;   // navigation safety
+  state.active = id;
+  ancestorsOf(id).forEach(a => state.expanded.add(a));
+  if (state.drawerOpen) state.drawerOpen = false;
+  state.canGoBack = true;   // host would bind this to router.canPop()
+  render();
+  return true;
+}
+function toggleNode(id){ state.expanded.has(id)?state.expanded.delete(id):state.expanded.add(id); render(); }
+function toggleFavorite(id){ state.favorites.has(id)?state.favorites.delete(id):state.favorites.add(id); render(); }
+
+/* ════════════════════════════════════════════════════════════
+   LABELS / ICONS
+   ════════════════════════════════════════════════════════════ */
+function labelOf(n){ return state.dir==='rtl' ? (AR_LABELS[n.id]||AR_LABELS[n.label]||n.label) : n.label; }
+function secTitle(t){ return state.dir==='rtl' ? (AR_SECTIONS[t]||t) : t; }
+const ic = name => `<span class="msr">${name}</span>`;
+
+const STATUS_COLOR = { open:'var(--success)', closed:'var(--fg4)', locked:'var(--danger)', attention:'var(--warning)', none:null };
+
+function badgeHtml(b, small=false){ return `<span class="badge ${b.tone}${small?' small':''}">${b.text}</span>`; }
+function kbdHtml(keys, active=false){
+  return `<span class="kbd">${keys.map((k,i)=>(i>0?`<span class="arw">${ic('chevron_right')}</span>`:'')+`<span class="cap">${k.toUpperCase()}</span>`).join('')}</span>`;
+}
+function hilite(text){
+  const q=state.query.trim().toLowerCase(); if(!q) return esc(text);
+  const i=text.toLowerCase().indexOf(q); if(i<0) return esc(text);
+  return esc(text.slice(0,i))+`<mark>${esc(text.slice(i,i+q.length))}</mark>`+esc(text.slice(i+q.length));
+}
+function esc(s){ return s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+
+/* ════════════════════════════════════════════════════════════
+   RENDER — expanded tree
+   ════════════════════════════════════════════════════════════ */
+const barMode = () => state.ind==='bar';
+
+function rowLeaf(n, depth, role){
+  const active = state.active===n.id;
+  const fill = role==='direct' && active && !barMode();
+  const tint = active && (role==='item' || (role==='direct' && barMode()));
+  const bar  = barMode() && active && (role==='direct'||role==='item');
+  const cls = ['row','role-'+role];
+  if(fill) cls.push('active-fill'); else if(tint) cls.push('active-tint');
+  if(bar) cls.push('show-bar');
+  if(n.locked) cls.push('locked'); if(!n.enabled) cls.push('disabled');
+  const pad = contentInset(depth);
+  const style = role==='direct' ? '' : `style="padding-inline-start:${pad}px"`;
+  const status = n.status!=='none' ? `<span class="status-dot" style="background:${STATUS_COLOR[n.status]}"></span>` : '';
+  const showSc = state.shortcuts && n.shortcut;
+  const fav = state.favoritable;
+  const isFav = state.favorites.has(n.id);
+  const title = n.locked ? (n.lockMessage||'Locked') : (n.shortcut?`Shortcut · ${n.shortcut.map(k=>k.toUpperCase()).join(' then ')}`:'');
+
+  let lead;
+  if(role==='item'){
+    lead = `<span class="item-box">${ic(n.icon||'circle')}</span>`;
+  } else {
+    lead = `<span class="lead">${ic(n.icon||'radio_button_unchecked')}</span>`;
+  }
+  let trailing = '';
+  if(n.locked) trailing = `<span class="lockg">${ic('lock')}</span>`;
+  else if(fav) trailing = `<button class="star ${isFav?'on':''}" data-fav="${n.id}" title="${isFav?T().remFav:T().addFav}">${ic(isFav?'star':'star_outline')}</button>`;
+
+  return `<div class="${cls.join(' ')}" ${style} data-nav="${n.id}" title="${esc(title)}">
+    ${bar?'<span class="selbar"></span>':''}
+    ${lead}${status}
+    <span class="rlabel">${hilite(labelOf(n))}</span>
+    ${n.badge?badgeHtml(n.badge, role==='item'):''}
+    ${showSc?kbdHtml(n.shortcut):''}
+    ${trailing}
+  </div>`;
+}
+
+function rowBranch(n, depth, role, open){
+  const owns = ownsActive(n.id);
+  const cls=['row','role-'+role]; if(owns) cls.push('owns'); if(open) cls.push('open');
+  const pad = contentInset(depth);
+  const style = role==='module' ? '' : `style="padding-inline-start:${pad}px"`;
+  const moddot = role==='module' && !open && subtreeHasBadge(n);
+  let inner;
+  if(role==='module'){
+    inner = `<span class="lead">${ic(n.icon||'folder')}</span><span class="rlabel">${hilite(labelOf(n))}</span>`;
+  } else {
+    inner = `<span class="bullet"></span><span class="rlabel">${hilite(labelOf(n))}</span>`;
+  }
+  return `<div class="${cls.join(' ')}" ${style} data-toggle="${n.id}">
+    ${inner}
+    ${moddot?'<span class="moddot"></span>':''}
+    <span class="chev">${ic('keyboard_arrow_down')}</span>
+  </div>`;
+}
+
+function treeNode(n, depth, match){
+  if(match && !match.has(n.id)) return '';
+  const filtering = !!match;
+  const role = roleOf(depth, n.children.length>0);
+  if(!n.children.length) return rowLeaf(n, depth, role);
+  const open = filtering || state.expanded.has(n.id);
+  let html = rowBranch(n, depth, role, open);
+  if(open){
+    const lx = lineInset(depth);
+    let kids = '';
+    n.children.forEach((c,i)=>{
+      const childRole = roleOf(depth+1, c.children.length>0);
+      const ch = rowH(childRole);
+      const last = i===n.children.length-1;
+      const conns = state.guides ? `
+        <span class="connector" style="inset-inline-start:${lx}px;top:0;height:${ch/2}px;width:1.5px"></span>
+        ${!last?`<span class="connector" style="inset-inline-start:${lx}px;top:${ch/2}px;bottom:0;width:1.5px"></span>`:''}
+        <span class="connector" style="inset-inline-start:${lx}px;top:${ch/2}px;width:${ELBOW}px;height:1.5px"></span>` : '';
+      kids += `<div class="children">${conns}${treeNode(c, depth+1, match)}</div>`;
+    });
+    html += kids;
+  }
+  return html;
+}
+
+function renderExpandedPane(inDrawer=false){
+  const match = matchSet();
+  const bodySecs = SECTIONS.filter(s=>s.placement==='body');
+  const footSecs = SECTIONS.filter(s=>s.placement==='footer');
+  let scroll = '';
+
+  // quick access
+  if(state.favoritable && !match && favoriteNodes().length){
+    scroll += `<div class="sec-title">${ic('star')}${T().quickAccess}</div>`;
+    favoriteNodes().forEach(n=>{ scroll += rowLeaf(n, 0, 'direct'); });
+    scroll += `<div class="qa-div"></div>`;
+  }
+
+  if(match && match.size===0){
+    scroll += `<div class="empty">${ic('search_off')}<p>${T().empty(state.query.trim())}</p></div>`;
+  } else {
+    for(const sec of bodySecs){
+      scroll += `<div class="sec-title" style="gap:0">${secTitle(sec.title)}</div>`;
+      sec.items.forEach(n=>{ scroll += treeNode(n, 0, match); });
+      scroll += `<div style="height:6px"></div>`;
+    }
+  }
+
+  const search = (state.searchable) ? sideSearch() : '';
+  const header = paneHeader();
+  const footer = footSecs.length ? paneFooter(footSecs) : '';
+
+  return { header, search, scroll, footer };
+}
+
+function paneHeader(){
+  return `<div class="pane-header">
+    <span class="logo">${ic('account_balance')}</span>
+    <span class="wm"><span class="n">${T().product}</span><span class="s">${T().workspace}</span></span>
+  </div>`;
+}
+function sideSearch(){
+  const has = state.query.length>0;
+  return `<div class="side-search">
+    ${ic('search')}
+    <input id="sideSearchInput" placeholder="${T().searchHint}" value="${esc(state.query)}">
+    <button class="clr" id="sideSearchClr" style="display:${has?'block':'none'}">${ic('close')}</button>
+  </div>`;
+}
+function paneFooter(footSecs){
+  let html = `<div class="foot-div"></div>`;
+  for(const sec of footSecs){
+    if(sec.title.trim()) html += `<div class="sec-title" style="gap:0">${secTitle(sec.title)}</div>`;
+    sec.items.forEach(n=>{ html += treeNode(n, 0, null); });
+  }
+  return html;
+}
+
+/* ── rail rendering ─────────────────────────────────────── */
+function railItem(n){
+  const isModule = n.children.length>0;
+  const active = isModule ? ownsActive(n.id) : state.active===n.id;
+  const hasBadge = subtreeHasBadge(n);
+  const cls=['railbtn'];
+  const fill = active && !isModule && !barMode();
+  const tint = active && (isModule || barMode());
+  const bar = barMode() && active && !isModule;
+  if(fill) cls.push('active-fill'); else if(tint) cls.push('active-tint');
+  if(bar) cls.push('show-bar'); if(n.locked) cls.push('locked');
+  const dotColor = n.badge?`var(--${n.badge.tone==='accent'?'accent':n.badge.tone})`:'var(--accent)';
+  return `<div class="${cls.join(' ')}" data-rail="${n.id}" ${isModule?`data-module="${n.id}"`:''} title="${isModule?'':esc(labelOf(n))}">
+    ${bar?'<span class="selbar"></span>':''}
+    ${ic(n.icon||'radio_button_unchecked')}
+    ${hasBadge?`<span class="rdot" style="background:${dotColor}"></span>`:''}
+    ${n.locked?`<span class="rlock">${ic('lock')}</span>`:''}
+  </div>`;
+}
+function renderRailPane(){
+  const bodySecs = SECTIONS.filter(s=>s.placement==='body');
+  const footSecs = SECTIONS.filter(s=>s.placement==='footer');
+  let html = `<div class="railcol">`;
+  bodySecs.forEach((sec,i)=>{
+    if(i>0) html += `<div class="rail-div"></div>`;
+    sec.items.forEach(n=>{ html += railItem(n); });
+  });
+  if(footSecs.length){
+    html += `<div class="rail-div"></div>`;
+    footSecs.forEach(sec=>sec.items.forEach(n=>{ html += railItem(n); }));
+  }
+  html += `</div>`;
+  return { header: paneHeader(), search:'', scroll: html, footer:'' };
+}
+
+/* ── flyout (rail hover) ────────────────────────────────── */
+let flyoutEl=null, flyoutTimer=null, flyoutOverIt=false, flyoutOverPanel=false;
+function buildFlyout(module){
+  const groups = module.children;
+  let html = `<div class="flyout-head">${ic(module.icon||'folder')}<span class="t">${esc(labelOf(module))}</span></div><div class="flyout-div"></div>`;
+  for(const g of groups){
+    const leaves = g.children.length ? g.children : [g];
+    if(g.children.length) html += `<div class="flyout-grp">${esc(labelOf(g))}</div>`;
+    for(const lf of leaves){
+      const active = state.active===lf.id;
+      const cls=['flyrow']; if(active)cls.push('active'); if(lf.locked)cls.push('locked');
+      html += `<div class="${cls.join(' ')}" data-nav="${lf.id}" title="${lf.locked?esc(lf.lockMessage||'Locked'):''}">
+        <span class="fbox">${ic(lf.icon||'circle')}</span>
+        <span class="fl">${esc(labelOf(lf))}</span>
+        ${lf.locked?`<span class="lockg">${ic('lock')}</span>`:''}
+        ${lf.badge?badgeHtml(lf.badge,true):''}
+      </div>`;
+    }
+  }
+  return html;
+}
+function showFlyout(btn, module){
+  hideFlyout();
+  flyoutEl = document.createElement('div');
+  flyoutEl.className='flyout';
+  flyoutEl.innerHTML = buildFlyout(module);
+  document.body.appendChild(flyoutEl);
+  const r = btn.getBoundingClientRect();
+  const rtl = state.dir==='rtl';
+  const fw = 248;
+  let left = rtl ? r.left - fw - 10 : r.right + 10;
+  flyoutEl.style.top = (r.top - 4)+'px';
+  flyoutEl.style.left = left+'px';
+  flyoutEl.dir = rtl?'rtl':'ltr';
+  flyoutEl.addEventListener('mouseenter', ()=>{ flyoutOverPanel=true; });
+  flyoutEl.addEventListener('mouseleave', ()=>{ flyoutOverPanel=false; scheduleHide(); });
+  flyoutEl.querySelectorAll('[data-nav]').forEach(el=>{
+    el.addEventListener('click', ()=>{ navigate(el.dataset.nav); hideFlyout(); });
+  });
+}
+function scheduleHide(){ clearTimeout(flyoutTimer); flyoutTimer=setTimeout(()=>{ if(!flyoutOverIt&&!flyoutOverPanel) hideFlyout(); },130); }
+function hideFlyout(){ if(flyoutEl){ flyoutEl.remove(); flyoutEl=null; } }
+
+/* ════════════════════════════════════════════════════════════
+   APP BAR + CONTENT
+   ════════════════════════════════════════════════════════════ */
+function breadcrumb(){
+  if(!state.active) return '';
+  const anc = ancestorsOf(state.active).map(id=>labelOf(findNode(id)));
+  const act = labelOf(findNode(state.active));
+  const crumbs=[...anc, act];
+  return crumbs.map((c,i)=> (i>0?`<span class="sep">›</span>`:'') + (i===crumbs.length-1?`<b>${esc(c)}</b>`:esc(c))).join('');
+}
+function renderAppBar(){
+  const drawer = state.mode==='drawer';
+  const leading = drawer
+    ? `<button class="tbtn" id="hamburger" aria-label="Open navigation">${ic('menu')}</button>`
+    : `<button class="tbtn" id="collapseToggle" aria-label="Toggle sidebar">${ic(state.collapsed?'view_sidebar':'view_sidebar')}</button>`;
+  const backBtn = state.back
+    ? `<button class="tbtn" id="backBtn" ${state.canGoBack?'':'disabled'} aria-label="Back">${ic(state.dir==='rtl'?'arrow_forward':'arrow_back')}</button>` : '';
+  const search = !drawer
+    ? `<div class="global-search">${ic('search')}<input placeholder="${T().searchHint}" id="globalSearchInput" value="${esc(state.query)}"></div>`
+    : `<div class="grow"></div>`;
+  document.getElementById('appbar').innerHTML = `
+    ${backBtn}${leading}
+    <span class="title">${T().appTitle}</span>
+    <span class="breadcrumb">${breadcrumb()}</span>
+    ${search}
+    <button class="tbtn bell" aria-label="Notifications">${ic('notifications')}<span class="badge-dot"></span></button>
+    <div class="avatar">MK</div>
+  `;
+}
+
+const SCREENS = {
+  dashboard: { eyebrow:'Overview', h:'Dashboard', sub:'Real-time treasury position across all ledgers and entities.',
+    cards:[['Cash Position','account_balance_wallet','$48.2M','+3.4% vs last week','up'],['Open Journals','edit_note','127','12 pending review',''],['FX Exposure','currency_exchange','€8.9M','-1.2% today','dn'],['Reconciled','task_alt','98.6%','on track','up']] },
+  default: { eyebrow:'Finance', h:'Content Area', sub:'This pane is your own routed screen — the sidebar drives it via onNavigate / controller.activeValue.',
+    cards:[['Records','database','2,481','synced',''],['This Period','calendar_month','FY25 Q3','open','up'],['Approvals','approval','6','awaiting',''],['Anomalies','error','0','clean','up']] },
+};
+function renderContent(){
+  const scr = SCREENS[state.active] || SCREENS.default;
+  const node = findNode(state.active);
+  const featNote = `<div class="feat-note">${ic('bolt')}<div>Active node: <code>${state.active}</code> · role <code>${node?roleOf(ancestorsOf(state.active).length, node.children.length>0):'—'}</code>. The breadcrumb, active highlight and ancestor auto-expand all read from one <code>NavigationSidebarController</code>.</div></div>`;
+  document.getElementById('content').innerHTML = `
+    <div class="page-eyebrow">${esc(scr.eyebrow)}</div>
+    <h2 class="page-h">${node?esc(labelOf(node)):scr.h}</h2>
+    <p class="page-sub">${esc(scr.sub)}</p>
+    <div class="cards">
+      ${scr.cards.map(c=>`<div class="card"><div class="k">${ic(c[1])}${c[0]}</div><div class="v">${c[2]}</div><div class="d ${c[4]}">${c[3]}</div></div>`).join('')}
+    </div>
+    ${featNote}`;
+}
+
+/* ════════════════════════════════════════════════════════════
+   MAIN RENDER
+   ════════════════════════════════════════════════════════════ */
+function T(){ return L10N[state.dir]; }
+
+function render(){
+  const frame = document.getElementById('frame');
+  frame.dataset.theme = state.theme;
+  frame.dataset.mode  = state.mode;
+  frame.dataset.guides = state.guides?'on':'off';
+  frame.dataset.ind = state.ind;
+  frame.dataset.drawer = state.drawerOpen?'open':'closed';
+  document.querySelector('.frame').dir = state.dir;
+  document.getElementById('drawer').dir = state.dir;
+
+  renderAppBar();
+
+  const pane = document.getElementById('pane');
+  const drawerEl = document.getElementById('drawer');
+
+  if(state.mode==='drawer'){
+    const parts = renderExpandedPane(true);
+    drawerEl.innerHTML = `
+      <div class="drawer-head"><span class="dt">${T().drawerTitle}</span><span class="grow"></span>
+        <button class="drawer-close" id="drawerClose">${ic('close')}</button></div>
+      <div class="pane-scroll">${parts.header}${parts.search}${parts.scroll}</div>
+      ${parts.footer?`<div class="pane-foot">${parts.footer}</div>`:''}`;
+    pane.innerHTML='';
+  } else {
+    const railed = state.mode==='rail';
+    const parts = railed ? renderRailPane() : renderExpandedPane();
+    pane.innerHTML = `
+      <div class="pane-scroll">${parts.header}${parts.search}${parts.scroll}</div>
+      ${parts.footer?`<div class="pane-foot">${parts.footer}</div>`:''}`;
+    drawerEl.innerHTML='';
+  }
+
+  renderContent();
+  wire();
+}
+
+/* ── event wiring (delegated per render) ────────────────── */
+function wire(){
+  document.querySelectorAll('[data-nav]').forEach(el=>{
+    if(el.closest('.flyout')) return;
+    el.addEventListener('click', e=>{
+      if(e.target.closest('[data-fav]')) return;
+      navigate(el.dataset.nav);
+    });
+  });
+  document.querySelectorAll('[data-toggle]').forEach(el=>{
+    el.addEventListener('click', ()=> toggleNode(el.dataset.toggle));
+  });
+  document.querySelectorAll('[data-fav]').forEach(el=>{
+    el.addEventListener('click', e=>{ e.stopPropagation(); toggleFavorite(el.dataset.fav); });
+  });
+  // rail modules → flyout on hover
+  document.querySelectorAll('[data-rail]').forEach(el=>{
+    const id = el.dataset.rail; const node=findNode(id);
+    if(node.children.length){
+      el.addEventListener('mouseenter', ()=>{ flyoutOverIt=true; showFlyout(el, node); });
+      el.addEventListener('mouseleave', ()=>{ flyoutOverIt=false; scheduleHide(); });
+    } else {
+      el.addEventListener('click', ()=>{ if(node.enabled&&!node.locked) navigate(id); });
+    }
+  });
+  // app bar
+  const ham=document.getElementById('hamburger'); if(ham) ham.onclick=()=>{ state.drawerOpen=true; render(); };
+  const ct=document.getElementById('collapseToggle'); if(ct) ct.onclick=()=>{ setMode(state.mode==='rail'?'expanded':'rail'); };
+  const bk=document.getElementById('backBtn'); if(bk) bk.onclick=()=>{ if(state.canGoBack){ /* host router.pop() */ } };
+  const dc=document.getElementById('drawerClose'); if(dc) dc.onclick=()=>{ state.drawerOpen=false; render(); };
+  const sc=document.getElementById('scrim'); if(sc) sc.onclick=()=>{ state.drawerOpen=false; render(); };
+  // search inputs (both drive controller.setQuery)
+  bindSearch('sideSearchInput'); bindSearch('globalSearchInput');
+  const clr=document.getElementById('sideSearchClr'); if(clr) clr.onclick=()=>{ state.query=''; render(); focusSearch(); };
+}
+let _focusSearch=false;
+function focusSearch(){ _focusSearch=true; }
+function bindSearch(id){
+  const el=document.getElementById(id); if(!el) return;
+  el.addEventListener('input', ()=>{ state.query=el.value; render();
+    const again=document.getElementById(id); if(again){ again.focus(); const v=again.value; again.setSelectionRange(v.length,v.length);} });
+}
+
+/* ── controls ───────────────────────────────────────────── */
+function setMode(m){
+  state.mode=m;
+  state.collapsed = m==='rail';
+  if(m!=='drawer') state.drawerOpen=false;
+  document.querySelectorAll('#segMode button').forEach(b=>b.setAttribute('aria-pressed', b.dataset.mode===m));
+  render();
+}
+document.querySelectorAll('#segMode button').forEach(b=> b.onclick=()=>setMode(b.dataset.mode));
+document.querySelectorAll('#segTheme button').forEach(b=> b.onclick=()=>{
+  state.theme=b.dataset.theme;
+  document.querySelectorAll('#segTheme button').forEach(x=>x.setAttribute('aria-pressed', x===b)); render();
+});
+document.querySelectorAll('#segInd button').forEach(b=> b.onclick=()=>{
+  state.ind=b.dataset.ind;
+  document.querySelectorAll('#segInd button').forEach(x=>x.setAttribute('aria-pressed', x===b)); render();
+});
+document.querySelectorAll('#segDir button').forEach(b=> b.onclick=()=>{
+  state.dir=b.dataset.dir;
+  document.querySelectorAll('#segDir button').forEach(x=>x.setAttribute('aria-pressed', x===b)); render();
+});
+document.querySelectorAll('#toggles .chip').forEach(b=> b.onclick=()=>{
+  const f=b.dataset.flag; state[f]=!state[f];
+  b.setAttribute('aria-pressed', state[f]); render();
+});
+
+// canGoBack is bound to a router's can-pop in a real host; here it enables
+// after the first in-app navigation.
+state.canGoBack = false;
+
+render();
+</script>
+
+<!-- thumbnail for offline bundling -->
+<template id="__bundler_thumbnail">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <rect width="100" height="100" rx="18" fill="#111318"/>
+  <rect x="22" y="22" width="20" height="56" rx="4" fill="#1E2025" stroke="#434654"/>
+  <rect x="26" y="30" width="12" height="6" rx="2" fill="#4A7CFF"/>
+  <rect x="26" y="42" width="12" height="4" rx="2" fill="#8D90A0"/>
+  <rect x="26" y="50" width="12" height="4" rx="2" fill="#8D90A0"/>
+  <rect x="26" y="58" width="12" height="4" rx="2" fill="#8D90A0"/>
+  <rect x="48" y="22" width="30" height="56" rx="4" fill="#1E2025" stroke="#434654"/>
+</svg>
+</template>
+</body>
+</html>

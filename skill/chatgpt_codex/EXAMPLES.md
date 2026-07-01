@@ -5,12 +5,51 @@ Realistic, copy-ready recipes. Each assumes the import +
 
 ---
 
-## 1 · Full responsive shell with NavigationSidebarAppBar
+## 1 · NavigationShell — recommended full-app wrapper
 
 ```dart
 class _AppShellState extends State<AppShell> {
   final _nav = NavigationSidebarController<String>(
-    sections: kNavSections, active: 'dashboard',
+    sections: kNavSections, active: 'dashboard', canGoBack: false,
+  );
+  String _screen = 'dashboard';
+
+  @override
+  Widget build(BuildContext context) {
+    return NavigationShell<String>(
+      controller: _nav,
+      headerLayout: NavShellHeaderLayout.spanning,
+      paneBehavior: NavPaneBehavior.push,
+      appBarBuilder: (ctx, mode) => NavigationSidebarAppBar(
+        controller: _nav, mode: mode,
+        showBackButton: true,
+        onBack: () => Navigator.of(ctx).maybePop(),
+        pageTitle: NavBreadcrumb<String>(controller: _nav),
+        globalSearch: NavigationSidebarSearchField(controller: _nav),
+        actions: [_NotificationBell(), _UserAvatar()],
+      ),
+      sidebarBuilder: (ctx, mode) => NavigationSidebar<String>(
+        controller: _nav, mode: mode,
+        searchable: true, favoritable: true,
+        onNavigate: (n) => setState(() => _screen = n.value!),
+      ),
+      body: _PageFor(screen: _screen),
+    );
+  }
+
+  @override
+  void dispose() { _nav.dispose(); super.dispose(); }
+}
+```
+
+---
+
+## 2 · Full responsive shell — manual Row/Column (no NavigationShell)
+
+```dart
+class _AppShellState extends State<AppShell> {
+  final _nav = NavigationSidebarController<String>(
+    sections: kNavSections, active: 'dashboard', canGoBack: false,
   );
   String _screen = 'dashboard';
 
@@ -63,7 +102,34 @@ class _AppShellState extends State<AppShell> {
 
 ---
 
-## 2 · Localization — Arabic RTL
+## 3 · Footer sections + Fluent selection indicator
+
+```dart
+// Footer section (Settings / Help pinned to pane bottom):
+NavSection(
+  title: '',
+  placement: NavSectionPlacement.footer,
+  items: [
+    NavNode(id: 'help',     label: 'Help',     icon: Icons.help_outline,     value: 'help'),
+    NavNode(id: 'settings', label: 'Settings', icon: Icons.settings_outlined, value: 'settings'),
+  ],
+);
+
+// Fluent bar indicator — leading accent pill over tinted row:
+ThemeData(
+  extensions: [
+    NavigationSidebarThemeData.dark.copyWith(
+      selectionIndicator: NavSelectionIndicator.bar,
+      indicatorThickness: 3,
+      indicatorInset: 9,
+    ),
+  ],
+)
+```
+
+---
+
+## 4 · Localization — Arabic RTL
 
 ```dart
 Directionality(
@@ -87,7 +153,7 @@ NavigationSidebar<String>(
 
 ---
 
-## 3 · Navigation safety — locked/disabled nodes
+## 5 · Navigation safety — locked/disabled nodes
 
 ```dart
 // navigate() returns bool — false means refused:
@@ -113,7 +179,7 @@ NavNode(id: 'beta', label: 'Beta', value: 'beta', enabled: false);
 
 ---
 
-## 4 · Deep immutability + duplicate ID validation
+## 6 · Deep immutability + duplicate ID validation
 
 ```dart
 // Children/items are List.unmodifiable — mutation throws:
@@ -131,7 +197,7 @@ assert(dups.isEmpty, 'Duplicate nav ids: $dups');
 
 ---
 
-## 5 · Live badge updates + collapse toggle
+## 7 · Live badge updates + collapse toggle
 
 ```dart
 // Hot-swap sections to update badge counts:
@@ -150,7 +216,7 @@ IconButton(icon: const Icon(Icons.view_sidebar_outlined),
 
 ---
 
-## 6 · Custom theme + RTL
+## 8 · Custom theme + RTL
 
 ```dart
 final warmTheme = NavigationSidebarThemeData.light.copyWith(

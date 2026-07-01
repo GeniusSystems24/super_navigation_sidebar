@@ -5,7 +5,50 @@ Realistic, copy-ready recipes. Each assumes the import +
 
 ---
 
-## 1 · Full responsive app shell (expanded / rail / drawer from width)
+## 1 · NavigationShell — recommended full-app wrapper
+
+```dart
+class _AppShellState extends State<AppShell> {
+  final _nav = NavigationSidebarController<String>(
+    sections: kNavSections, active: 'dashboard',
+    canGoBack: false,
+  );
+  String _screen = 'dashboard';
+
+  @override
+  Widget build(BuildContext context) {
+    return NavigationShell<String>(
+      controller: _nav,
+      headerLayout: NavShellHeaderLayout.spanning,
+      paneBehavior: NavPaneBehavior.push,
+      appBarBuilder: (ctx, mode) => NavigationSidebarAppBar(
+        controller: _nav,
+        mode: mode,
+        showBackButton: true,
+        onBack: () => Navigator.of(ctx).maybePop(),
+        pageTitle: NavBreadcrumb<String>(controller: _nav),
+        globalSearch: NavigationSidebarSearchField(controller: _nav),
+        actions: [_NotificationBell(), _UserAvatar()],
+      ),
+      sidebarBuilder: (ctx, mode) => NavigationSidebar<String>(
+        controller: _nav,
+        mode: mode,
+        searchable: true,
+        favoritable: true,
+        onNavigate: (n) => setState(() => _screen = n.value!),
+      ),
+      body: _PageFor(screen: _screen),
+    );
+  }
+
+  @override
+  void dispose() { _nav.dispose(); super.dispose(); }
+}
+```
+
+---
+
+## 2 · Full responsive app shell — manual Row/Column (no NavigationShell)
 
 ```dart
 class AppShell extends StatefulWidget {
@@ -17,6 +60,7 @@ class AppShell extends StatefulWidget {
 class _AppShellState extends State<AppShell> {
   final _nav = NavigationSidebarController<String>(
     sections: kNavSections, active: 'dashboard',
+    canGoBack: false,
   );
   String _screen = 'dashboard';
   NavSidebarMode? _prevMode;
@@ -83,13 +127,15 @@ class _AppShellState extends State<AppShell> {
 
 ---
 
-## 2 · AppBar with global search, workspace switcher, user info
+## 3 · AppBar with global search, back button, workspace switcher, user info
 
 ```dart
 NavigationSidebarAppBar(
   controller: nav,
   mode: mode,
   showCollapseToggle: true,
+  showBackButton: true,          // enabled while nav.canGoBack == true
+  onBack: () => router.pop(),
 
   // Breadcrumb reads ancestor path from the controller live:
   pageTitle: NavBreadcrumb<String>(
@@ -117,7 +163,7 @@ NavigationSidebarAppBar(
 
 ---
 
-## 3 · Deep-link navigation from inside page content
+## 4 · Deep-link navigation from inside page content
 
 `navigate(id)` auto-expands every ancestor module and closes the drawer.
 `NavigationSidebarController.of<T>(context)` makes it available anywhere
@@ -147,7 +193,7 @@ final labels = ancestors.map((id) => _nav.node(id)?.label ?? id).join(' › ');
 
 ---
 
-## 4 · Live badge updates + collapse toggle
+## 5 · Live badge updates + collapse toggle
 
 ```dart
 // Badges carry a tone — pill on expanded rows, dot on rail/collapsed icons:
@@ -171,7 +217,45 @@ IconButton(icon: const Icon(Icons.view_sidebar_outlined), onPressed: _nav.toggle
 
 ---
 
-## 5 · Localization — Arabic RTL
+## 6 · Footer sections (Settings / Help pinned to pane bottom)
+
+```dart
+// NavSectionPlacement.footer pins the section below the scroll area:
+NavSection(
+  title: '',
+  placement: NavSectionPlacement.footer,
+  items: [
+    NavNode(id: 'help',     label: 'Help & Docs', icon: Icons.help_outline,     value: 'help'),
+    NavNode(id: 'settings', label: 'Settings',    icon: Icons.settings_outlined, value: 'settings',
+            shortcut: ['g', 's']),
+  ],
+);
+
+// Footer items participate in the selection model normally:
+nav.navigate('settings'); // highlights the footer row, breadcrumb updates
+```
+
+---
+
+## 7 · Fluent bar selection indicator
+
+```dart
+// In your ThemeData:
+ThemeData(
+  extensions: [
+    NavigationSidebarThemeData.dark.copyWith(
+      selectionIndicator: NavSelectionIndicator.bar,
+      indicatorThickness: 3,
+      indicatorInset: 9,
+    ),
+  ],
+)
+// Works in expanded, rail, and drawer modes simultaneously.
+```
+
+---
+
+## 8 · Localization — Arabic RTL
 
 ```dart
 Directionality(
@@ -193,7 +277,7 @@ NavigationSidebarAppBar(
 
 ---
 
-## 6 · Custom localization (partial override)
+## 9 · Custom localization (partial override)
 
 ```dart
 // Only override the strings you need — the rest stay English:
@@ -217,7 +301,7 @@ NavigationSidebar<String>(
 
 ---
 
-## 7 · Permission-gated + status-dotted nodes (ERP)
+## 10 · Permission-gated + status-dotted nodes (ERP)
 
 ```dart
 // Locked node — dimmed, lock glyph, navigation refused, onNavigate never fires:
@@ -250,7 +334,7 @@ NavigationSidebar<String>(
 
 ---
 
-## 8 · Deep immutability + duplicate ID validation
+## 11 · Deep immutability + duplicate ID validation
 
 ```dart
 // Children and items are unmodifiable after construction.
@@ -272,7 +356,7 @@ assert(dups.isEmpty, 'Duplicate nav ids: $dups');
 
 ---
 
-## 9 · Custom theme + RTL + branded colours
+## 12 · Custom theme + RTL + branded colours
 
 ```dart
 // Warm sidebar — every copyWith field explained:
@@ -306,7 +390,7 @@ Theme(
 
 ---
 
-## 10 · Quick Access favorites
+## 13 · Quick Access favorites
 
 ```dart
 // Pre-seed favorites in the controller:

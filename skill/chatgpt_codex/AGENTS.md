@@ -10,7 +10,7 @@ package.
 
 ```
 name:    super_navigation_sidebar
-version: 1.2.0
+version: 2.0.0
 import:  package:super_navigation_sidebar/super_navigation_sidebar.dart
 ```
 
@@ -74,14 +74,19 @@ MaterialApp(
 
 ### `NavigationSidebarController<T>` key methods
 
-| Method | Returns | Effect |
+| Method / Property | Returns | Effect |
 |---|---|---|
 | `navigate(id)` | `bool` | Set active + open ancestors + close drawer. `false` if locked/disabled/missing. |
 | `toggleCollapsed()` | `void` | expanded ↔ rail. |
-| `openDrawer()` / `closeDrawer()` | `void` | Drawer state. |
+| `collapsed = true` | — | Force rail. |
+| `openDrawer()` / `closeDrawer()` / `toggleDrawer()` | `void` | Drawer state. |
+| `canGoBack = bool` | — | Enables AppBar back button. Bind to `router.canPop()`. |
+| `expand(id)` / `collapse(id)` / `toggleNode(id)` | `void` | Single-node expansion. |
 | `expandAll()` / `collapseAll()` | `void` | Bulk expansion. |
+| `setQuery(q)` | `void` | Drives built-in search filter. |
+| `toggleFavorite(id)` / `setFavorites(ids)` | `void` | Quick Access management. |
 | `replaceSections(s)` | `void` | Hot-swap section forest (validates duplicates in debug). |
-| `of<T>(context)` | `controller?` | Scope accessor from page content (may be null). |
+| `of<T>(context)` | `controller?` | `NavigationSidebarScope` accessor from any descendant (may be null). |
 
 ### `NavigationSidebar<T>` key props
 
@@ -92,6 +97,7 @@ MaterialApp(
 | `mode` | `expanded` | `expanded` / `rail` / `drawer` |
 | `showGuides` | `true` | │ ├ └ connectors. |
 | `railFlyouts` | `true` | Module hover flyouts in rail. |
+| `showPaneToggle` | `false` | Top-of-pane menu button (collapse ↔ expand). Enable when no AppBar carries the toggle. |
 | `shortcutMode` | `onHover` | Keycap visibility — `onHover`/`always`/`hidden`; always a tooltip. |
 | `searchable` | `false` | Built-in filter field + match highlight. |
 | `favoritable` | `false` | Per-row star + synthesized Quick Access band. |
@@ -101,6 +107,23 @@ MaterialApp(
 | `onNavigate` | `null` | Called **only when navigation succeeds** (never for locked/disabled nodes). |
 
 ---
+
+## New in 2.0
+
+- **`NavigationShell<T>`** — full-app shell that composes bar + pane + body.
+  Props: `headerLayout` (`spanning`/`inset`), `paneBehavior` (`push`/`overlay`),
+  `appBarBuilder`, `sidebarBuilder`, `body`, `mode`, `breakpoints`, `contentPadding`.
+- **`NavSectionPlacement.footer`** — pins a section to the pane bottom.
+- **`NavSelectionIndicator.bar`** — Fluent-style leading pill + tinted row.
+  Theme props: `selectionIndicator`, `indicatorThickness`, `indicatorInset`.
+- **Back button** — `NavigationSidebarAppBar(showBackButton: true, onBack: …)`;
+  enabled while `controller.canGoBack == true`.
+- **`showPaneToggle`** on `NavigationSidebar` — top-of-pane collapse button for
+  layouts with no AppBar.
+- **`NavigationSidebarScope<T>`** — publishes the controller via
+  `InheritedWidget`; access via `NavigationSidebarController.of<T>(context)`.
+- **`autoExpandActive`** — controller constructor flag (default `true`) to
+  auto-open ancestors when `active` changes.
 
 ## New in 1.2
 
@@ -124,7 +147,31 @@ MaterialApp(
 
 ## Patterns
 
-### Pattern A — Responsive shell with AppBar
+### Pattern A — NavigationShell (recommended)
+
+```dart
+NavigationShell<String>(
+  controller: nav,
+  headerLayout: NavShellHeaderLayout.spanning,
+  paneBehavior: NavPaneBehavior.push,
+  appBarBuilder: (ctx, mode) => NavigationSidebarAppBar(
+    controller: nav,
+    mode: mode,
+    showBackButton: true,
+    onBack: () => Navigator.of(ctx).maybePop(),
+    pageTitle: NavBreadcrumb<String>(controller: nav),
+    globalSearch: NavigationSidebarSearchField(controller: nav),
+  ),
+  sidebarBuilder: (ctx, mode) => NavigationSidebar<String>(
+    controller: nav,
+    mode: mode,
+    onNavigate: (n) => setState(() => screen = n.value!),
+  ),
+  body: page,
+)
+```
+
+### Pattern A2 — Manual responsive shell (no NavigationShell)
 
 ```dart
 LayoutBuilder(builder: (context, c) {
@@ -149,6 +196,8 @@ LayoutBuilder(builder: (context, c) {
         controller: nav,
         mode: mode,
         showCollapseToggle: true,
+        showBackButton: true,
+        onBack: () => Navigator.of(context).maybePop(),
         pageTitle: NavBreadcrumb<String>(controller: nav),
         globalSearch: NavigationSidebarSearchField(controller: nav),
       ),
@@ -158,49 +207,65 @@ LayoutBuilder(builder: (context, c) {
 })
 ```
 
-### Pattern B — Deep-link from page content
+### Pattern B — Footer sections (Settings / Help)
 
 ```dart
-NavigationSidebarController.of<String>(context)?.navigate('journals');
+NavSection(
+  title: '', placement: NavSectionPlacement.footer,
+  items: [
+    NavNode(id: 'help',     label: 'Help',     icon: Icons.help_outline,     value: 'help'),
+    NavNode(id: 'settings', label: 'Settings', icon: Icons.settings_outlined, value: 'settings'),
+  ],
+);
 ```
 
-### Pattern C — Live badge update
+### Pattern C — Fluent bar selection indicator
 
 ```dart
-// Hot-swap sections after badge counts change:
-_nav.replaceSections(updatedSections);
-```
-
----
-
-## Pattern B — Localization (Arabic)
-
-```dart
-Directionality(
-  textDirection: TextDirection.rtl,
-  child: NavigationSidebar<String>(
-    controller: nav,
-    mode: mode,
-    localizations: NavigationSidebarLocalizations.arabic,
+ThemeData(extensions: [
+  NavigationSidebarThemeData.dark.copyWith(
+    selectionIndicator: NavSelectionIndicator.bar,
+    indicatorThickness: 3, indicatorInset: 9,
   ),
-)
+])
 ```
 
-## Pattern C — Deep-link from page content
+### Pattern D — Deep-link from page content (NavigationSidebarScope)
 
 ```dart
 final ok = NavigationSidebarController.of<String>(context)?.navigate('journals');
 // ok == false means the node was locked or disabled — safe to check.
 ```
 
+### Pattern E — Live badge update
+
+```dart
+// Hot-swap sections after badge counts change:
+_nav.replaceSections(updatedSections);
+```
+
+### Pattern F — Localization (Arabic)
+
+```dart
+Directionality(
+  textDirection: TextDirection.rtl,
+  child: NavigationSidebar<String>(
+    controller: nav, mode: mode,
+    localizations: NavigationSidebarLocalizations.arabic,
+  ),
+)
+```
+
 ---
 
 ## Common mistakes
 
-- Not using `LayoutBuilder` — the widget doesn't auto-detect width.
+- Hand-wiring Row/Column/Stack instead of using `NavigationShell`.
+- Not using `LayoutBuilder` when building a manual shell — the widget doesn't auto-detect width.
 - Wrong nesting depth — role is positional; a depth-0 branch is always a module.
 - Using `value` as the nav key — `navigate()` uses `id`; `value` is your payload.
-- Placing the drawer in a `Row` instead of a `Stack + Positioned.fill`.
+- Placing the drawer in a `Row` instead of a `Stack + Positioned.fill` (or use `NavigationShell`).
 - Forgetting `ThemeData(extensions: [NavigationSidebarThemeData.light])`.
 - Using `const NavNode(…)` or `const NavSection(…)` — constructors are non-const since 1.2.
 - Expecting `onNavigate` to fire for locked/disabled nodes — it never does.
+- Not binding `canGoBack` to the router — the back button stays disabled otherwise.
