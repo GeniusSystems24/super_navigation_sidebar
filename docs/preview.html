@@ -418,6 +418,67 @@ body {
 .feat-note .msr { font-size: 18px; color: var(--accent); flex: none; }
 .feat-note code { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--accent); background: rgba(74,124,255,.1); padding: 1px 5px; border-radius: 5px; }
 
+/* ── search dialog trigger (allowSearchDialog) ───────── */
+.side-search-trigger {
+  height: 36px; flex: none; display: flex; align-items: center; gap: 8px;
+  padding: 0 8px 0 10px; margin-bottom: 10px; cursor: pointer;
+  background: var(--inputBg); border: 1px solid var(--border); border-radius: 8px;
+  transition: border-color .15s;
+}
+.side-search-trigger:hover { border-color: var(--borderStrong); }
+.side-search-trigger > .msr { font-size: 15px; color: var(--fg3); }
+.side-search-trigger .ph { flex: 1; min-width: 0; font-size: 12.5px; color: var(--fg4); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.side-search-trigger .slash {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--fg4);
+  border: 1px solid var(--border); border-radius: 6px; padding: 1px 6px; flex: none;
+}
+.rail-search {
+  width: 44px; height: 44px; border-radius: 10px; display: grid; place-items: center;
+  cursor: pointer; color: var(--fg3); background: var(--inputBg);
+  border: 1px solid var(--border); margin: 0 auto 5px;
+}
+.rail-search:hover { color: var(--fg1); }
+.rail-search .msr { font-size: 20px; }
+
+/* ── search dialog (NavSearchDialog) ───────────────── */
+.sd-scrim {
+  position: absolute; inset: 0; z-index: 70; background: rgba(8,9,12,.55);
+  display: flex; justify-content: center; align-items: flex-start;
+  padding: 74px 20px 20px; animation: sdFade .16s ease;
+}
+@keyframes sdFade { from { opacity: 0; } to { opacity: 1; } }
+.sd-card {
+  width: 100%; max-width: 560px; max-height: calc(100% - 110px);
+  background: var(--surface); border: 1px solid var(--borderStrong); border-radius: 16px;
+  box-shadow: 0 24px 60px -16px rgba(0,0,0,.6); overflow: hidden;
+  display: flex; flex-direction: column; animation: sdPop .18s var(--curve);
+}
+@keyframes sdPop { from { transform: translateY(-8px) scale(.98); opacity: 0; } to { transform: none; opacity: 1; } }
+.sd-input-row { display: flex; align-items: center; gap: 11px; padding: 14px 16px; border-bottom: 1px solid var(--border); flex: none; }
+.sd-input-row > .msr { font-size: 18px; color: var(--fg3); }
+.sd-input-row input { flex: 1; min-width: 0; border: 0; background: transparent; outline: none; font-family: 'Inter', sans-serif; font-size: 15px; color: var(--fg1); }
+.sd-input-row input::placeholder { color: var(--fg3); }
+.sd-esc { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--fg3); border: 1px solid var(--border); border-radius: 5px; padding: 3px 7px; cursor: pointer; flex: none; }
+.sd-results { overflow-y: auto; padding: 8px; }
+.sd-results::-webkit-scrollbar { width: 8px; }
+.sd-results::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; }
+.sd-count { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 1.2px; color: var(--fg4); padding: 4px 10px 6px; }
+.sd-group { font-size: 10.5px; font-weight: 700; letter-spacing: 1.3px; text-transform: uppercase; color: var(--fg3); padding: 10px 12px 5px; }
+.sd-row { display: flex; align-items: center; gap: 12px; padding: 9px 10px; border-radius: 7px; cursor: pointer; }
+.sd-row:hover { background: var(--hover); }
+.sd-row.active { background: var(--accentFill); }
+.sd-row .sd-ic { width: 30px; height: 30px; border-radius: 8px; flex: none; display: grid; place-items: center; background: var(--inputBg); }
+.sd-row.active .sd-ic { background: rgba(74,124,255,.16); }
+.sd-row .sd-ic .msr { font-size: 16px; color: var(--fg3); }
+.sd-row.active .sd-ic .msr { color: var(--accent); }
+.sd-row .sd-tx { flex: 1; min-width: 0; }
+.sd-row .sd-tx .l { font-size: 13.5px; font-weight: 500; color: var(--fg1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sd-row .sd-tx .s { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--fg3); }
+.sd-empty { text-align: center; padding: 28px; color: var(--fg3); font-size: 13.5px; }
+.sd-footer { display: flex; gap: 16px; padding: 10px 16px; border-top: 1px solid var(--border); flex: none; }
+.sd-hint { display: inline-flex; align-items: center; gap: 6px; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--fg4); }
+.sd-hint .k { border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; color: var(--fg3); }
+
 /* legend below the frame */
 .legend { margin-top: 22px; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px,1fr)); gap: 12px; }
 .legend .li { background: #101219; border: 1px solid #242835; border-radius: 12px; padding: 13px 15px; }
@@ -442,7 +503,7 @@ body {
   <header class="masthead">
     <div class="brand-mark"><span class="msr">dock_to_right</span></div>
     <div>
-      <h1>super_navigation_sidebar <span class="mono">v2.0.0</span></h1>
+      <h1>super_navigation_sidebar <span class="mono">v2.1.0</span></h1>
       <p>A themeable, responsive Flutter navigation sidebar. One data model renders in three modes — a full <b>expanded</b> tree with connectors, an icon-only <b>rail</b> with hover flyouts, and an off-canvas <b>drawer</b>. This page is a faithful browser recreation — every control below drives the real widget behavior.</p>
       <div class="pkg-pills">
         <span class="pkg-pill"><b>3</b> layout modes</span>
@@ -489,7 +550,8 @@ body {
       <label>Feature toggles</label>
       <div class="toggles" id="toggles">
         <button class="chip" data-flag="guides" aria-pressed="true"><span class="dot"><span class="msr">check</span></span>Tree guides</button>
-        <button class="chip" data-flag="searchable" aria-pressed="true"><span class="dot"><span class="msr">check</span></span>In-pane search</button>
+        <button class="chip" data-flag="allowSearchDialog" aria-pressed="true"><span class="dot"><span class="msr">check</span></span>Search dialog</button>
+        <button class="chip" data-flag="searchable" aria-pressed="false"><span class="dot"><span class="msr">check</span></span>Inline filter</button>
         <button class="chip" data-flag="favoritable" aria-pressed="true"><span class="dot"><span class="msr">check</span></span>Favorites</button>
         <button class="chip" data-flag="back" aria-pressed="true"><span class="dot"><span class="msr">check</span></span>Back button</button>
         <button class="chip" data-flag="shortcuts" aria-pressed="false"><span class="dot"><span class="msr">check</span></span>Always-on shortcuts</button>
@@ -521,7 +583,7 @@ body {
     <div class="li"><h4><span class="msr">circle</span>Status dots</h4><p><code>NavNodeStatus</code> marks fiscal-period state: open · closed · locked · attention.</p></div>
     <div class="li"><h4><span class="msr">bolt</span>Rail flyouts</h4><p>In rail mode, hovering a module opens a grouped flyout of its leaves.</p></div>
     <div class="li"><h4><span class="msr">star</span>Quick Access</h4><p><code>favoritable</code> adds per-row stars and a synthesized favorites band pinned on top.</p></div>
-    <div class="li"><h4><span class="msr">search</span>Filter + highlight</h4><p><code>searchable</code> matches every level, auto-expands hits and highlights the matched run.</p></div>
+    <div class="li"><h4><span class="msr">search</span>Command palette</h4><p><code>allowSearchDialog</code> — the single switch — puts a search trigger in the pane that opens a full <code>NavSearchDialog</code>. <code>searchable</code> is the separate inline tree filter.</p></div>
   </section>
 
   <p class="footer-note">Live recreation for docs · exact tokens from <code>lib/src/theme.dart</code> · the Flutter package is the source of truth.</p>
@@ -573,11 +635,17 @@ const SECTIONS = [
 ];
 
 const L10N = {
-  ltr: { searchHint:'Search navigation…', drawerTitle:'Navigation', quickAccess:'Quick Access',
+  ltr: { searchHint:'Search navigation…', searchDialogHint:'Search tabs & actions…',
+         drawerTitle:'Navigation', quickAccess:'Quick Access',
          empty:q=>`No matches for "${q}"`, addFav:'Add to Quick Access', remFav:'Remove from Quick Access',
+         sdEmpty:q=>`No tabs match "${q}"`, sdResult:'RESULT', sdResults:'RESULTS', sdAll:'ALL TABS', sdSystem:'System',
+         sdNavigate:'navigate', sdOpen:'open', sdClose:'close',
          appTitle:'Meridian', product:'Meridian ERP', workspace:'Treasury' },
-  rtl: { searchHint:'البحث في القائمة…', drawerTitle:'القائمة', quickAccess:'الوصول السريع',
+  rtl: { searchHint:'البحث في القائمة…', searchDialogHint:'ابحث في الصفحات والإجراءات…',
+         drawerTitle:'القائمة', quickAccess:'الوصول السريع',
          empty:q=>`لا توجد نتائج لـ "${q}"`, addFav:'إضافة للوصول السريع', remFav:'إزالة من الوصول السريع',
+         sdEmpty:q=>`لا تطابق أي صفحة "${q}"`, sdResult:'نتيجة', sdResults:'نتيجة', sdAll:'كل الصفحات', sdSystem:'النظام',
+         sdNavigate:'تنقل', sdOpen:'فتح', sdClose:'إغلاق',
          appTitle:'ميريديان', product:'ميريديان إدارة', workspace:'الخزينة' },
 };
 
@@ -597,7 +665,7 @@ const AR_SECTIONS = { 'Overview':'نظرة عامة', 'Finance':'المالية'
    ════════════════════════════════════════════════════════════ */
 const state = {
   mode: 'expanded', theme: 'dark', ind: 'fill', dir: 'ltr',
-  guides: true, searchable: true, favoritable: true, back: true, shortcuts: false,
+  guides: true, allowSearchDialog: true, searchable: false, favoritable: true, back: true, shortcuts: false,
   active: 'accTree',
   expanded: new Set(['accounts','coa']),
   favorites: new Set(['journalEntry','trialBalance']),
@@ -785,7 +853,8 @@ function renderExpandedPane(inDrawer=false){
     }
   }
 
-  const search = (state.searchable) ? sideSearch() : '';
+  const search = state.allowSearchDialog ? sideSearchTrigger()
+               : (state.searchable ? sideSearch() : '');
   const header = paneHeader();
   const footer = footSecs.length ? paneFooter(footSecs) : '';
 
@@ -805,6 +874,16 @@ function sideSearch(){
     <input id="sideSearchInput" placeholder="${T().searchHint}" value="${esc(state.query)}">
     <button class="clr" id="sideSearchClr" style="display:${has?'block':'none'}">${ic('close')}</button>
   </div>`;
+}
+function sideSearchTrigger(){
+  return `<div class="side-search-trigger" id="sideSearchTrigger">
+    ${ic('search')}
+    <span class="ph">${T().searchDialogHint}</span>
+    <span class="slash">/</span>
+  </div>`;
+}
+function railSearchButton(){
+  return `<div class="rail-search" id="railSearchBtn" title="${T().searchDialogHint}">${ic('search')}</div>`;
 }
 function paneFooter(footSecs){
   let html = `<div class="foot-div"></div>`;
@@ -847,7 +926,8 @@ function renderRailPane(){
     footSecs.forEach(sec=>sec.items.forEach(n=>{ html += railItem(n); }));
   }
   html += `</div>`;
-  return { header: paneHeader(), search:'', scroll: html, footer:'' };
+  const search = state.allowSearchDialog ? railSearchButton() : '';
+  return { header: paneHeader(), search, scroll: html, footer:'' };
 }
 
 /* ── flyout (rail hover) ────────────────────────────────── */
@@ -893,6 +973,105 @@ function showFlyout(btn, module){
 function scheduleHide(){ clearTimeout(flyoutTimer); flyoutTimer=setTimeout(()=>{ if(!flyoutOverIt&&!flyoutOverPanel) hideFlyout(); },130); }
 function hideFlyout(){ if(flyoutEl){ flyoutEl.remove(); flyoutEl=null; } }
 
+/* ═════════════════════════════════════════════════════════
+   SEARCH DIALOG — mirrors NavSearchDialog / NavSearchOps.
+   Opened by the sidebar's allowSearchDialog trigger; overlays the frame.
+   ═════════════════════════════════════════════════════════ */
+let sdEl=null, sdQuery='', sdAllHits=[];
+
+// NavSearchOps.buildIndex — flatten navigable leaves to hits (labels resolved
+// for the current direction at open time).
+function buildSearchHits(){
+  const out=[];
+  for(const sec of SECTIONS){
+    const modName = sec.title.trim() ? secTitle(sec.title) : T().sdSystem;
+    for(const top of sec.items){
+      if(!top.children.length){
+        out.push({ id:top.id, label:labelOf(top), icon:top.icon||'radio_button_unchecked', module:modName, group:'', badge:top.badge });
+      } else {
+        for(const grp of top.children){
+          const leaves = grp.children.length ? grp.children : [grp];
+          for(const lf of leaves){
+            out.push({ id:lf.id, label:labelOf(lf), icon:lf.icon||'radio_button_unchecked', module:labelOf(top), group: grp.children.length?labelOf(grp):'', badge:lf.badge });
+          }
+        }
+      }
+    }
+  }
+  return out;
+}
+
+// NavSearchOps.filter — tokenised multi-word match.
+function sdFilter(hits){
+  const q = sdQuery.trim().toLowerCase();
+  if(!q) return hits;
+  const toks = q.split(/\s+/);
+  return hits.filter(h=>{
+    const hay = `${h.label} ${h.group} ${h.module}`.toLowerCase();
+    return toks.every(t=>hay.includes(t));
+  });
+}
+
+function sdResultsHtml(){
+  const hits = sdFilter(sdAllHits);
+  if(!hits.length) return `<div class="sd-empty">${esc(T().sdEmpty(sdQuery.trim()))}</div>`;
+  const q = sdQuery.trim();
+  const count = q ? `${hits.length} ${hits.length===1?T().sdResult:T().sdResults}` : `${T().sdAll} · ${sdAllHits.length}`;
+  let html = `<div class="sd-count">${esc(count)}</div>`;
+  const groups = new Map();
+  for(const h of hits){ if(!groups.has(h.module)) groups.set(h.module, []); groups.get(h.module).push(h); }
+  for(const [mod, arr] of groups){
+    html += `<div class="sd-group">${esc(mod)}</div>`;
+    for(const h of arr){
+      const active = state.active===h.id;
+      html += `<div class="sd-row ${active?'active':''}" data-sd-nav="${h.id}">
+        <span class="sd-ic">${ic(h.icon)}</span>
+        <span class="sd-tx"><span class="l">${esc(h.label)}</span><span class="s">${esc(h.group||h.module)}</span></span>
+        ${h.badge?badgeHtml(h.badge):''}
+      </div>`;
+    }
+  }
+  return html;
+}
+
+function bindSDRows(){
+  sdEl.querySelectorAll('[data-sd-nav]').forEach(el=>{
+    el.addEventListener('click', ()=>{ const id=el.dataset.sdNav; closeSearchDialog(); navigate(id); });
+  });
+}
+function sdKey(e){ if(e.key==='Escape'){ e.preventDefault(); closeSearchDialog(); } }
+
+function openSearchDialog(){
+  if(sdEl) return;
+  sdQuery=''; sdAllHits = buildSearchHits();
+  sdEl = document.createElement('div');
+  sdEl.className='sd-scrim';
+  sdEl.dir = state.dir;
+  sdEl.innerHTML = `
+    <div class="sd-card" role="dialog" aria-label="${T().searchDialogHint}">
+      <div class="sd-input-row">
+        ${ic('search')}
+        <input id="sdInput" placeholder="${T().searchDialogHint}" autocomplete="off">
+        <span class="sd-esc" id="sdEsc">ESC</span>
+      </div>
+      <div class="sd-results" id="sdResults">${sdResultsHtml()}</div>
+      <div class="sd-footer">
+        <span class="sd-hint"><span class="k">↑↓</span>${T().sdNavigate}</span>
+        <span class="sd-hint"><span class="k">↵</span>${T().sdOpen}</span>
+        <span class="sd-hint"><span class="k">esc</span>${T().sdClose}</span>
+      </div>
+    </div>`;
+  document.querySelector('.frame').appendChild(sdEl);
+  const input = sdEl.querySelector('#sdInput');
+  input.addEventListener('input', ()=>{ sdQuery=input.value; document.getElementById('sdResults').innerHTML = sdResultsHtml(); bindSDRows(); });
+  bindSDRows();
+  sdEl.addEventListener('mousedown', e=>{ if(e.target===sdEl) closeSearchDialog(); });
+  sdEl.querySelector('#sdEsc').addEventListener('click', closeSearchDialog);
+  document.addEventListener('keydown', sdKey);
+  setTimeout(()=>input.focus(), 30);
+}
+function closeSearchDialog(){ if(sdEl){ sdEl.remove(); sdEl=null; document.removeEventListener('keydown', sdKey); } }
+
 /* ════════════════════════════════════════════════════════════
    APP BAR + CONTENT
    ════════════════════════════════════════════════════════════ */
@@ -910,9 +1089,7 @@ function renderAppBar(){
     : `<button class="tbtn" id="collapseToggle" aria-label="Toggle sidebar">${ic(state.collapsed?'view_sidebar':'view_sidebar')}</button>`;
   const backBtn = state.back
     ? `<button class="tbtn" id="backBtn" ${state.canGoBack?'':'disabled'} aria-label="Back">${ic(state.dir==='rtl'?'arrow_forward':'arrow_back')}</button>` : '';
-  const search = !drawer
-    ? `<div class="global-search">${ic('search')}<input placeholder="${T().searchHint}" id="globalSearchInput" value="${esc(state.query)}"></div>`
-    : `<div class="grow"></div>`;
+  const search = drawer ? `<div class="grow"></div>` : `<div class="grow"></div>`;
   document.getElementById('appbar').innerHTML = `
     ${backBtn}${leading}
     <span class="title">${T().appTitle}</span>
@@ -1015,9 +1192,12 @@ function wire(){
   const bk=document.getElementById('backBtn'); if(bk) bk.onclick=()=>{ if(state.canGoBack){ /* host router.pop() */ } };
   const dc=document.getElementById('drawerClose'); if(dc) dc.onclick=()=>{ state.drawerOpen=false; render(); };
   const sc=document.getElementById('scrim'); if(sc) sc.onclick=()=>{ state.drawerOpen=false; render(); };
-  // search inputs (both drive controller.setQuery)
-  bindSearch('sideSearchInput'); bindSearch('globalSearchInput');
+  // inline filter field (searchable)
+  bindSearch('sideSearchInput');
   const clr=document.getElementById('sideSearchClr'); if(clr) clr.onclick=()=>{ state.query=''; render(); focusSearch(); };
+  // command palette triggers (allowSearchDialog)
+  const sst=document.getElementById('sideSearchTrigger'); if(sst) sst.onclick=openSearchDialog;
+  const rsb=document.getElementById('railSearchBtn'); if(rsb) rsb.onclick=openSearchDialog;
 }
 let _focusSearch=false;
 function focusSearch(){ _focusSearch=true; }

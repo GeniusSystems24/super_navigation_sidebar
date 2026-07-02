@@ -4,9 +4,9 @@ description: >
   How to use the super_navigation_sidebar Flutter package — a themeable,
   responsive app navigation sidebar with expanded / rail / drawer modes, a typed
   NavNode<T> tree, badges, shortcut hints, NavigationShell + AppBar integration,
-  footer sections, Fluent selection indicator, back button, localization,
-  accessibility, RTL and deep immutability. Use when building or modifying a
-  Flutter app's left-nav.
+  built-in command-palette search dialog, footer sections, Fluent selection
+  indicator, back button, localization, accessibility, RTL and deep immutability.
+  Use when building or modifying a Flutter app's left-nav.
 ---
 
 # super_navigation_sidebar · NavigationSidebar
@@ -185,7 +185,9 @@ NavigationSidebar<T>(
   showPaneToggle: false,           // top-of-pane menu button (collapse ↔ expand);
                                    // enable when there is no AppBar carrying the toggle
   shortcutMode: NavShortcutMode.onHover, // onHover / always / hidden
-  searchable: true,                // built-in filter field + match highlight
+  searchable: true,                // built-in inline filter field + match highlight
+  allowSearchDialog: true,         // command palette — the single switch for dialog search
+  onSearchPick: (node) {},         // optional; navigates + falls back to onNavigate
   favoritable: true,               // per-row star + synthesized Quick Access band
   drawerTitle: 'Navigation',       // overrides localizations.drawerTitle
   searchHint: 'Search…',          // overrides localizations.searchHint
@@ -266,13 +268,51 @@ NavBreadcrumb<String>(
 
 ### NavigationSidebarSearchField
 
-A compact field that drives `controller.setQuery`:
+The inline filter field — drives `controller.setQuery` (pair with
+`NavigationSidebar.searchable`). It does **not** open the dialog:
 
 ```dart
 NavigationSidebarSearchField(
   controller: nav,
   hint: 'Search accounts, journals, reports…',
 )
+```
+
+### Command palette — `allowSearchDialog`
+
+The single switch that enables dialog search. The sidebar renders the trigger
+in the pane and opens `NavSearchDialog` end-to-end:
+
+```dart
+NavigationSidebar<String>(
+  controller: nav,
+  allowSearchDialog: true,          // ← the only switch that enables search
+  searchHint: 'Search tabs & actions…',
+  onSearchPick: (node) { … },       // optional; navigates + falls back to onNavigate
+)
+```
+
+### Command-palette dialog (standalone primitives)
+
+For custom entry points (a button, a keyboard shortcut):
+
+```dart
+// Imperative — no Stack needed:
+showNavSearchDialog<String>(context, controller: nav);
+
+// Manual Stack placement:
+Stack(children: [
+  MyShell(),
+  if (_open)
+    NavSearchDialog<String>(
+      controller: nav,
+      onClose: () => setState(() => _open = false),
+    ),
+])
+
+// Build a custom search UI with the helpers:
+final index = NavSearchOps.buildIndex<String>(nav.sections);
+final hits  = NavSearchOps.filter(index, query);
 ```
 
 ## Localization
@@ -496,7 +536,7 @@ Directionality(textDirection: TextDirection.rtl, child: NavigationSidebar(...))
 7. **Shortcuts are visual hints only** — wire keystrokes yourself.
 8. **No `const NavNode/NavSection`** — constructors are non-const since 1.2.
 9. **`navigate()` returns `bool`** — void call sites compile unchanged.
-10. **Overlay pane** — construct the controller with `collapsed: true`.
+10. **`NavigationSidebar(allowSearchDialog: true)`** → the single switch for the command palette. `showNavSearchDialog` is the imperative escape hatch.
 
 ## Reference
 

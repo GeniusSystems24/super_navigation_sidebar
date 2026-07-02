@@ -39,6 +39,7 @@ import 'package:flutter/services.dart';
 import 'controller.dart';
 import 'localizations.dart';
 import 'models.dart';
+import 'search_dialog.dart';
 import 'theme.dart';
 
 typedef NavSidebarSlotBuilder = Widget Function(BuildContext context, bool collapsed);
@@ -88,9 +89,25 @@ class NavigationSidebar<T> extends StatefulWidget {
   /// Show a built-in search field above the tree (expanded / drawer modes).
   final bool searchable;
 
-  /// Placeholder for the [searchable] field. Overrides
+  /// Placeholder for the [searchable] / [allowSearchDialog] field. Overrides
   /// [localizations.searchHint] when set.
   final String? searchHint;
+
+  /// Enable the built-in [NavSearchDialog] command palette.
+  ///
+  /// This is the single switch that turns on dialog search: the sidebar
+  /// renders a search trigger inside the pane — a field in expanded / drawer
+  /// modes, an icon button in rail mode — and opens the dialog via the root
+  /// [Overlay] on tap. No `Stack` / `Overlay` wiring is needed in the host app.
+  ///
+  /// Takes precedence over [searchable] when both are `true`.
+  final bool allowSearchDialog;
+
+  /// Called when the user picks a result in the [allowSearchDialog] palette.
+  ///
+  /// The controller navigates to the picked node first; when this is null the
+  /// sidebar falls back to [onNavigate]. Locked / disabled nodes never fire it.
+  final ValueChanged<NavNode<T>>? onSearchPick;
 
   /// Enable per-row star toggles and a synthesized "Quick Access" band.
   final bool favoritable;
@@ -128,6 +145,8 @@ class NavigationSidebar<T> extends StatefulWidget {
     this.shortcutMode = NavShortcutMode.onHover,
     this.searchable = false,
     this.searchHint,
+    this.allowSearchDialog = false,
+    this.onSearchPick,
     this.favoritable = false,
     this.quickAccessTitle,
     this.localizations = const NavigationSidebarLocalizations(),
@@ -205,6 +224,57 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
     if (!n.enabled || n.locked) return;
     final navigated = _controller.navigate(n.id);
     if (navigated) widget.onNavigate?.call(n);
+  }
+
+  /// Open the built-in command palette ([NavSearchDialog]) as an overlay.
+  ///
+  /// Enabled by [NavigationSidebar.allowSearchDialog]; the sidebar owns the
+  /// entire flow so host apps never build the dialog themselves. On pick the
+  /// controller navigates and [NavigationSidebar.onSearchPick] (falling back
+  /// to [NavigationSidebar.onNavigate]) fires for the chosen node.
+  void _openSearchDialog() {
+    if (widget.mode == NavSidebarMode.drawer) _controller.closeDrawer();
+    showNavSearchDialog<T>(
+      context,
+      controller: _controller,
+      hint: _searchHint,
+      onPick: (id) {
+        if (!_controller.navigate(id)) return;
+        final n = _controller.node(id);
+        if (n != null) (widget.onSearchPick ?? widget.onNavigate)?.call(n);
+      },
+    );
+  }
+
+  // Rail-mode search launcher (icon button sized like a rail item).
+  Widget _railSearchButton(NavigationSidebarThemeData t) {
+    return Semantics(
+      button: true,
+      label: _searchHint,
+      child: Tooltip(
+        message: _searchHint,
+        waitDuration: const Duration(milliseconds: 450),
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: _openSearchDialog,
+            child: Container(
+              width: t.railButton,
+              height: t.railButton,
+              alignment: Alignment.center,
+              margin: const EdgeInsets.symmetric(vertical: 2.5),
+              decoration: BoxDecoration(
+                color: t.inputBg,
+                borderRadius: BorderRadius.circular(t.radiusLg),
+                border: Border.all(color: t.border),
+              ),
+              child: Icon(Icons.search, size: t.railIconSize, color: t.fg3),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   bool get _railed =>
@@ -410,7 +480,12 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
             widget.header!(context, railed),
             const SizedBox(height: 12),
           ],
-          if (widget.searchable && !railed) ...[
+          if (widget.allowSearchDialog) ...[
+            railed
+                ? _railSearchButton(t)
+                : _SearchTrigger(hint: _searchHint, onTap: _openSearchDialog),
+            SizedBox(height: railed ? 6 : 10),
+          ] else if (widget.searchable && !railed) ...[
             _SearchField(
               controller: _search,
               hint: _searchHint,
@@ -1712,6 +1787,84 @@ class _SearchField extends StatelessWidget {
 }
 
 // ── Star toggle ────────────────────────────────────────────────────
+// ── Search dialog trigger ──────────────────────────────────
+// A field-styled button that opens NavSearchDialog. Rendered inside the pane
+// when NavigationSidebar.allowSearchDialog is enabled (expanded / drawer).
+class _SearchTrigger extends StatefulWidget {
+  final String hint;
+  final VoidCallback onTap;
+  const _SearchTrigger({required this.hint, required this.onTap});
+
+  @override
+  State<_SearchTrigger> createState() => _SearchTriggerState();
+}
+
+class _SearchTriggerState extends State<_SearchTrigger> {
+  bool _hover = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = NavigationSidebarThemeData.of(context);
+    return Semantics(
+      button: true,
+      label: widget.hint,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        onEnter: (_) => setState(() => _hover = true),
+        onExit: (_) => setState(() => _hover = false),
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: widget.onTap,
+          child: AnimatedContainer(
+            duration: NavigationSidebarThemeData.durFast,
+            height: 36,
+            padding: const EdgeInsetsDirectional.only(start: 10, end: 8),
+            decoration: BoxDecoration(
+              color: t.inputBg,
+              borderRadius: BorderRadius.circular(t.radiusMd),
+              border: Border.all(color: _hover ? t.borderStrong : t.border),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.search, size: 15, color: t.fg3),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    widget.hint,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontFamily: NavigationSidebarThemeData.bodyFont,
+                      fontSize: 12.5,
+                      color: t.fg4,
+                    ),
+                  ),
+                ),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: t.border),
+                    borderRadius: BorderRadius.circular(t.radiusSm),
+                  ),
+                  child: Text(
+                    '/',
+                    style: TextStyle(
+                      fontFamily: NavigationSidebarThemeData.monoFont,
+                      fontSize: 10,
+                      color: t.fg4,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _StarButton extends StatelessWidget {
   final bool on;
   final bool onAccent;

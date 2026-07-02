@@ -21,3 +21,4 @@ export 'src/controller.dart';
 export 'src/sidebar.dart';
 export 'src/appbar.dart';
 export 'src/shell.dart';
+export 'src/search_dialog.dart';

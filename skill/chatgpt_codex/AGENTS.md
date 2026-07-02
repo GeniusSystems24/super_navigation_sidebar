@@ -10,7 +10,7 @@ package.
 
 ```
 name:    super_navigation_sidebar
-version: 2.0.0
+version: 2.1.0
 import:  package:super_navigation_sidebar/super_navigation_sidebar.dart
 ```
 
@@ -29,7 +29,7 @@ Apply this skill when the user asks for:
 
 ```yaml
 dependencies:
-  super_navigation_sidebar: ^1.2.0
+  super_navigation_sidebar: ^2.1.0
 ```
 
 ### 2 · Register the theme extension
@@ -99,7 +99,9 @@ MaterialApp(
 | `railFlyouts` | `true` | Module hover flyouts in rail. |
 | `showPaneToggle` | `false` | Top-of-pane menu button (collapse ↔ expand). Enable when no AppBar carries the toggle. |
 | `shortcutMode` | `onHover` | Keycap visibility — `onHover`/`always`/`hidden`; always a tooltip. |
-| `searchable` | `false` | Built-in filter field + match highlight. |
+| `searchable` | `false` | Built-in inline filter field + match highlight. |
+| `allowSearchDialog` | `false` | Command palette — the single switch for dialog search. Trigger in pane; opens `NavSearchDialog`. Precedence over `searchable`. |
+| `onSearchPick` | `null` | `ValueChanged<NavNode<T>>` after a palette pick; falls back to `onNavigate`. |
 | `favoritable` | `false` | Per-row star + synthesized Quick Access band. |
 | `header` | `null` | `(ctx, collapsed) → Widget` slot. |
 | `footer` | `null` | `(ctx, collapsed) → Widget` slot. |
@@ -107,6 +109,25 @@ MaterialApp(
 | `onNavigate` | `null` | Called **only when navigation succeeds** (never for locked/disabled nodes). |
 
 ---
+
+## New in 2.1
+
+- **`NavigationSidebar.allowSearchDialog`** (bool, default `false`) — the single
+  switch that enables the command palette. Renders a search trigger in the pane
+  (field in expanded/drawer, icon button in rail) and opens `NavSearchDialog`
+  via `Overlay`. No `Stack`/`Overlay` wiring in the host app. Precedence over
+  `searchable`.
+- **`NavigationSidebar.onSearchPick`** — `ValueChanged<NavNode<T>>`; fires after
+  navigate, falls back to `onNavigate` when null.
+- **`NavSearchDialog<T>`** — the overlay widget behind it. Requires a `Stack`
+  ancestor. Constructor: `controller`, `onClose`, `onPick`, `hint`.
+- **`showNavSearchDialog<T>(context, {controller, onPick, hint})`** — opens
+  `NavSearchDialog` via `Overlay` (no Stack needed) — imperative escape hatch.
+- **`NavSearchHit`** — public model: `id`, `label`, `icon`, `module`, `group`,
+  `badge`, `shortcut`.
+- **`NavSearchOps`** — `buildIndex<T>(sections)` + `filter(index, query)`.
+- **`NavigationSidebarSearchField`** — unchanged; the inline `setQuery` filter
+  field (pair with `searchable`). It does **not** open the dialog.
 
 ## New in 2.0
 
@@ -147,7 +168,7 @@ MaterialApp(
 
 ## Patterns
 
-### Pattern A — NavigationShell (recommended)
+### Pattern A — NavigationShell with command-palette search (recommended)
 
 ```dart
 NavigationShell<String>(
@@ -160,15 +181,23 @@ NavigationShell<String>(
     showBackButton: true,
     onBack: () => Navigator.of(ctx).maybePop(),
     pageTitle: NavBreadcrumb<String>(controller: nav),
-    globalSearch: NavigationSidebarSearchField(controller: nav),
   ),
   sidebarBuilder: (ctx, mode) => NavigationSidebar<String>(
     controller: nav,
     mode: mode,
+    allowSearchDialog: true,   // ← single switch: sidebar owns the palette
+    searchHint: 'Search tabs & actions…',
     onNavigate: (n) => setState(() => screen = n.value!),
   ),
   body: page,
 )
+```
+
+### Pattern A1 — Imperative dialog (from a button / keyboard shortcut)
+
+```dart
+// From any BuildContext — no Stack required:
+showNavSearchDialog<String>(context, controller: nav);
 ```
 
 ### Pattern A2 — Manual responsive shell (no NavigationShell)
@@ -268,4 +297,4 @@ Directionality(
 - Forgetting `ThemeData(extensions: [NavigationSidebarThemeData.light])`.
 - Using `const NavNode(…)` or `const NavSection(…)` — constructors are non-const since 1.2.
 - Expecting `onNavigate` to fire for locked/disabled nodes — it never does.
-- Not binding `canGoBack` to the router — the back button stays disabled otherwise.
+- Not setting `NavigationSidebar.allowSearchDialog: true` when a command palette is the intended UX — it is the single switch; the sidebar owns the whole dialog.

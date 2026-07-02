@@ -27,13 +27,13 @@ class _AppShellState extends State<AppShell> {
         showBackButton: true,
         onBack: () => Navigator.of(ctx).maybePop(),
         pageTitle: NavBreadcrumb<String>(controller: _nav),
-        globalSearch: NavigationSidebarSearchField(controller: _nav),
         actions: [_NotificationBell(), _UserAvatar()],
       ),
       sidebarBuilder: (ctx, mode) => NavigationSidebar<String>(
         controller: _nav,
         mode: mode,
-        searchable: true,
+        allowSearchDialog: true,   // command palette — the single search switch
+        searchHint: 'Search tabs & actions…',
         favoritable: true,
         onNavigate: (n) => setState(() => _screen = n.value!),
       ),
@@ -388,9 +388,55 @@ Theme(
 )
 ```
 
----
+## 14 · Command-palette search dialog
 
-## 13 · Quick Access favorites
+Enable the palette with a single switch on the sidebar — no dialog code in the
+host app.
+
+```dart
+// The single switch. Sidebar renders the trigger + opens NavSearchDialog:
+NavigationSidebar<String>(
+  controller: _nav,
+  allowSearchDialog: true,
+  searchHint: 'Search tabs & actions…',
+  onSearchPick: (node) => setState(() => _screen = node.value!), // optional
+)
+
+// —— custom entry points (button / keyboard shortcut) ——
+
+// Imperative, from any BuildContext:
+showNavSearchDialog<String>(context, controller: _nav);
+
+// With a custom pick callback:
+showNavSearchDialog<String>(
+  context,
+  controller: _nav,
+  onPick: (id) {
+    _nav.navigate(id);
+    // extra side-effect here
+  },
+);
+
+// Embed directly in a Stack when you want full control:
+Stack(children: [
+  MyShell(),
+  if (_open)
+    NavSearchDialog<String>(
+      controller: _nav,
+      hint: 'Search…',
+      onClose: () => setState(() => _open = false),
+      onPick: (id) {
+        _nav.navigate(id);
+        setState(() => _open = false);
+      },
+    ),
+])
+
+// Build a custom UI with the low-level helpers:
+final index = NavSearchOps.buildIndex<String>(_nav.sections);
+// NavSearchHit: id · label · icon · module · group · badge · shortcut
+final hits = NavSearchOps.filter(index, 'journal entry');
+```
 
 ```dart
 // Pre-seed favorites in the controller:

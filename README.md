@@ -1,6 +1,6 @@
 # super_navigation_sidebar
 
-[![pub package](https://img.shields.io/badge/pub-v2.0.0-4A7CFF.svg)](https://pub.dev/packages/super_navigation_sidebar)
+[![pub package](https://img.shields.io/badge/pub-v2.1.0-4A7CFF.svg)](https://pub.dev/packages/super_navigation_sidebar)
 [![flutter](https://img.shields.io/badge/Flutter-%E2%89%A53.10-1DB88A.svg)](https://flutter.dev)
 [![style](https://img.shields.io/badge/style-MVC-F97316.svg)](#architecture)
 [![license](https://img.shields.io/badge/license-MIT-64748B.svg)](#license)
@@ -51,6 +51,9 @@ localization, accessibility, RTL. Zero third-party dependencies.
   Visual hints only — wiring the keystroke is the host app's responsibility.
 - 🔎 **Built-in search & filter** — `searchable: true` adds a filter field that
   matches every level, auto-expands hits, and highlights the matched run.
+- 🧭 **Command palette** — `allowSearchDialog: true` adds a search trigger to the
+  pane that opens a full `NavSearchDialog` overlay. The single switch that
+  enables dialog search — no `Stack` / `Overlay` wiring in the host app.
 - ⭐ **Quick Access favorites** — `favoritable: true` adds per-row star toggles
   and a synthesized favorites band pinned at the top.
 - 🔒 **Permission-gated nodes** — `NavNode.locked` + `lockMessage` dim a row,
@@ -80,7 +83,7 @@ localization, accessibility, RTL. Zero third-party dependencies.
 
 ```yaml
 dependencies:
-  super_navigation_sidebar: ^2.0.0
+  super_navigation_sidebar: ^2.1.0
 ```
 
 ```bash
@@ -334,13 +337,57 @@ NavBreadcrumb<String>(
 
 ### `NavigationSidebarSearchField`
 
-A compact themed search field that drives `controller.setQuery`:
+A compact themed search field that drives `controller.setQuery` in real time —
+use it for inline tree filtering (see `NavigationSidebar.searchable`):
 
 ```dart
 NavigationSidebarSearchField(
   controller: nav,
   hint: 'Search accounts, journals, reports…',
 )
+```
+
+### Command-palette search dialog
+
+Enable the palette with a **single switch** on the sidebar —
+`allowSearchDialog: true`. The sidebar renders the search trigger inside the
+pane (a field in expanded / drawer modes, an icon button in rail) and opens
+`NavSearchDialog` end-to-end — host apps never build the dialog:
+
+```dart
+NavigationSidebar<String>(
+  controller: nav,
+  allowSearchDialog: true,          // ← the only switch that enables search
+  searchHint: 'Search tabs & actions…',
+  onSearchPick: (node) { … },       // optional — navigates + fires onNavigate by default
+)
+```
+
+For custom entry points (a button, a keyboard shortcut) the same dialog can be
+opened imperatively from any `BuildContext`:
+
+```dart
+showNavSearchDialog<String>(context, controller: nav);
+```
+
+Or embed in a `Stack` directly:
+
+```dart
+Stack(children: [
+  MyShell(),
+  if (_open)
+    NavSearchDialog<String>(
+      controller: _nav,
+      onClose: () => setState(() => _open = false),
+    ),
+])
+```
+
+**`NavSearchOps`** — low-level helpers for custom search UIs:
+
+```dart
+final index = NavSearchOps.buildIndex<String>(_nav.sections); // List<NavSearchHit>
+final hits  = NavSearchOps.filter(index, 'journal entry');
 ```
 
 ---
@@ -503,6 +550,16 @@ NavigationSidebar<String>(
 );
 ```
 
+### Command palette (search dialog)
+
+```dart
+NavigationSidebar<String>(
+  controller: nav,
+  allowSearchDialog: true,   // the single switch that enables dialog search
+  searchHint: 'Search tabs & actions…',
+);
+```
+
 ### Quick Access (favorites)
 
 ```dart
@@ -631,6 +688,8 @@ lib/
     │                        _NavBadgeChip · _ShortcutHint · _StarButton
     ├── appbar.dart          NavigationSidebarAppBar · NavBreadcrumb<T>
     │                        NavigationSidebarSearchField
+    ├── search_dialog.dart   NavSearchDialog<T> · NavSearchHit · NavSearchOps
+    │                        showNavSearchDialog
     └── shell.dart           NavigationShell<T> · NavShellSlotBuilder
 ```
 
@@ -651,6 +710,7 @@ descendant pages via `NavigationSidebarScope<T>` (InheritedNotifier).
 6. **Shortcuts are visual hints only.** Wire the actual keystroke yourself via `Shortcuts`/`Actions`.
 7. **No `const NavNode/NavSection` (1.2+).** Constructors are non-const; remove the `const` keyword.
 8. **`navigate()` returns `bool`.** Code calling it in a void context compiles unchanged; only explicit `void` variable assignment needs updating.
+9. **`NavigationSidebar(allowSearchDialog: true)`** — the single switch that enables the search dialog; `showNavSearchDialog` is the imperative escape hatch.
 
 ---
 

@@ -6,6 +6,65 @@ versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [2.1.0] — 2026-07-02
+
+Built-in command-palette search dialog. **Additive — no breaking changes.**
+
+### Added — `NavigationSidebar.allowSearchDialog`
+
+The command palette is now built into the sidebar and enabled by a single
+switch — the recommended (and only) way to turn on dialog search.
+
+- **`allowSearchDialog`** (default `false`) — renders a search trigger inside
+  the pane (a field in expanded / drawer modes, an icon button in rail mode)
+  that opens `NavSearchDialog` via the root `Overlay` on tap. No `Stack` /
+  `Overlay` wiring is required in the host app. Takes precedence over
+  `searchable` when both are set.
+- **`onSearchPick`** — `ValueChanged<NavNode<T>>` fired after the controller
+  navigates to the picked result; falls back to `onNavigate` when null.
+
+### Added — dialog primitives
+
+`allowSearchDialog` builds on these public primitives, also usable directly for
+custom entry points (a button, a keyboard shortcut):
+
+- **`NavSearchDialog<T>`** — a full-screen overlay widget (requires a `Stack`
+  ancestor) that flattens the controller's section tree into a searchable list,
+  groups results by module, and navigates on pick. Constructor:
+  `controller`, `onClose`, `onPick`, `hint`.
+- **`showNavSearchDialog<T>(context, {controller, onPick, hint})`** — opens
+  `NavSearchDialog` via the `Overlay` without a `Stack` parent. Theme and
+  `Directionality` are captured from the calling context and re-applied inside
+  the overlay.
+- **`NavSearchHit`** — public immutable model: `id`, `label`, `icon`,
+  `module` (group header), `group` (sub-group), `badge`, `shortcut`.
+- **`NavSearchOps`** — static helpers:
+  - `buildIndex<T>(sections)` — flattens the section forest to a
+    `List<NavSearchHit>` (leaves only; non-navigable modules/groups excluded).
+  - `filter(index, query)` — tokenised multi-word filter; returns the full
+    index when the query is blank.
+
+### Unchanged — `NavigationSidebarSearchField`
+
+Remains the inline `controller.setQuery` filter field (pair with `searchable`);
+it does **not** open the dialog. Use `NavigationSidebar.allowSearchDialog` for
+the command palette.
+
+### Example — simplified
+
+`navigation_sidebar_demo.dart` drops its ~250-line private `_SearchDialog`
+implementation in favour of:
+
+```dart
+NavigationSidebar<String>(
+  controller: controller,
+  allowSearchDialog: true,
+  searchHint: 'Search tabs & actions…',
+)
+```
+
+---
+
 ## [2.0.0] — 2026-07-01
 
 The **AppBar ↔ SideBar integration** release. Aligns the package with

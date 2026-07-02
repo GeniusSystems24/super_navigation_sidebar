@@ -186,7 +186,6 @@ class _NavigationSidebarDemoState extends State<NavigationSidebarDemo> {
   bool _light = false;
   TextDirection _dir = TextDirection.ltr;
   _Device _device = _Device.fill;
-  bool _searchOpen = false;
   int _tenant = 9;
 
   static const _bp = NavSidebarBreakpoints();
@@ -262,27 +261,13 @@ class _NavigationSidebarDemoState extends State<NavigationSidebarDemo> {
                         clipBehavior: Clip.antiAlias,
                         child: LayoutBuilder(builder: (context, c) {
                           _syncMode(_bp.modeFor(c.maxWidth));
-                          return Stack(
-                            children: [
-                              _NavShell(
-                                controller: _controller,
-                                width: c.maxWidth,
-                                light: _light,
-                                setTheme: _setTheme,
-                                tenant: _tenant,
-                                onTenant: (id) => setState(() => _tenant = id),
-                                onOpenSearch: () => setState(() => _searchOpen = true),
-                              ),
-                              if (_searchOpen)
-                                _SearchDialog(
-                                  controller: _controller,
-                                  onClose: () => setState(() => _searchOpen = false),
-                                  onPick: (id) {
-                                    _controller.navigate(id);
-                                    setState(() => _searchOpen = false);
-                                  },
-                                ),
-                            ],
+                          return _NavShell(
+                            controller: _controller,
+                            width: c.maxWidth,
+                            light: _light,
+                            setTheme: _setTheme,
+                            tenant: _tenant,
+                            onTenant: (id) => setState(() => _tenant = id),
                           );
                         }),
                       ),
@@ -376,7 +361,6 @@ class _NavShell extends StatelessWidget {
   final ValueChanged<bool> setTheme;
   final int tenant;
   final ValueChanged<int> onTenant;
-  final VoidCallback onOpenSearch;
   const _NavShell({
     required this.controller,
     required this.width,
@@ -384,7 +368,6 @@ class _NavShell extends StatelessWidget {
     required this.setTheme,
     required this.tenant,
     required this.onTenant,
-    required this.onOpenSearch,
   });
 
   static const _bp = NavSidebarBreakpoints();
@@ -401,7 +384,6 @@ class _NavShell extends StatelessWidget {
       mode: mode,
       tenant: tenant,
       onTenant: onTenant,
-      onOpenSearch: onOpenSearch,
       onMenu: () => mode == NavSidebarMode.drawer ? controller.toggleDrawer() : controller.toggleCollapsed(),
     );
 
@@ -417,6 +399,8 @@ class _NavShell extends StatelessWidget {
                 child: NavigationSidebar<String>(
                   controller: controller,
                   mode: NavSidebarMode.drawer,
+                  allowSearchDialog: true,
+                  searchHint: 'Search tabs & actions…',
                   footer: footer,
                 ),
               ),
@@ -437,6 +421,8 @@ class _NavShell extends StatelessWidget {
             NavigationSidebar<String>(
               controller: controller,
               mode: sidebarMode,
+              allowSearchDialog: true,
+              searchHint: 'Search tabs & actions…',
               footer: footer,
             ),
             Expanded(child: _FauxPage(controller: controller)),
@@ -502,8 +488,7 @@ class _AppBar extends StatelessWidget {
   final int tenant;
   final ValueChanged<int> onTenant;
   final VoidCallback onMenu;
-  final VoidCallback onOpenSearch;
-  const _AppBar({required this.mode, required this.tenant, required this.onTenant, required this.onMenu, required this.onOpenSearch});
+  const _AppBar({required this.mode, required this.tenant, required this.onTenant, required this.onMenu});
 
   @override
   Widget build(BuildContext context) {
@@ -539,8 +524,6 @@ class _AppBar extends StatelessWidget {
           const SizedBox(width: 10),
           const _Logo(size: 22, wordmark: false),
           const Spacer(),
-          iconBtn(onTap: onOpenSearch, child: Icon(Icons.search, size: 16, color: t.fg3)),
-          const SizedBox(width: 10),
           _WorkspaceMenu(tenant: tenant, onTenant: onTenant, compact: true),
           const SizedBox(width: 8),
           const _UserMenu(compact: true),
@@ -564,7 +547,6 @@ class _AppBar extends StatelessWidget {
             Flexible(child: _Logo(size: 24, wordmark: !tight)),
           ]),
         ),
-        _searchField(t, tight),
         Expanded(
           child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
             _WorkspaceMenu(tenant: tenant, onTenant: onTenant, compact: tight),
@@ -573,32 +555,6 @@ class _AppBar extends StatelessWidget {
           ]),
         ),
       ]),
-    );
-  }
-
-  Widget _searchField(NavigationSidebarThemeData t, bool tight) {
-    return GestureDetector(
-      onTap: onOpenSearch,
-      child: Container(
-        height: 40,
-        width: tight ? 340 : 460,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        decoration: BoxDecoration(
-          color: t.inputBg,
-          borderRadius: BorderRadius.circular(t.radiusLg),
-          border: Border.all(color: t.border),
-        ),
-        child: Row(children: [
-          Icon(Icons.search, size: 15, color: t.fg3),
-          const SizedBox(width: 9),
-          Expanded(child: Text('Search tabs & actions…', style: TextStyle(fontSize: 13, color: t.fg3))),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-            decoration: BoxDecoration(border: Border.all(color: t.border), borderRadius: BorderRadius.circular(4)),
-            child: Text('/', style: TextStyle(fontFamily: NavigationSidebarThemeData.monoFont, fontSize: 10, color: t.fg4)),
-          ),
-        ]),
-      ),
     );
   }
 }
@@ -1013,247 +969,6 @@ class _SidebarFooter extends StatelessWidget {
         ]),
       ),
     ]);
-  }
-}
-
-// ════════════════════════════════════════════════════════════
-// SEARCH DIALOG — command palette over the shell.
-// ════════════════════════════════════════════════════════════
-class _SearchHit {
-  final String id;
-  final String label;
-  final IconData icon;
-  final String crumb; // module title
-  final String sub; // group label
-  final NavBadge? badge;
-  final List<String>? keys;
-  const _SearchHit(this.id, this.label, this.icon, this.crumb, this.sub, this.badge, this.keys);
-}
-
-List<_SearchHit> _buildIndex(List<NavSection<String>> sections) {
-  final out = <_SearchHit>[];
-  for (final sec in sections) {
-    for (final top in sec.items) {
-      if (top.isLeaf) {
-        out.add(_SearchHit(top.id, top.label, top.icon ?? Icons.circle, sec.title, '', top.badge, top.shortcut));
-      } else {
-        for (final grp in top.children) {
-          final leaves = grp.hasChildren ? grp.children : [grp];
-          for (final leaf in leaves) {
-            out.add(_SearchHit(leaf.id, leaf.label, leaf.icon ?? Icons.circle, top.label, grp.hasChildren ? grp.label : '', leaf.badge, leaf.shortcut));
-          }
-        }
-      }
-    }
-  }
-  return out;
-}
-
-class _SearchDialog extends StatefulWidget {
-  final NavigationSidebarController<String> controller;
-  final VoidCallback onClose;
-  final ValueChanged<String> onPick;
-  const _SearchDialog({required this.controller, required this.onClose, required this.onPick});
-
-  @override
-  State<_SearchDialog> createState() => _SearchDialogState();
-}
-
-class _SearchDialogState extends State<_SearchDialog> {
-  late final List<_SearchHit> _index = _buildIndex(widget.controller.sections);
-  final TextEditingController _text = TextEditingController();
-  final FocusNode _focus = FocusNode();
-  String _q = '';
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _focus.requestFocus());
-  }
-
-  @override
-  void dispose() {
-    _text.dispose();
-    _focus.dispose();
-    super.dispose();
-  }
-
-  List<_SearchHit> get _results {
-    final q = _q.trim().toLowerCase();
-    if (q.isEmpty) return _index;
-    final toks = q.split(RegExp(r'\s+'));
-    return _index.where((h) {
-      final hay = '${h.label} ${h.sub} ${h.crumb}'.toLowerCase();
-      return toks.every(hay.contains);
-    }).toList();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final t = NavigationSidebarThemeData.of(context);
-    final results = _results;
-    // group results by crumb (module)
-    final groups = <String, List<_SearchHit>>{};
-    for (final h in results) {
-      groups.putIfAbsent(h.crumb, () => []).add(h);
-    }
-
-    return Positioned.fill(
-      child: GestureDetector(
-        onTap: widget.onClose,
-        child: Container(
-          color: const Color(0x8C08090C),
-          alignment: Alignment.topCenter,
-          padding: const EdgeInsets.fromLTRB(20, 90, 20, 20),
-          child: GestureDetector(
-            onTap: () {},
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 580),
-              child: Material(
-                color: Colors.transparent,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: t.surface,
-                    borderRadius: BorderRadius.circular(t.radiusXl),
-                    border: Border.all(color: t.borderStrong),
-                    boxShadow: NavigationSidebarThemeData.popShadow,
-                  ),
-                  clipBehavior: Clip.antiAlias,
-                  child: Column(mainAxisSize: MainAxisSize.min, children: [
-                    // input row
-                    Container(
-                      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-                      decoration: BoxDecoration(border: Border(bottom: BorderSide(color: t.border))),
-                      child: Row(children: [
-                        Icon(Icons.search, size: 18, color: t.fg3),
-                        const SizedBox(width: 11),
-                        Expanded(
-                          child: TextField(
-                            controller: _text,
-                            focusNode: _focus,
-                            onChanged: (v) => setState(() => _q = v),
-                            cursorColor: NavigationSidebarThemeData.accent,
-                            style: TextStyle(fontSize: 15.5, color: t.fg1, fontFamily: NavigationSidebarThemeData.bodyFont),
-                            decoration: InputDecoration(
-                              isDense: true,
-                              border: InputBorder.none,
-                              hintText: 'Search tabs & actions…',
-                              hintStyle: TextStyle(fontSize: 15.5, color: t.fg3),
-                            ),
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: widget.onClose,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-                            decoration: BoxDecoration(border: Border.all(color: t.border), borderRadius: BorderRadius.circular(5)),
-                            child: Text('ESC', style: TextStyle(fontFamily: NavigationSidebarThemeData.monoFont, fontSize: 10, color: t.fg3)),
-                          ),
-                        ),
-                      ]),
-                    ),
-                    // results
-                    Flexible(
-                      child: results.isEmpty
-                          ? Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 28),
-                              child: Text('No tabs match "$_q"', style: TextStyle(fontSize: 13.5, color: t.fg3)),
-                            )
-                          : SingleChildScrollView(
-                              padding: const EdgeInsets.all(8),
-                              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, mainAxisSize: MainAxisSize.min, children: [
-                                Padding(
-                                  padding: const EdgeInsets.fromLTRB(10, 4, 10, 6),
-                                  child: Text(
-                                    _q.trim().isEmpty ? 'ALL TABS · ${_index.length}' : '${results.length} RESULT${results.length == 1 ? '' : 'S'}',
-                                    style: TextStyle(fontFamily: NavigationSidebarThemeData.monoFont, fontSize: 10, letterSpacing: 1.2, color: t.fg4),
-                                  ),
-                                ),
-                                for (final entry in groups.entries) ...[
-                                  Padding(
-                                    padding: const EdgeInsets.fromLTRB(12, 10, 12, 5),
-                                    child: Text(entry.key.toUpperCase(), style: TextStyle(fontWeight: FontWeight.w700, fontSize: 10.5, letterSpacing: 1.3, color: t.fg3)),
-                                  ),
-                                  for (final h in entry.value) _resultRow(t, h),
-                                ],
-                              ]),
-                            ),
-                    ),
-                    // footer hints
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                      decoration: BoxDecoration(border: Border(top: BorderSide(color: t.border))),
-                      child: Row(children: [
-                        _hint(t, '↑↓', 'navigate'),
-                        const SizedBox(width: 16),
-                        _hint(t, '↵', 'open'),
-                        const SizedBox(width: 16),
-                        _hint(t, 'esc', 'close'),
-                      ]),
-                    ),
-                  ]),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _hint(NavigationSidebarThemeData t, String k, String label) {
-    return Row(mainAxisSize: MainAxisSize.min, children: [
-      Container(
-        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-        decoration: BoxDecoration(border: Border.all(color: t.border), borderRadius: BorderRadius.circular(4)),
-        child: Text(k, style: TextStyle(fontFamily: NavigationSidebarThemeData.monoFont, fontSize: 10.5, color: t.fg3)),
-      ),
-      const SizedBox(width: 6),
-      Text(label, style: TextStyle(fontFamily: NavigationSidebarThemeData.monoFont, fontSize: 10.5, color: t.fg4)),
-    ]);
-  }
-
-  Widget _resultRow(NavigationSidebarThemeData t, _SearchHit h) {
-    final active = widget.controller.isActive(h.id);
-    return _MenuRow(
-      active: active,
-      onTap: () => widget.onPick(h.id),
-      child: Row(children: [
-        Container(
-          width: 30,
-          height: 30,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: active ? t.accentFill(0.16) : t.inputBg,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Icon(h.icon, size: 16, color: active ? NavigationSidebarThemeData.accent : t.fg3),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
-            Text(h.label, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w500, color: t.fg1)),
-            Text(h.sub.isEmpty ? h.crumb : h.sub, style: TextStyle(fontSize: 11, fontFamily: NavigationSidebarThemeData.monoFont, color: t.fg3)),
-          ]),
-        ),
-        if (h.badge != null) _SearchBadge(badge: h.badge!),
-      ]),
-    );
-  }
-}
-
-class _SearchBadge extends StatelessWidget {
-  final NavBadge badge;
-  const _SearchBadge({required this.badge});
-  @override
-  Widget build(BuildContext context) {
-    final t = NavigationSidebarThemeData.of(context);
-    final c = t.badgeColors(badge.tone);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-      decoration: BoxDecoration(color: c.bg, borderRadius: BorderRadius.circular(999), border: Border.all(color: c.border)),
-      child: Text(badge.text, style: TextStyle(fontFamily: NavigationSidebarThemeData.monoFont, fontSize: 9, fontWeight: FontWeight.w700, color: c.fg)),
-    );
   }
 }
 

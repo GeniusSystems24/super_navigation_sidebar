@@ -7,7 +7,7 @@ description: >
   and an integrated NavigationShell (app bar + pane + content).
   Zero third-party dependencies.
 
-version: 2.0.0
+version: 2.1.0
 
 homepage: https://github.com/GeniusSystems24/super_navigation_sidebar
 repository: https://github.com/GeniusSystems24/super_navigation_sidebar
