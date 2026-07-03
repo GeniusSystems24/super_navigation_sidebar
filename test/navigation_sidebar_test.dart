@@ -197,8 +197,7 @@ void main() {
     });
 
     test('copyWith re-wraps children as unmodifiable', () {
-      final original =
-          NavNode(id: 'p', label: 'Parent', children: [
+      final original = NavNode(id: 'p', label: 'Parent', children: [
         NavNode(id: 'c1', label: 'C1'),
       ]);
       final copy = original.copyWith(
@@ -220,8 +219,7 @@ void main() {
       expect(section.items.length, 1);
 
       mutableItems.add(NavNode(id: 'b', label: 'B'));
-      expect(section.items.length, 1,
-          reason: 'items should be unmodifiable');
+      expect(section.items.length, 1, reason: 'items should be unmodifiable');
 
       expect(
         () => (section.items as List).add(NavNode(id: 'x', label: 'X')),
@@ -293,7 +291,8 @@ void main() {
       expect(nav.active, 'journalEntry');
     });
 
-    test('navigate() returns false and does not change active for locked node', () {
+    test('navigate() returns false and does not change active for locked node',
+        () {
       final before = nav.active;
       final result = nav.navigate('wire');
       expect(result, isFalse);
@@ -405,8 +404,7 @@ void main() {
       nav.setFavorites(['journalEntry', 'dashboard']);
       final nodes = nav.favoriteNodes;
       // dashboard appears before journalEntry in the tree
-      expect(nodes.map((n) => n.id).toList(),
-          ['dashboard', 'journalEntry']);
+      expect(nodes.map((n) => n.id).toList(), ['dashboard', 'journalEntry']);
     });
 
     test('favorites set is unmodifiable', () {
@@ -612,13 +610,11 @@ void main() {
 
       expect(navigated, isNull,
           reason: 'locked node must never trigger onNavigate');
-      expect(nav.active, 'dashboard',
-          reason: 'active must not change');
+      expect(nav.active, 'dashboard', reason: 'active must not change');
       nav.dispose();
     });
 
-    testWidgets('onNavigate does NOT fire for a disabled node',
-        (tester) async {
+    testWidgets('onNavigate does NOT fire for a disabled node', (tester) async {
       final nav = NavigationSidebarController<String>(
         sections: _basicSections(),
         active: 'dashboard',
@@ -804,8 +800,7 @@ void main() {
     expect(nav.drawerOpen, isFalse);
 
     await tester.pumpWidget(MaterialApp(
-      theme: ThemeData(
-          extensions: const [NavigationSidebarThemeData.dark]),
+      theme: ThemeData(extensions: const [NavigationSidebarThemeData.dark]),
       home: Scaffold(
         appBar: NavigationSidebarAppBar(
           controller: nav,
@@ -834,8 +829,7 @@ void main() {
     expect(nav.collapsed, isFalse);
 
     await tester.pumpWidget(MaterialApp(
-      theme: ThemeData(
-          extensions: const [NavigationSidebarThemeData.dark]),
+      theme: ThemeData(extensions: const [NavigationSidebarThemeData.dark]),
       home: Scaffold(
         appBar: NavigationSidebarAppBar(
           controller: nav,
@@ -875,8 +869,7 @@ void main() {
     );
 
     await tester.pumpWidget(MaterialApp(
-      theme: ThemeData(
-          extensions: const [NavigationSidebarThemeData.dark]),
+      theme: ThemeData(extensions: const [NavigationSidebarThemeData.dark]),
       home: Scaffold(
         body: NavBreadcrumb<String>(controller: nav),
       ),
@@ -904,8 +897,7 @@ void main() {
     });
 
     test('ancestorsOf returns correct path', () {
-      final ancestors =
-          NavOps.ancestorsOf<String>(sections, 'journalEntry');
+      final ancestors = NavOps.ancestorsOf<String>(sections, 'journalEntry');
       expect(ancestors, containsAll(['financeHub', 'ledgerGroup']));
     });
 
@@ -966,8 +958,7 @@ void main() {
   // ══════════════════════════════════════════════════════════
   group('NavSection placement', () {
     test('defaults to body', () {
-      final s =
-          NavSection(title: 'X', items: [NavNode(id: 'a', label: 'A')]);
+      final s = NavSection(title: 'X', items: [NavNode(id: 'a', label: 'A')]);
       expect(s.placement, NavSectionPlacement.body);
     });
 
@@ -999,8 +990,8 @@ void main() {
         ],
       ),
     ];
-    final nav = NavigationSidebarController<String>(
-        sections: sections, active: 'home');
+    final nav =
+        NavigationSidebarController<String>(sections: sections, active: 'home');
     NavNode<String>? navigated;
 
     await tester.pumpWidget(_wrap(
@@ -1029,8 +1020,7 @@ void main() {
       final nav =
           NavigationSidebarController<String>(sections: _basicSections());
       await tester.pumpWidget(MaterialApp(
-        theme: ThemeData(
-            extensions: const [NavigationSidebarThemeData.dark]),
+        theme: ThemeData(extensions: const [NavigationSidebarThemeData.dark]),
         home: Scaffold(
           appBar: NavigationSidebarAppBar(
               controller: nav, mode: NavSidebarMode.expanded),
@@ -1046,8 +1036,7 @@ void main() {
           sections: _basicSections(), canGoBack: true);
       var backs = 0;
       await tester.pumpWidget(MaterialApp(
-        theme: ThemeData(
-            extensions: const [NavigationSidebarThemeData.dark]),
+        theme: ThemeData(extensions: const [NavigationSidebarThemeData.dark]),
         home: Scaffold(
           appBar: NavigationSidebarAppBar(
             controller: nav,
@@ -1071,8 +1060,7 @@ void main() {
           NavigationSidebarController<String>(sections: _basicSections());
       var backs = 0;
       await tester.pumpWidget(MaterialApp(
-        theme: ThemeData(
-            extensions: const [NavigationSidebarThemeData.dark]),
+        theme: ThemeData(extensions: const [NavigationSidebarThemeData.dark]),
         home: Scaffold(
           appBar: NavigationSidebarAppBar(
             controller: nav,
@@ -1099,8 +1087,7 @@ void main() {
       final nav = NavigationSidebarController<String>(
           sections: _basicSections(), active: 'dashboard');
       await tester.pumpWidget(MaterialApp(
-        theme: ThemeData(
-            extensions: const [NavigationSidebarThemeData.dark]),
+        theme: ThemeData(extensions: const [NavigationSidebarThemeData.dark]),
         home: NavigationShell<String>(
           controller: nav,
           mode: NavSidebarMode.expanded,
@@ -1123,8 +1110,7 @@ void main() {
       final nav =
           NavigationSidebarController<String>(sections: _basicSections());
       await tester.pumpWidget(MaterialApp(
-        theme: ThemeData(
-            extensions: const [NavigationSidebarThemeData.dark]),
+        theme: ThemeData(extensions: const [NavigationSidebarThemeData.dark]),
         home: NavigationShell<String>(
           controller: nav,
           mode: NavSidebarMode.drawer,
@@ -1145,8 +1131,7 @@ void main() {
     });
   });
 
-  testWidgets('bar selection indicator renders without error',
-      (tester) async {
+  testWidgets('bar selection indicator renders without error', (tester) async {
     final nav = NavigationSidebarController<String>(
         sections: _basicSections(), active: 'dashboard');
     await tester.pumpWidget(MaterialApp(
@@ -1164,5 +1149,304 @@ void main() {
     ));
     expect(tester.takeException(), isNull);
     nav.dispose();
+  });
+
+  // ══════════════════════════════════════════════════════════
+  // 25. Screen codes & keywords (2.2)
+  // ══════════════════════════════════════════════════════════
+  group('NavNode.code / keywords search', () {
+    List<NavSection<String>> codeSections() => [
+          NavSection<String>(title: 'Finance', items: [
+            NavNode(
+              id: 'journalEntry',
+              label: 'Journal Entry',
+              code: 'JE01',
+              keywords: ['voucher', 'قيد'],
+              value: 'journalEntry',
+            ),
+            NavNode(id: 'plain', label: 'Plain', value: 'plain'),
+          ]),
+        ];
+
+    test('matchSet matches by code', () {
+      final nav = NavigationSidebarController<String>(sections: codeSections());
+      nav.setQuery('je01');
+      expect(nav.matchSet(), contains('journalEntry'));
+      expect(nav.matchSet(), isNot(contains('plain')));
+      nav.dispose();
+    });
+
+    test('matchSet matches by keyword (incl. Arabic alias)', () {
+      final nav = NavigationSidebarController<String>(sections: codeSections());
+      nav.setQuery('voucher');
+      expect(nav.matchSet(), contains('journalEntry'));
+      nav.setQuery('قيد');
+      expect(nav.matchSet(), contains('journalEntry'));
+      nav.dispose();
+    });
+
+    test('NavSearchOps.filter matches code and keywords', () {
+      final index = NavSearchOps.buildIndex<String>(codeSections());
+      expect(NavSearchOps.filter(index, 'JE01').map((h) => h.id),
+          contains('journalEntry'));
+      expect(NavSearchOps.filter(index, 'voucher').map((h) => h.id),
+          contains('journalEntry'));
+    });
+
+    test('keywords list is unmodifiable', () {
+      final n = NavNode<String>(id: 'x', label: 'X', keywords: ['a']);
+      expect(() => (n.keywords! as List).add('b'), throwsUnsupportedError);
+    });
+  });
+
+  // ══════════════════════════════════════════════════════════
+  // 26. Recents (2.2)
+  // ══════════════════════════════════════════════════════════
+  group('NavigationSidebarController recents', () {
+    test('navigate pushes MRU-first and dedupes', () {
+      final nav =
+          NavigationSidebarController<String>(sections: _basicSections());
+      nav.navigate('dashboard');
+      nav.navigate('approvals');
+      nav.navigate('dashboard');
+      expect(nav.recents, ['dashboard', 'approvals']);
+      nav.dispose();
+    });
+
+    test('refused navigation does not enter recents', () {
+      final nav =
+          NavigationSidebarController<String>(sections: _basicSections());
+      nav.navigate('wire'); // locked
+      nav.navigate('settings'); // disabled
+      expect(nav.recents, isEmpty);
+      nav.dispose();
+    });
+
+    test('maxRecents trims oldest', () {
+      final nav = NavigationSidebarController<String>(
+          sections: _basicSections(), maxRecents: 2);
+      nav.navigate('dashboard');
+      nav.navigate('approvals');
+      nav.navigate('journalEntry');
+      expect(nav.recents.length, 2);
+      expect(nav.recents.first, 'journalEntry');
+      expect(nav.recents, isNot(contains('dashboard')));
+      nav.dispose();
+    });
+
+    test('replaceSections prunes recents of missing nodes', () {
+      final nav =
+          NavigationSidebarController<String>(sections: _basicSections());
+      nav.navigate('dashboard');
+      nav.replaceSections([
+        NavSection(title: 'New', items: [NavNode(id: 'n', label: 'N')]),
+      ]);
+      expect(nav.recents, isEmpty);
+      nav.dispose();
+    });
+  });
+
+  // ══════════════════════════════════════════════════════════
+  // 27. Snapshot / restore (2.2)
+  // ══════════════════════════════════════════════════════════
+  group('NavSidebarStateSnapshot', () {
+    test('snapshot → toJson → fromJson → restore roundtrip', () {
+      final a = NavigationSidebarController<String>(sections: _basicSections());
+      a.navigate('journalEntry');
+      a.toggleFavorite('dashboard');
+      a.collapsed = true;
+
+      final json = a.snapshot().toJson();
+      final restored =
+          NavSidebarStateSnapshot.fromJson(Map<String, Object?>.from(json));
+
+      final b = NavigationSidebarController<String>(sections: _basicSections());
+      b.restore(restored);
+
+      expect(b.active, 'journalEntry');
+      expect(b.isFavorite('dashboard'), isTrue);
+      expect(b.recents, contains('journalEntry'));
+      expect(b.collapsed, isTrue);
+      expect(b.isExpanded('financeHub'), isTrue,
+          reason: 'restore re-expands ancestors of active');
+      a.dispose();
+      b.dispose();
+    });
+
+    test('restore drops ids missing from the current tree', () {
+      const snap = NavSidebarStateSnapshot(
+        active: 'ghost',
+        favorites: {'ghost', 'dashboard'},
+        recents: ['ghost', 'dashboard'],
+      );
+      final nav =
+          NavigationSidebarController<String>(sections: _basicSections());
+      nav.restore(snap);
+      expect(nav.active, isNull);
+      expect(nav.favorites, {'dashboard'});
+      expect(nav.recents, ['dashboard']);
+      nav.dispose();
+    });
+  });
+
+  // ══════════════════════════════════════════════════════════
+  // 28. Badge roll-up (2.2)
+  // ══════════════════════════════════════════════════════════
+  group('NavOps.subtreeBadgeSum', () {
+    test('sums numeric badges, ignores non-numeric', () {
+      final node = NavNode<String>(id: 'm', label: 'M', children: [
+        NavNode(id: 'a', label: 'A', badge: NavBadge('3')),
+        NavNode(id: 'b', label: 'B', badge: NavBadge('New')),
+        NavNode(id: 'g', label: 'G', children: [
+          NavNode(id: 'c', label: 'C', badge: NavBadge('9')),
+        ]),
+      ]);
+      expect(NavOps.subtreeBadgeSum(node), 12);
+    });
+
+    testWidgets('aggregateBadges shows summed chip on closed module',
+        (tester) async {
+      final sections = [
+        NavSection<String>(title: 'Fin', items: [
+          NavNode(id: 'mod', label: 'Finance', icon: Icons.paid, children: [
+            NavNode(id: 'l1', label: 'L1', badge: NavBadge('3'), value: 'l1'),
+            NavNode(id: 'l2', label: 'L2', badge: NavBadge('9'), value: 'l2'),
+          ]),
+        ]),
+      ];
+      final nav = NavigationSidebarController<String>(sections: sections);
+      await tester.pumpWidget(_wrap(
+        Row(children: [
+          NavigationSidebar<String>(
+            controller: nav,
+            mode: NavSidebarMode.expanded,
+            aggregateBadges: true,
+          ),
+          const Expanded(child: SizedBox()),
+        ]),
+      ));
+      expect(find.text('12'), findsOneWidget);
+      nav.dispose();
+    });
+  });
+
+  // ══════════════════════════════════════════════════════════
+  // 29. NavShortcutBinder (2.2)
+  // ══════════════════════════════════════════════════════════
+  group('NavShortcutBinder', () {
+    testWidgets('g-then-j chord navigates to Journal Entry', (tester) async {
+      final nav = NavigationSidebarController<String>(
+          sections: _basicSections(), active: 'dashboard');
+      NavNode<String>? navigated;
+
+      await tester.pumpWidget(MaterialApp(
+        theme: ThemeData(extensions: const [NavigationSidebarThemeData.dark]),
+        home: NavShortcutBinder<String>(
+          controller: nav,
+          onNavigate: (n) => navigated = n,
+          child: const Scaffold(body: SizedBox()),
+        ),
+      ));
+
+      await tester.sendKeyEvent(LogicalKeyboardKey.keyG);
+      await tester.sendKeyEvent(LogicalKeyboardKey.keyJ);
+      await tester.pump();
+
+      expect(nav.active, 'journalEntry');
+      expect(navigated?.id, 'journalEntry');
+      nav.dispose();
+    });
+
+    testWidgets('chords are suspended while typing in a text field',
+        (tester) async {
+      final nav = NavigationSidebarController<String>(
+          sections: _basicSections(), active: 'dashboard');
+
+      await tester.pumpWidget(MaterialApp(
+        theme: ThemeData(extensions: const [NavigationSidebarThemeData.dark]),
+        home: NavShortcutBinder<String>(
+          controller: nav,
+          child: const Scaffold(body: TextField(autofocus: true)),
+        ),
+      ));
+      await tester.pump();
+
+      await tester.enterText(find.byType(TextField), '');
+      await tester.sendKeyEvent(LogicalKeyboardKey.keyG);
+      await tester.sendKeyEvent(LogicalKeyboardKey.keyJ);
+      await tester.pump();
+
+      testWidgets('Ctrl+Shift+D combo navigates', (tester) async {
+        final sections = [
+          NavSection<String>(title: 'Overview', items: [
+            NavNode(
+                id: 'dashboard',
+                label: 'Dashboard',
+                value: 'dashboard',
+                shortcut: ['ctrl', 'shift', 'd']),
+            NavNode(id: 'inbox', label: 'Inbox', value: 'inbox'),
+          ]),
+        ];
+        final nav = NavigationSidebarController<String>(
+            sections: sections, active: 'inbox');
+
+        await tester.pumpWidget(MaterialApp(
+          theme: ThemeData(extensions: const [NavigationSidebarThemeData.dark]),
+          home: NavShortcutBinder<String>(
+            controller: nav,
+            child: const Scaffold(body: SizedBox()),
+          ),
+        ));
+
+        await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
+        await tester.sendKeyDownEvent(LogicalKeyboardKey.shiftLeft);
+        await tester.sendKeyEvent(LogicalKeyboardKey.keyD);
+        await tester.sendKeyUpEvent(LogicalKeyboardKey.shiftLeft);
+        await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
+        await tester.pump();
+
+        expect(nav.active, 'dashboard');
+        nav.dispose();
+      });
+
+      testWidgets('combo needs the exact modifier set (plain D does nothing)',
+          (tester) async {
+        final sections = [
+          NavSection<String>(title: 'Overview', items: [
+            NavNode(
+                id: 'dashboard',
+                label: 'Dashboard',
+                value: 'dashboard',
+                shortcut: ['ctrl', 'shift', 'd']),
+            NavNode(id: 'inbox', label: 'Inbox', value: 'inbox'),
+          ]),
+        ];
+        final nav = NavigationSidebarController<String>(
+            sections: sections, active: 'inbox');
+
+        await tester.pumpWidget(MaterialApp(
+          theme: ThemeData(extensions: const [NavigationSidebarThemeData.dark]),
+          home: NavShortcutBinder<String>(
+            controller: nav,
+            child: const Scaffold(body: SizedBox()),
+          ),
+        ));
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.keyD); // no modifiers
+        await tester.pump();
+
+        expect(nav.active, 'inbox',
+            reason: 'combo must not fire without Ctrl+Shift held');
+        nav.dispose();
+      });
+
+      test('NavShortcutOps distinguishes combos from sequences', () {
+        expect(NavShortcutOps.isCombo(['ctrl', 'shift', 'd']), isTrue);
+        expect(NavShortcutOps.isCombo(['g', 'd']), isFalse);
+        expect(NavShortcutOps.keyLabel('ctrl'), 'Ctrl');
+        expect(NavShortcutOps.keyLabel('cmd'), 'Cmd');
+        expect(NavShortcutOps.keyLabel('d'), 'D');
+      });
+    });
   });
 }

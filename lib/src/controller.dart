@@ -40,6 +40,8 @@ class NavigationSidebarController<T> extends ChangeNotifier {
     NavNodeId? active,
     Set<NavNodeId>? expanded,
     Set<NavNodeId>? favorites,
+    List<NavNodeId>? recents,
+    this.maxRecents = 8,
     bool collapsed = false,
     bool drawerOpen = false,
     bool canGoBack = false,
@@ -48,6 +50,7 @@ class NavigationSidebarController<T> extends ChangeNotifier {
         _active = active,
         _expanded = {...?expanded},
         _favorites = {...?favorites},
+        _recents = [...?recents],
         _collapsed = collapsed,
         _drawerOpen = drawerOpen,
         _canGoBack = canGoBack,
@@ -65,6 +68,10 @@ class NavigationSidebarController<T> extends ChangeNotifier {
   NavNodeId? _active;
   final Set<NavNodeId> _expanded;
   final Set<NavNodeId> _favorites;
+  final List<NavNodeId> _recents;
+
+  /// Maximum entries kept in [recents] (most-recently-used first).
+  final int maxRecents;
   bool _collapsed;
   bool _drawerOpen;
   bool _canGoBack;
@@ -120,6 +127,35 @@ class NavigationSidebarController<T> extends ChangeNotifier {
     notifyListeners();
   }
 
+  // ── recents / history ──────────────────────────────────
+  /// Recently visited destination ids, most-recent first (max [maxRecents]).
+  ///
+  /// Updated automatically on every successful [navigate]. Surfaced by the
+  /// command palette as a "Recent" band when the query is empty — the fastest
+  /// path back to the handful of screens an ERP user lives in.
+  List<NavNodeId> get recents => List.unmodifiable(_recents);
+
+  /// [recents] resolved to their nodes (missing ids are skipped).
+  List<NavNode<T>> get recentNodes => [
+        for (final id in _recents)
+          if (node(id) != null) node(id)!
+      ];
+
+  void clearRecents() {
+    if (_recents.isEmpty) return;
+    _recents.clear();
+    notifyListeners();
+  }
+
+  void _pushRecent(NavNodeId id) {
+    _recents
+      ..remove(id)
+      ..insert(0, id);
+    if (_recents.length > maxRecents) {
+      _recents.removeRange(maxRecents, _recents.length);
+    }
+  }
+
   // ── navigation ─────────────────────────────────────────────
   /// Make [id] the active destination and return `true`.
   ///
@@ -139,6 +175,11 @@ class NavigationSidebarController<T> extends ChangeNotifier {
     if (_active != id) {
       _active = id;
       changed = true;
+    }
+    if (n.isLeaf) {
+      final wasFirst = _recents.isNotEmpty && _recents.first == id;
+      _pushRecent(id);
+      if (!wasFirst) changed = true;
     }
     if (_autoExpandActive) {
       for (final a in NavOps.ancestorsOf<T>(_sections, id)) {
@@ -222,15 +263,28 @@ class NavigationSidebarController<T> extends ChangeNotifier {
   }
 
   /// Ids that match the current query, plus their ancestors (so the matches
-  /// are reachable). Empty when not filtering.
+  /// are reachable). Empty when not filtering. Matches [NavNode.label],
+  /// [NavNode.code] and [NavNode.keywords].
   Set<NavNodeId> matchSet() {
     final q = _query.trim().toLowerCase();
     if (q.isEmpty) return const {};
     final matched = <NavNodeId>{};
     final onPath = <NavNodeId>{};
+    bool hit(NavNode<T> n) {
+      if (n.label.toLowerCase().contains(q)) return true;
+      if (n.code != null && n.code!.toLowerCase().contains(q)) return true;
+      final kw = n.keywords;
+      if (kw != null) {
+        for (final k in kw) {
+          if (k.toLowerCase().contains(q)) return true;
+        }
+      }
+      return false;
+    }
+
     void rec(List<NavNode<T>> nodes, List<NavNodeId> path) {
       for (final n in nodes) {
-        if (n.label.toLowerCase().contains(q)) {
+        if (hit(n)) {
           matched.add(n.id);
           onPath.addAll(path);
         }
@@ -253,6 +307,54 @@ class NavigationSidebarController<T> extends ChangeNotifier {
     assert(_debugAssertNoDuplicates(sections));
     _sections = List.unmodifiable(sections);
     if (_active != null && node(_active!) == null) _active = null;
+    _recents.removeWhere((id) => node(id) == null);
+    notifyListeners();
+  }
+
+  // ── state persistence ─────────────────────────────────
+  /// Capture the user-owned sidebar state (active screen, expanded modules,
+  /// favorites, recents, rail flag) as an immutable, JSON-serializable
+  /// snapshot. Persist it with SharedPreferences / your backend and pass it
+  /// back through [restore] (or the constructor) on next launch:
+  ///
+  /// ```dart
+  /// // On change:
+  /// nav.addListener(() => prefs.setString('nav', jsonEncode(nav.snapshot().toJson())));
+  /// // On launch:
+  /// nav.restore(NavSidebarStateSnapshot.fromJson(jsonDecode(raw)));
+  /// ```
+  NavSidebarStateSnapshot snapshot() => NavSidebarStateSnapshot(
+        active: _active,
+        expanded: Set.unmodifiable(_expanded),
+        favorites: Set.unmodifiable(_favorites),
+        recents: List.unmodifiable(_recents),
+        collapsed: _collapsed,
+      );
+
+  /// Apply a previously captured [snapshot]. Ids that no longer exist in the
+  /// current tree are dropped silently (permissions / modules may have
+  /// changed since the snapshot was taken). Notifies once.
+  void restore(NavSidebarStateSnapshot s) {
+    _expanded
+      ..clear()
+      ..addAll(s.expanded.where((id) => node(id) != null));
+    _favorites
+      ..clear()
+      ..addAll(s.favorites.where((id) => node(id) != null));
+    _recents
+      ..clear()
+      ..addAll(s.recents.where((id) => node(id) != null));
+    if (_recents.length > maxRecents) {
+      _recents.removeRange(maxRecents, _recents.length);
+    }
+    _collapsed = s.collapsed;
+    final a = s.active;
+    if (a != null && node(a) != null) {
+      _active = a;
+      if (_autoExpandActive) {
+        _expanded.addAll(NavOps.ancestorsOf<T>(_sections, a));
+      }
+    }
     notifyListeners();
   }
 
@@ -284,6 +386,50 @@ class NavigationSidebarController<T> extends ChangeNotifier {
     final scope =
         context.dependOnInheritedWidgetOfExactType<NavigationSidebarScope<T>>();
     return scope?.controller;
+  }
+}
+
+/// An immutable, JSON-serializable capture of the user-owned sidebar state.
+///
+/// Produced by [NavigationSidebarController.snapshot], consumed by
+/// [NavigationSidebarController.restore]. Node ids are plain strings, so a
+/// snapshot survives app restarts and can be stored per-user on a backend —
+/// an ERP user's pinned screens, open modules and recent history follow them
+/// to any workstation.
+@immutable
+class NavSidebarStateSnapshot {
+  final NavNodeId? active;
+  final Set<NavNodeId> expanded;
+  final Set<NavNodeId> favorites;
+  final List<NavNodeId> recents;
+  final bool collapsed;
+
+  const NavSidebarStateSnapshot({
+    this.active,
+    this.expanded = const {},
+    this.favorites = const {},
+    this.recents = const [],
+    this.collapsed = false,
+  });
+
+  Map<String, Object?> toJson() => {
+        'active': active,
+        'expanded': expanded.toList(),
+        'favorites': favorites.toList(),
+        'recents': recents,
+        'collapsed': collapsed,
+      };
+
+  factory NavSidebarStateSnapshot.fromJson(Map<String, Object?> json) {
+    List<String> strs(Object? v) =>
+        v is List ? v.whereType<String>().toList() : const [];
+    return NavSidebarStateSnapshot(
+      active: json['active'] as String?,
+      expanded: strs(json['expanded']).toSet(),
+      favorites: strs(json['favorites']).toSet(),
+      recents: strs(json['recents']),
+      collapsed: json['collapsed'] == true,
+    );
   }
 }
 

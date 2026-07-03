@@ -1,6 +1,6 @@
 # super_navigation_sidebar
 
-[![pub package](https://img.shields.io/badge/pub-v2.1.0-4A7CFF.svg)](https://pub.dev/packages/super_navigation_sidebar)
+[![pub package](https://img.shields.io/badge/pub-v2.2.1-4A7CFF.svg)](https://pub.dev/packages/super_navigation_sidebar)
 [![flutter](https://img.shields.io/badge/Flutter-%E2%89%A53.10-1DB88A.svg)](https://flutter.dev)
 [![style](https://img.shields.io/badge/style-MVC-F97316.svg)](#architecture)
 [![license](https://img.shields.io/badge/license-MIT-64748B.svg)](#license)
@@ -48,7 +48,8 @@ localization, accessibility, RTL. Zero third-party dependencies.
   the drawer.
 - 🔴 **Badges** — `NavBadge(text, tone: NavBadgeTone.success/danger/muted)`.
 - ⌨ **Shortcut hints** — two-key `['g', 'd']`-style keycaps shown on hover.
-  Visual hints only — wiring the keystroke is the host app's responsibility.
+  Visual by default — wrap the shell in `NavShortcutBinder` to make them
+  working keystrokes.
 - 🔎 **Built-in search & filter** — `searchable: true` adds a filter field that
   matches every level, auto-expands hits, and highlights the matched run.
 - 🧭 **Command palette** — `allowSearchDialog: true` adds a search trigger to the
@@ -56,6 +57,19 @@ localization, accessibility, RTL. Zero third-party dependencies.
   enables dialog search — no `Stack` / `Overlay` wiring in the host app.
 - ⭐ **Quick Access favorites** — `favoritable: true` adds per-row star toggles
   and a synthesized favorites band pinned at the top.
+- 🔢 **Screen codes & keyword search** — `NavNode.code` (SAP-style transaction
+  code, shown as a mono chip in the palette) and hidden `NavNode.keywords`
+  aliases; both matched by the tree filter and the palette.
+- 🕒 **Recent destinations** — every successful navigation lands in an MRU
+  `controller.recents` list; the palette opens with a "Recent" band.
+- 💾 **State persistence** — `controller.snapshot()` / `restore()` with a
+  JSON-serializable `NavSidebarStateSnapshot` (active · expanded · favorites ·
+  recents · collapsed) — persist per-user across sessions and workstations.
+- 🔔 **Badge roll-up** — `aggregateBadges: true` sums numeric descendant
+  badges onto a collapsed module row (pending approvals bubble up).
+- ⌨ **Working shortcut chords** — wrap the shell in `NavShortcutBinder` and
+  every `NavNode.shortcut` chord (`g` then `d`) actually navigates —
+  suspended while text fields have focus.
 - 🔒 **Permission-gated nodes** — `NavNode.locked` + `lockMessage` dim a row,
   add a lock glyph, block navigation, and surface the reason as a tooltip.
 - 🟢 **Status dots** — `NavNode.status` (`open` · `closed` · `locked` ·
@@ -431,6 +445,7 @@ NavigationSidebar<String>(
 | `drawerTitle` | `'Navigation'` |
 | `drawerCloseLabel` | `'Close navigation'` |
 | `quickAccessTitle` | `'Quick Access'` |
+| `recentsTitle` | `'Recent'` |
 | `addToQuickAccess` | `'Add to Quick Access'` |
 | `removeFromQuickAccess` | `'Remove from Quick Access'` |
 | `lockedDefault` | `"Locked — you don't have access"` |
@@ -462,6 +477,8 @@ NavSection<String>(
 |---|---|---|
 | `id` | `NavNodeId` (String) | **Required.** Unique across the whole sidebar (validated in debug builds). |
 | `label` | `String` | **Required.** Display text; search matches against this. |
+| `code` | `String?` | Short screen code (`'JE01'`) — mono chip in the palette, searchable. |
+| `keywords` | `List<String>?` | Hidden search aliases — matched, never rendered. |
 | `icon` | `IconData?` | Leading icon. |
 | `children` | `List<NavNode<T>>` | Child nodes. Unmodifiable after construction. |
 | `value` | `T?` | Strongly-typed host payload. |
@@ -570,6 +587,49 @@ NavigationSidebarController<String>(
 NavigationSidebar<String>(controller: nav, favoritable: true);
 ```
 
+### Screen codes & keyword search (2.2)
+
+```dart
+NavNode(id: 'journalEntry', label: 'Journal Entry', value: 'journalEntry',
+        code: 'JE01',                       // mono chip + searchable
+        keywords: ['قيد', 'voucher', 'GL entry']); // hidden aliases
+```
+
+### Recent destinations (2.2)
+
+```dart
+nav.recents;      // MRU ids — filled automatically on navigate()
+nav.recentNodes;  // resolved nodes
+// The command palette shows a "Recent" band while the query is empty.
+```
+
+### State persistence (2.2)
+
+```dart
+// Persist on change:
+nav.addListener(() =>
+    prefs.setString('nav', jsonEncode(nav.snapshot().toJson())));
+// Restore on launch:
+nav.restore(NavSidebarStateSnapshot.fromJson(jsonDecode(raw)));
+```
+
+### Badge roll-up (2.2)
+
+```dart
+NavigationSidebar<String>(controller: nav, aggregateBadges: true);
+// Closed "Finance" module shows “12” — the sum of its descendants' counts.
+```
+
+### Working shortcut chords (2.2)
+
+```dart
+NavShortcutBinder<String>(
+  controller: nav,
+  onNavigate: (n) => openScreen(n.value!),
+  child: NavigationShell<String>(…),
+);
+```
+
 ### Permission-gated nodes
 
 ```dart
@@ -639,6 +699,8 @@ Stack(children: [
 | `replaceSections(sections)` | Hot-swap the section forest. Validates duplicates in debug. |
 | `setQuery(q)` · `matchSet()` | Search filter. |
 | `toggleFavorite(id)` · `setFavorites(ids)` | Quick Access. |
+| `recents` · `recentNodes` · `clearRecents()` | MRU history (auto-filled by `navigate`). |
+| `snapshot()` · `restore(s)` | Persistable `NavSidebarStateSnapshot` (JSON). |
 
 ### Reads
 
@@ -707,7 +769,8 @@ descendant pages via `NavigationSidebarScope<T>` (InheritedNotifier).
 3. **`value` vs `id`.** `value` is the typed host payload; `id` is the nav identity.
 4. **Drawer must overlay.** Place in `Stack + Positioned.fill`.
 5. **Register the theme extension.** Without it the dark preset is used.
-6. **Shortcuts are visual hints only.** Wire the actual keystroke yourself via `Shortcuts`/`Actions`.
+6. **Shortcuts need a binder.** Keycaps are visual until you wrap the shell in
+   `NavShortcutBinder` (or wire `Shortcuts`/`Actions` yourself).
 7. **No `const NavNode/NavSection` (1.2+).** Constructors are non-const; remove the `const` keyword.
 8. **`navigate()` returns `bool`.** Code calling it in a void context compiles unchanged; only explicit `void` variable assignment needs updating.
 9. **`NavigationSidebar(allowSearchDialog: true)`** — the single switch that enables the search dialog; `showNavSearchDialog` is the imperative escape hatch.

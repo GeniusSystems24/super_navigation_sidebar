@@ -3,10 +3,12 @@ name: super-navigation-sidebar
 description: >
   How to use the super_navigation_sidebar Flutter package — a themeable,
   responsive app navigation sidebar with expanded / rail / drawer modes, a typed
-  NavNode<T> tree, badges, shortcut hints, NavigationShell + AppBar integration,
-  built-in command-palette search dialog, footer sections, Fluent selection
-  indicator, back button, localization, accessibility, RTL and deep immutability.
-  Use when building or modifying a Flutter app's left-nav.
+  NavNode<T> tree, badges with roll-up counts, working shortcut chords
+  (NavShortcutBinder), screen codes + keyword search, recent destinations,
+  state persistence snapshots, NavigationShell + AppBar integration, built-in
+  command-palette search dialog with keyboard navigation, footer sections,
+  Fluent selection indicator, back button, localization, accessibility, RTL
+  and deep immutability. Use when building or modifying a Flutter app's left-nav.
 ---
 
 # super_navigation_sidebar · NavigationSidebar
@@ -138,7 +140,9 @@ NavSection(title: 'Finance', items: [
           icon: Icons.menu_book_outlined, children: [
     NavNode(id: 'coa', label: 'Chart of Accounts', children: [
       NavNode(id: 'accounts', label: 'Chart of Accounts',
-              icon: Icons.menu_book_outlined, value: 'accounts'),
+              icon: Icons.menu_book_outlined, value: 'accounts',
+              code: 'COA01',                    // 2.2 — searchable mono chip
+              keywords: ['دليل الحسابات', 'gl accounts']), // 2.2 — hidden aliases
       NavNode(id: 'accountTree', label: 'Account Tree',
               icon: Icons.account_tree_outlined, value: 'accountTree',
               badge: NavBadge('3'), shortcut: ['g', 't']),
@@ -189,6 +193,7 @@ NavigationSidebar<T>(
   allowSearchDialog: true,         // command palette — the single switch for dialog search
   onSearchPick: (node) {},         // optional; navigates + falls back to onNavigate
   favoritable: true,               // per-row star + synthesized Quick Access band
+  aggregateBadges: true,           // 2.2 — summed numeric badge chip on closed modules
   drawerTitle: 'Navigation',       // overrides localizations.drawerTitle
   searchHint: 'Search…',          // overrides localizations.searchHint
   quickAccessTitle: 'Quick Access',
@@ -204,12 +209,30 @@ NavigationSidebar<T>(
 Locked (`NavNode.locked`) and disabled (`NavNode.enabled = false`) nodes
 **never** trigger `onNavigate` in any mode (expanded, rail, drawer, flyout).
 
-### Shortcut hints
+### Shortcut hints — and making them work
 
 A leaf's `shortcut: ['g', 'd']` renders as `G › D` keycaps. `shortcutMode`
 controls inline visibility — `onHover` (default), `always`, or `hidden`.
-**Shortcuts are visual hints only** — wiring the actual keystroke (via
-`Shortcuts`/`Actions` or a key handler) is the host app's responsibility.
+Keycaps are **visual until you add a binder** (2.2). A shortcut can be a
+**modifier combo** (`['ctrl', 'shift', 'd']` → Ctrl+Shift+D together) or a
+**sequential chord** (`['g', 'd']` → g then d) — the style is chosen per
+node from its key list, and the binder handles both:
+
+```dart
+// Wrap the shell once — every leaf's shortcut becomes a working keystroke:
+NavShortcutBinder<String>(
+  controller: nav,
+  onNavigate: (n) => openScreen(n.value!), // fires only on applied navigation
+  chordTimeout: const Duration(milliseconds: 1200), // pause between chord keys
+  enabled: true,                            // suspend during modal wizards etc.
+  child: NavigationShell<String>(…),
+);
+```
+
+Combos match the exact modifier set on the main key's press; sequences match
+key-by-key with no modifiers held. Both are suspended automatically while any
+text field has focus, refuse locked/disabled nodes, and rebuild when
+`replaceSections` hot-swaps the tree.
 
 ### ERP / banking extras
 
@@ -218,6 +241,7 @@ NavigationSidebar<String>(
   controller: nav,
   searchable: true,       // built-in filter field + match highlight
   favoritable: true,      // per-row star + synthesized Quick Access band
+  aggregateBadges: true,  // 2.2 — "12" chip on a closed module = sum of descendants
 );
 
 // Permission-gated + status-dotted nodes:
@@ -225,6 +249,22 @@ NavNode(id: 'wire', label: 'Wire / SWIFT', value: 'wire',
         locked: true, lockMessage: 'Requires Treasury Approver role');
 NavNode(id: 'fy25q3', label: 'FY2025 · Q3', value: 'fy25q3',
         status: NavNodeStatus.open); // open/closed/locked/attention
+
+// 2.2 — screen codes + hidden keyword aliases (both searchable):
+NavNode(id: 'journalEntry', label: 'Journal Entry', value: 'journalEntry',
+        code: 'JE01', keywords: ['قيد', 'voucher', 'GL entry']);
+
+// 2.2 — recents are recorded automatically on navigate();
+// the command palette opens with a "Recent" band while the query is empty:
+nav.recents;      // MRU ids (max nav.maxRecents, default 8)
+nav.recentNodes;  // resolved nodes
+nav.clearRecents();
+
+// 2.2 — persist the user-owned state across sessions / workstations:
+nav.addListener(() =>
+    prefs.setString('nav', jsonEncode(nav.snapshot().toJson())));
+nav.restore(NavSidebarStateSnapshot.fromJson(jsonDecode(raw)));
+// restore() drops ids missing from the current tree and notifies once.
 ```
 
 ## NavigationSidebarAppBar
@@ -281,7 +321,11 @@ NavigationSidebarSearchField(
 ### Command palette — `allowSearchDialog`
 
 The single switch that enables dialog search. The sidebar renders the trigger
-in the pane and opens `NavSearchDialog` end-to-end:
+in the pane and opens `NavSearchDialog` end-to-end. Full keyboard support
+(2.2): `↑`/`↓` move a highlighted row (wraps), `Enter` opens it, `Escape`
+closes. While the query is empty a **"Recent" band** (from
+`controller.recents`) leads the list; results match label + `code` +
+`keywords` and show the code as a mono chip:
 
 ```dart
 NavigationSidebar<String>(
@@ -298,7 +342,8 @@ For custom entry points (a button, a keyboard shortcut):
 
 ```dart
 // Imperative — no Stack needed:
-showNavSearchDialog<String>(context, controller: nav);
+showNavSearchDialog<String>(context, controller: nav,
+    recentsLabel: 'الأخيرة'); // optional — header of the Recent band
 
 // Manual Stack placement:
 Stack(children: [
@@ -340,7 +385,7 @@ NavigationSidebar<String>(
 ```
 
 Strings available: `searchHint` · `searchEmpty` (use `{query}` placeholder) ·
-`drawerTitle` · `drawerCloseLabel` · `quickAccessTitle` ·
+`drawerTitle` · `drawerCloseLabel` · `quickAccessTitle` · `recentsTitle` ·
 `addToQuickAccess` · `removeFromQuickAccess` · `lockedDefault` ·
 `shortcutPrefix` · `shortcutSeparator` · `semanticExpanded` ·
 `semanticCollapsed` · `semanticLocked` · `semanticDisabled` ·
@@ -354,6 +399,8 @@ final nav = NavigationSidebarController<String>(
   active: 'dashboard',
   expanded: {'accountsHub'},
   favorites: {'journalEntry'},
+  recents: ['trialBalance'],  // 2.2 — seed MRU history
+  maxRecents: 8,              // 2.2 — MRU cap
   collapsed: false,        // start railed (use true for overlay panes)
   canGoBack: false,        // bind to router can-pop
   autoExpandActive: true,  // auto-open the active node's ancestors
@@ -374,15 +421,23 @@ nav.openDrawer(); nav.closeDrawer(); nav.toggleDrawer();
 nav.canGoBack = router.canPop();
 
 // Search / favorites:
-nav.setQuery('journals'); nav.matchSet();
+nav.setQuery('journals'); nav.matchSet(); // matches label + code + keywords
 nav.toggleFavorite(id); nav.setFavorites({'a', 'b'});
 
+// Recents (2.2 — auto-filled by navigate()):
+nav.recents; nav.recentNodes; nav.clearRecents();
+
+// State persistence (2.2):
+final snap = nav.snapshot();               // NavSidebarStateSnapshot
+prefs.setString('nav', jsonEncode(snap.toJson()));
+nav.restore(NavSidebarStateSnapshot.fromJson(jsonDecode(raw)));
+
 // Data:
-nav.replaceSections(newSections); // hot-swap after a role change
+nav.replaceSections(newSections); // hot-swap after a role change; prunes recents
 
 // Reads: sections · active · activeValue · collapsed · drawerOpen · filtering ·
 //        isActive(id) · isExpanded(id) · ownsActive(id) · node(id) ·
-//        favorites · favoriteNodes · isFavorite(id)
+//        favorites · favoriteNodes · isFavorite(id) · recents · recentNodes
 
 // Duplicate ID validation (debug builds only):
 // The controller asserts no duplicate IDs in the constructor and replaceSections.
@@ -533,7 +588,8 @@ Directionality(textDirection: TextDirection.rtl, child: NavigationSidebar(...))
 4. **`value` vs `id`** — `value` is your screen key; `id` is the nav identity.
 5. **Drawer must overlay** — `Stack + Positioned.fill` (or use `NavigationShell`).
 6. **Register the theme** — without it the dark preset is used.
-7. **Shortcuts are visual hints only** — wire keystrokes yourself.
+7. **Shortcuts need a binder** — keycaps are visual until you wrap the shell
+   in `NavShortcutBinder` (2.2) or wire `Shortcuts`/`Actions` yourself.
 8. **No `const NavNode/NavSection`** — constructors are non-const since 1.2.
 9. **`navigate()` returns `bool`** — void call sites compile unchanged.
 10. **`NavigationSidebar(allowSearchDialog: true)`** → the single switch for the command palette. `showNavSearchDialog` is the imperative escape hatch.
@@ -542,6 +598,6 @@ Directionality(textDirection: TextDirection.rtl, child: NavigationSidebar(...))
 
 - **Live preview:** `../../docs/preview.html` (interactive, all features).
 - **Examples (read first):** `EXAMPLES.md` in this folder.
-- Source: `lib/src/` — models · theme · localizations · controller · sidebar · appbar · shell.
+- Source: `lib/src/` — models · theme · localizations · controller · sidebar · appbar · shell · search_dialog · shortcut_binder.
 - README: `../../README.md`
 - Example app: `../../example/lib/`

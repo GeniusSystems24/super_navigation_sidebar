@@ -238,3 +238,82 @@ Theme(
   ),
 )
 ```
+
+---
+
+## 9 · Working shortcut chords — `NavShortcutBinder` (2.2)
+
+```dart
+// Chords declared on leaves become working keystrokes inside the binder:
+NavNode(id: 'dashboard', label: 'Dashboard', value: 'dashboard',
+        shortcut: ['ctrl', 'shift', 'd']); // combo (or ['g','d'] for a sequence)
+
+NavShortcutBinder<String>(
+  controller: _nav,
+  onNavigate: (n) => setState(() => _screen = n.value!),
+  chordTimeout: const Duration(milliseconds: 1200),
+  child: NavigationShell<String>(…),
+);
+// Two styles, chosen per node from its key list:
+//   ['ctrl','shift','d'] → Ctrl+Shift+D together (combo)
+//   ['g', 'd']           → g then d (sequence)
+// Suspended while text fields have focus; refuses locked/disabled nodes;
+// rebuilds on replaceSections().
+```
+
+---
+
+## 10 · Screen codes + keyword search (2.2)
+
+```dart
+// SAP-style codes + hidden bilingual aliases — both searchable everywhere:
+NavNode(id: 'journalEntry', label: 'Journal Entry', value: 'journalEntry',
+        code: 'JE01', keywords: ['قيد يومية', 'voucher', 'GL entry']);
+
+// Inline filter and command palette match label + code + keywords.
+// The palette renders the code as a mono chip and supports ↑↓ / ↵ / esc.
+NavigationSidebar<String>(
+  controller: nav, mode: mode,
+  allowSearchDialog: true,
+);
+```
+
+---
+
+## 11 · Recents + state persistence (2.2)
+
+```dart
+// Recents fill automatically on successful navigation (MRU, max 8):
+_nav.recents; _nav.recentNodes; _nav.clearRecents();
+// Palette shows a "Recent" band while the query is empty
+// (localizations.recentsTitle — Arabic preset: 'الأخيرة').
+
+// Persist the whole user-owned state in one snapshot:
+_nav.addListener(() =>
+    prefs.setString('nav', jsonEncode(_nav.snapshot().toJson())));
+
+// Restore on launch — stale ids dropped, ancestors re-expanded, one notify:
+final raw = prefs.getString('nav');
+if (raw != null) {
+  _nav.restore(NavSidebarStateSnapshot.fromJson(jsonDecode(raw)));
+}
+```
+
+---
+
+## 12 · Badge roll-up on collapsed modules (2.2)
+
+```dart
+NavNode(id: 'finance', label: 'Finance', icon: Icons.paid_outlined, children: [
+  NavNode(id: 'approvals', label: 'Approvals', value: 'approvals',
+          badge: NavBadge('3', tone: NavBadgeTone.danger)),
+  NavNode(id: 'drafts', label: 'Draft Journals', value: 'drafts',
+          badge: NavBadge('9')),
+]);
+
+NavigationSidebar<String>(
+  controller: nav, mode: mode,
+  aggregateBadges: true, // closed "Finance" row shows a "12" chip
+);
+// Non-numeric badges ('New') don't count; NavOps.subtreeBadgeSum(node) for hosts.
+```

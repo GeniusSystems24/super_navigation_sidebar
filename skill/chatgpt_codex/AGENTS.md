@@ -10,7 +10,7 @@ package.
 
 ```
 name:    super_navigation_sidebar
-version: 2.1.0
+version: 2.2.1
 import:  package:super_navigation_sidebar/super_navigation_sidebar.dart
 ```
 
@@ -29,7 +29,7 @@ Apply this skill when the user asks for:
 
 ```yaml
 dependencies:
-  super_navigation_sidebar: ^2.1.0
+  super_navigation_sidebar: ^2.2.1
 ```
 
 ### 2 · Register the theme extension
@@ -53,11 +53,13 @@ MaterialApp(
 |---|---|---|
 | `id` | ✅ | Stable unique String — the nav identity. |
 | `label` | ✅ | Display text. |
+| `code` | — | Short screen code (`'JE01'`) — mono chip in palette, searchable (2.2). |
+| `keywords` | — | Hidden search aliases — matched, never rendered (2.2). |
 | `icon` | — | Leading icon. Required in spirit for modules + items. |
 | `children` | — | Child nodes. Empty = leaf. |
 | `value` | — | Strongly-typed host payload. |
 | `badge` | — | `NavBadge(text, tone: NavBadgeTone.*)` |
-| `shortcut` | — | `['g', 'd']` hint shown on hover. |
+| `shortcut` | — | `['g', 'd']` keycap hint — becomes a working chord inside `NavShortcutBinder` (2.2). |
 | `locked` | — | Permission-gate: dim + lock glyph + blocked nav + tooltip. |
 | `lockMessage` | — | Tooltip on a locked row. |
 | `status` | — | `NavNodeStatus.open/closed/locked/attention` dot. |
@@ -83,9 +85,11 @@ MaterialApp(
 | `canGoBack = bool` | — | Enables AppBar back button. Bind to `router.canPop()`. |
 | `expand(id)` / `collapse(id)` / `toggleNode(id)` | `void` | Single-node expansion. |
 | `expandAll()` / `collapseAll()` | `void` | Bulk expansion. |
-| `setQuery(q)` | `void` | Drives built-in search filter. |
+| `setQuery(q)` | `void` | Drives built-in search filter (matches label + code + keywords). |
 | `toggleFavorite(id)` / `setFavorites(ids)` | `void` | Quick Access management. |
-| `replaceSections(s)` | `void` | Hot-swap section forest (validates duplicates in debug). |
+| `recents` / `recentNodes` / `clearRecents()` | — | MRU history, auto-filled by `navigate()` (2.2). |
+| `snapshot()` / `restore(s)` | — | JSON-serializable `NavSidebarStateSnapshot` persistence (2.2). |
+| `replaceSections(s)` | `void` | Hot-swap section forest (validates duplicates in debug; prunes recents). |
 | `of<T>(context)` | `controller?` | `NavigationSidebarScope` accessor from any descendant (may be null). |
 
 ### `NavigationSidebar<T>` key props
@@ -103,12 +107,35 @@ MaterialApp(
 | `allowSearchDialog` | `false` | Command palette — the single switch for dialog search. Trigger in pane; opens `NavSearchDialog`. Precedence over `searchable`. |
 | `onSearchPick` | `null` | `ValueChanged<NavNode<T>>` after a palette pick; falls back to `onNavigate`. |
 | `favoritable` | `false` | Per-row star + synthesized Quick Access band. |
+| `aggregateBadges` | `false` | Summed numeric badge chip on a closed module (2.2). |
 | `header` | `null` | `(ctx, collapsed) → Widget` slot. |
 | `footer` | `null` | `(ctx, collapsed) → Widget` slot. |
 | `localizations` | English | `NavigationSidebarLocalizations` — all UI strings. |
 | `onNavigate` | `null` | Called **only when navigation succeeds** (never for locked/disabled nodes). |
 
 ---
+
+## New in 2.2
+
+- **`NavNode.code` + `NavNode.keywords`** — SAP-style screen codes (mono chip in
+  the palette) and hidden search aliases; matched by the inline filter and the
+  palette (`NavSearchHit` gains `code` / `keywords` / `haystack`).
+- **Recents** — `controller.recents` / `recentNodes` / `clearRecents()` /
+  constructor `recents:` + `maxRecents:` (8). Auto-filled on successful
+  `navigate()`; the palette shows a "Recent" band while the query is empty
+  (`NavSearchDialog.recentsLabel`, `localizations.recentsTitle`).
+- **`NavSidebarStateSnapshot`** — `controller.snapshot()` / `restore()` with
+  `toJson` / `fromJson`; restore drops stale ids and notifies once.
+- **`NavigationSidebar.aggregateBadges`** — closed modules show the summed
+  numeric descendant badge count as a chip (`NavOps.subtreeBadgeSum`).
+- **`NavShortcutBinder<T>`** — wraps the shell and turns `NavNode.shortcut`
+  into working keystrokes. Two styles per node: **combo** `['ctrl','shift','d']`
+  (Ctrl+Shift+D together) and **sequence** `['g', 'd']` (g then d). Suspended
+  in text fields, refuses locked/disabled, rebuilds on `replaceSections`,
+  `enabled` switch. Helpers: `NavShortcutOps.isCombo` / `.keyLabel`.
+- **Fixes** — palette keyboard navigation actually works now (↑↓ highlighted
+  row, ↵ open, esc close); rail modules toggle their flyout on tap (touch);
+  rows show a visible keyboard-focus ring.
 
 ## New in 2.1
 
@@ -285,6 +312,37 @@ Directionality(
 )
 ```
 
+### Pattern G — Working shortcut chords (2.2)
+
+```dart
+NavShortcutBinder<String>(
+  controller: nav,
+  onNavigate: (n) => setState(() => screen = n.value!),
+  child: NavigationShell<String>(…),
+)
+// NavNode(shortcut: ['ctrl','shift','d']) → Ctrl+Shift+D together.
+// NavNode(shortcut: ['g', 'd'])           → g then d (sequence).
+```
+
+### Pattern H — State persistence (2.2)
+
+```dart
+// Save on change:
+nav.addListener(() =>
+    prefs.setString('nav', jsonEncode(nav.snapshot().toJson())));
+// Restore on launch (stale ids dropped automatically):
+nav.restore(NavSidebarStateSnapshot.fromJson(jsonDecode(raw)));
+```
+
+### Pattern I — Screen codes + badge roll-up (2.2)
+
+```dart
+NavNode(id: 'je', label: 'Journal Entry', value: 'je',
+        code: 'JE01', keywords: ['قيد', 'voucher']);
+NavigationSidebar<String>(controller: nav, mode: mode,
+    aggregateBadges: true); // closed module shows summed descendant counts
+```
+
 ---
 
 ## Common mistakes
@@ -297,4 +355,6 @@ Directionality(
 - Forgetting `ThemeData(extensions: [NavigationSidebarThemeData.light])`.
 - Using `const NavNode(…)` or `const NavSection(…)` — constructors are non-const since 1.2.
 - Expecting `onNavigate` to fire for locked/disabled nodes — it never does.
+- Wiring chord keystrokes by hand — wrap the shell in `NavShortcutBinder` instead (2.2).
+- Persisting favorites/expansion piecemeal — use `snapshot()` / `restore()` (2.2).
 - Not setting `NavigationSidebar.allowSearchDialog: true` when a command palette is the intended UX — it is the single switch; the sidebar owns the whole dialog.

@@ -15,6 +15,7 @@
 // ============================================================
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'controller.dart';
 import 'models.dart';
 import 'theme.dart';
@@ -29,6 +30,13 @@ class NavSearchHit {
   /// Stable node id — pass to [NavigationSidebarController.navigate].
   final NavNodeId id;
   final String label;
+
+  /// Short screen code ([NavNode.code]) — shown as a mono chip and matched
+  /// by the filter.
+  final String? code;
+
+  /// Hidden search terms ([NavNode.keywords]) — matched, never rendered.
+  final List<String>? keywords;
   final IconData icon;
 
   /// Top-level module or section title; used as the result group header.
@@ -43,12 +51,20 @@ class NavSearchHit {
   const NavSearchHit({
     required this.id,
     required this.label,
+    this.code,
+    this.keywords,
     required this.icon,
     required this.module,
     required this.group,
     this.badge,
     this.shortcut,
   });
+
+  /// Lower-cased text the filter matches against (label + code + keywords +
+  /// group + module).
+  String get haystack =>
+      '$label ${code ?? ''} ${keywords?.join(' ') ?? ''} $group $module'
+          .toLowerCase();
 }
 
 // ════════════════════════════════════════════════════════════
@@ -71,6 +87,8 @@ class NavSearchOps {
           out.add(NavSearchHit(
             id: top.id,
             label: top.label,
+            code: top.code,
+            keywords: top.keywords,
             icon: top.icon ?? Icons.circle_outlined,
             module: sec.title,
             group: '',
@@ -84,6 +102,8 @@ class NavSearchOps {
               out.add(NavSearchHit(
                 id: leaf.id,
                 label: leaf.label,
+                code: leaf.code,
+                keywords: leaf.keywords,
                 icon: leaf.icon ?? Icons.circle_outlined,
                 module: top.label,
                 group: grp.hasChildren ? grp.label : '',
@@ -99,12 +119,13 @@ class NavSearchOps {
   }
 
   /// Filter [index] by tokenised [query]. Returns the full index when blank.
+  /// Matches label, code, keywords, group and module.
   static List<NavSearchHit> filter(List<NavSearchHit> index, String query) {
     final q = query.trim().toLowerCase();
     if (q.isEmpty) return index;
     final toks = q.split(RegExp(r'\s+'));
     return index.where((h) {
-      final hay = '${h.label} ${h.group} ${h.module}'.toLowerCase();
+      final hay = h.haystack;
       return toks.every(hay.contains);
     }).toList();
   }
@@ -149,12 +170,17 @@ class NavSearchDialog<T> extends StatefulWidget {
   /// Placeholder text in the search field.
   final String hint;
 
+  /// Header of the recent-destinations band shown while the query is empty
+  /// (fed from [NavigationSidebarController.recents]).
+  final String recentsLabel;
+
   const NavSearchDialog({
     super.key,
     required this.controller,
     this.onClose,
     this.onPick,
     this.hint = 'Search tabs & actions…',
+    this.recentsLabel = 'Recent',
   });
 
   @override
@@ -167,6 +193,7 @@ class _NavSearchDialogState<T> extends State<NavSearchDialog<T>> {
   final TextEditingController _text = TextEditingController();
   final FocusNode _focus = FocusNode();
   String _q = '';
+  int _sel = 0;
 
   @override
   void initState() {
@@ -183,6 +210,38 @@ class _NavSearchDialogState<T> extends State<NavSearchDialog<T>> {
 
   List<NavSearchHit> get _results => NavSearchOps.filter(_index, _q);
 
+  /// Recent destinations resolved against the index (query empty only).
+  List<NavSearchHit> get _recentHits {
+    final out = <NavSearchHit>[];
+    for (final id in widget.controller.recents) {
+      for (final h in _index) {
+        if (h.id == id) {
+          out.add(h);
+          break;
+        }
+      }
+    }
+    return out;
+  }
+
+  /// Display bands in visual order: (header, hits). A "Recent" band leads
+  /// when the query is blank; the rest group by module.
+  List<(String, List<NavSearchHit>)> _bands(List<NavSearchHit> results) {
+    final bands = <(String, List<NavSearchHit>)>[];
+    if (_q.trim().isEmpty) {
+      final rec = _recentHits;
+      if (rec.isNotEmpty) bands.add((widget.recentsLabel, rec));
+    }
+    final groups = <String, List<NavSearchHit>>{};
+    for (final h in results) {
+      groups.putIfAbsent(h.module, () => []).add(h);
+    }
+    for (final e in groups.entries) {
+      bands.add((e.key, e.value));
+    }
+    return bands;
+  }
+
   void _pick(NavNodeId id) {
     if (widget.onPick != null) {
       widget.onPick!(id);
@@ -192,16 +251,41 @@ class _NavSearchDialogState<T> extends State<NavSearchDialog<T>> {
     }
   }
 
+  KeyEventResult _onKey(
+      FocusNode node, KeyEvent event, List<NavSearchHit> flat) {
+    if (event is KeyUpEvent) return KeyEventResult.ignored;
+    final key = event.logicalKey;
+    if (key == LogicalKeyboardKey.escape) {
+      widget.onClose?.call();
+      return KeyEventResult.handled;
+    }
+    if (key == LogicalKeyboardKey.arrowDown) {
+      if (flat.isNotEmpty) {
+        setState(() => _sel = (_sel + 1) % flat.length);
+      }
+      return KeyEventResult.handled;
+    }
+    if (key == LogicalKeyboardKey.arrowUp) {
+      if (flat.isNotEmpty) {
+        setState(() => _sel = (_sel - 1 + flat.length) % flat.length);
+      }
+      return KeyEventResult.handled;
+    }
+    if (key == LogicalKeyboardKey.enter ||
+        key == LogicalKeyboardKey.numpadEnter) {
+      if (flat.isNotEmpty && _sel < flat.length) _pick(flat[_sel].id);
+      return KeyEventResult.handled;
+    }
+    return KeyEventResult.ignored;
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = NavigationSidebarThemeData.of(context);
     final results = _results;
-
-    // Group results by module heading.
-    final groups = <String, List<NavSearchHit>>{};
-    for (final h in results) {
-      groups.putIfAbsent(h.module, () => []).add(h);
-    }
+    final bands = _bands(results);
+    final flat = [for (final b in bands) ...b.$2];
+    if (_sel >= flat.length) _sel = flat.isEmpty ? 0 : flat.length - 1;
 
     return Positioned.fill(
       child: GestureDetector(
@@ -216,21 +300,24 @@ class _NavSearchDialogState<T> extends State<NavSearchDialog<T>> {
               constraints: const BoxConstraints(maxWidth: 580),
               child: Material(
                 color: Colors.transparent,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: t.surface,
-                    borderRadius: BorderRadius.circular(t.radiusXl),
-                    border: Border.all(color: t.borderStrong),
-                    boxShadow: NavigationSidebarThemeData.popShadow,
-                  ),
-                  clipBehavior: Clip.antiAlias,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _inputRow(t),
-                      Flexible(child: _resultsList(t, results, groups)),
-                      _footerHints(t),
-                    ],
+                child: Focus(
+                  onKeyEvent: (n, e) => _onKey(n, e, flat),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: t.surface,
+                      borderRadius: BorderRadius.circular(t.radiusXl),
+                      border: Border.all(color: t.borderStrong),
+                      boxShadow: NavigationSidebarThemeData.popShadow,
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _inputRow(t),
+                        Flexible(child: _resultsList(t, results, bands)),
+                        _footerHints(t),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -254,7 +341,10 @@ class _NavSearchDialogState<T> extends State<NavSearchDialog<T>> {
           child: TextField(
             controller: _text,
             focusNode: _focus,
-            onChanged: (v) => setState(() => _q = v),
+            onChanged: (v) => setState(() {
+              _q = v;
+              _sel = 0;
+            }),
             cursorColor: NavigationSidebarThemeData.accent,
             style: TextStyle(
               fontSize: 15.5,
@@ -296,7 +386,7 @@ class _NavSearchDialogState<T> extends State<NavSearchDialog<T>> {
   Widget _resultsList(
     NavigationSidebarThemeData t,
     List<NavSearchHit> results,
-    Map<String, List<NavSearchHit>> groups,
+    List<(String, List<NavSearchHit>)> bands,
   ) {
     if (results.isEmpty) {
       return Padding(
@@ -307,6 +397,7 @@ class _NavSearchDialogState<T> extends State<NavSearchDialog<T>> {
         ),
       );
     }
+    var flatIndex = 0;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(8),
       child: Column(
@@ -327,11 +418,11 @@ class _NavSearchDialogState<T> extends State<NavSearchDialog<T>> {
               ),
             ),
           ),
-          for (final entry in groups.entries) ...[
+          for (final band in bands) ...[
             Padding(
               padding: const EdgeInsets.fromLTRB(12, 10, 12, 5),
               child: Text(
-                entry.key.toUpperCase(),
+                band.$1.toUpperCase(),
                 style: TextStyle(
                   fontWeight: FontWeight.w700,
                   fontSize: 10.5,
@@ -340,10 +431,11 @@ class _NavSearchDialogState<T> extends State<NavSearchDialog<T>> {
                 ),
               ),
             ),
-            for (final h in entry.value)
+            for (final h in band.$2)
               _NavSearchResultRow(
                 hit: h,
                 active: widget.controller.isActive(h.id),
+                highlighted: flatIndex++ == _sel,
                 onTap: () => _pick(h.id),
               ),
           ],
@@ -376,10 +468,12 @@ class _NavSearchDialogState<T> extends State<NavSearchDialog<T>> {
 class _NavSearchResultRow extends StatefulWidget {
   final NavSearchHit hit;
   final bool active;
+  final bool highlighted;
   final VoidCallback onTap;
   const _NavSearchResultRow({
     required this.hit,
     required this.active,
+    this.highlighted = false,
     required this.onTap,
   });
   @override
@@ -393,9 +487,12 @@ class _NavSearchResultRowState extends State<_NavSearchResultRow> {
   Widget build(BuildContext context) {
     final t = NavigationSidebarThemeData.of(context);
     final active = widget.active;
-    final bg = active
+    final highlighted = widget.highlighted;
+    final bg = highlighted
         ? t.accentFill(0.10)
-        : (_hover ? t.hover : Colors.transparent);
+        : active
+            ? t.accentFill(0.10)
+            : (_hover ? t.hover : Colors.transparent);
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
@@ -409,6 +506,11 @@ class _NavSearchResultRowState extends State<_NavSearchResultRow> {
           decoration: BoxDecoration(
             color: bg,
             borderRadius: BorderRadius.circular(7),
+            border: Border.all(
+              color: highlighted
+                  ? NavigationSidebarThemeData.accent.withOpacity(0.45)
+                  : Colors.transparent,
+            ),
           ),
           child: Row(children: [
             Container(
@@ -456,6 +558,28 @@ class _NavSearchResultRowState extends State<_NavSearchResultRow> {
                 ],
               ),
             ),
+            if (widget.hit.code != null) ...[
+              Container(
+                margin: const EdgeInsetsDirectional.only(end: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                decoration: BoxDecoration(
+                  color: t.inputBg,
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(color: t.border),
+                ),
+                child: Text(
+                  widget.hit.code!.toUpperCase(),
+                  style: TextStyle(
+                    fontFamily: NavigationSidebarThemeData.monoFont,
+                    fontSize: 9,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.4,
+                    color: t.fg3,
+                  ),
+                ),
+              ),
+            ],
             if (widget.hit.badge != null)
               _NavSearchBadgePill(badge: widget.hit.badge!),
           ]),
@@ -554,6 +678,7 @@ void showNavSearchDialog<T>(
   required NavigationSidebarController<T> controller,
   ValueChanged<NavNodeId>? onPick,
   String hint = 'Search tabs & actions…',
+  String recentsLabel = 'Recent',
 }) {
   final overlay = Overlay.of(context);
   final themeData = Theme.of(context);
@@ -588,6 +713,7 @@ void showNavSearchDialog<T>(
                     }
                   : null,
               hint: hint,
+              recentsLabel: recentsLabel,
             ),
           ],
         ),

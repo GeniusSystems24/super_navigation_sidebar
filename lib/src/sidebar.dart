@@ -112,6 +112,15 @@ class NavigationSidebar<T> extends StatefulWidget {
   /// Enable per-row star toggles and a synthesized "Quick Access" band.
   final bool favoritable;
 
+  /// Roll numeric badge counts up onto collapsed modules.
+  ///
+  /// When `true`, a closed module whose descendants carry numeric badges
+  /// (e.g. `NavBadge('3')` pending approvals) shows the summed count as a
+  /// chip instead of the plain accent dot — so "12 documents need you
+  /// somewhere inside Finance" is visible without expanding the tree.
+  /// Non-numeric badges (`'New'`) keep the dot. Default `false`.
+  final bool aggregateBadges;
+
   /// Eyebrow for the Quick Access band. Overrides
   /// [localizations.quickAccessTitle] when set.
   final String? quickAccessTitle;
@@ -148,6 +157,7 @@ class NavigationSidebar<T> extends StatefulWidget {
     this.allowSearchDialog = false,
     this.onSearchPick,
     this.favoritable = false,
+    this.aggregateBadges = false,
     this.quickAccessTitle,
     this.localizations = const NavigationSidebarLocalizations(),
     this.onNavigate,
@@ -238,6 +248,7 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
       context,
       controller: _controller,
       hint: _searchHint,
+      recentsLabel: _l10n.recentsTitle,
       onPick: (id) {
         if (!_controller.navigate(id)) return;
         final n = _controller.node(id);
@@ -698,6 +709,7 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
           expandable: true,
           open: open,
           ownsActive: ownsActive,
+          aggregateBadges: widget.aggregateBadges,
           shortcutMode: widget.shortcutMode,
           query: _controller.query,
           localizations: _l10n,
@@ -811,6 +823,7 @@ class _NavRow<T> extends StatefulWidget {
   final bool open;
   final bool active;
   final bool ownsActive;
+  final bool aggregateBadges;
   final VoidCallback onTap;
   final NavShortcutMode shortcutMode;
   final String query;
@@ -828,6 +841,7 @@ class _NavRow<T> extends StatefulWidget {
     this.open = false,
     this.active = false,
     this.ownsActive = false,
+    this.aggregateBadges = false,
     this.shortcutMode = NavShortcutMode.onHover,
     this.query = '',
     this.favoritable = false,
@@ -843,6 +857,7 @@ class _NavRow<T> extends StatefulWidget {
 
 class _NavRowState<T> extends State<_NavRow<T>> {
   bool _hover = false;
+  bool _focused = false;
 
   bool get _showInline {
     if (widget.node.shortcut == null) return false;
@@ -920,7 +935,7 @@ class _NavRowState<T> extends State<_NavRow<T>> {
       bg = NavigationSidebarThemeData.accent;
     } else if (widget.active && isLeafRow) {
       bg = t.accentFill(barStyle ? 0.14 : 0.10);
-    } else if (_hover) {
+    } else if (_hover || _focused) {
       bg = t.hover;
     }
 
@@ -944,6 +959,7 @@ class _NavRowState<T> extends State<_NavRow<T>> {
           : null,
       excludeSemantics: false,
       child: Focus(
+        onFocusChange: (f) => setState(() => _focused = f),
         onKeyEvent: (node, event) {
           if (isInteractive &&
               event is KeyDownEvent &&
@@ -976,6 +992,12 @@ class _NavRowState<T> extends State<_NavRow<T>> {
                       decoration: BoxDecoration(
                         color: bg,
                         borderRadius: BorderRadius.circular(radius),
+                        border: Border.all(
+                          color: _focused
+                              ? NavigationSidebarThemeData.accent
+                                  .withOpacity(0.55)
+                              : Colors.transparent,
+                        ),
                       ),
                       child: content,
                     ),
@@ -1104,8 +1126,12 @@ class _NavRowState<T> extends State<_NavRow<T>> {
                 : t.fg2))
         : (widget.ownsActive ? NavigationSidebarThemeData.accent : t.fg2);
     final bold = widget.active || widget.ownsActive;
-    final moduleDot =
+    final closedWithBadges =
         !isDirect && !widget.open && NavOps.subtreeHasBadge(widget.node);
+    final badgeSum = closedWithBadges && widget.aggregateBadges
+        ? NavOps.subtreeBadgeSum(widget.node)
+        : 0;
+    final moduleDot = closedWithBadges && badgeSum == 0;
 
     return Row(
       children: [
@@ -1130,6 +1156,10 @@ class _NavRowState<T> extends State<_NavRow<T>> {
         ],
         _shortcutInline(onAccent: fillActive),
         if (isDirect) _trailing(t, onAccent: fillActive),
+        if (badgeSum > 0) ...[
+          const SizedBox(width: 6),
+          _NavBadgeChip(badge: NavBadge('$badgeSum'), small: true),
+        ],
         if (moduleDot) ...[
           const SizedBox(width: 6),
           Container(
@@ -1383,9 +1413,12 @@ class _RailItemState<T> extends State<_RailItem<T>> {
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: () {
-              // Modules open flyouts on hover; direct taps only navigate
-              // leaf items. Guard against locked/disabled nodes.
-              if (!isModule && isInteractive) {
+              // Leaf items navigate on tap. Modules toggle their flyout on
+              // tap too — hover-only flyouts are unreachable on touch
+              // devices (tablets / hybrid POS terminals).
+              if (isModule) {
+                _entry != null ? _removeFlyout() : _showFlyout();
+              } else if (isInteractive) {
                 widget.onNavigate(widget.node);
               }
             },
@@ -1948,7 +1981,7 @@ class _ShortcutHint extends StatelessWidget {
                   ],
           ),
           child: Text(
-            k.toUpperCase(),
+            NavShortcutOps.keyLabel(k),
             style: TextStyle(
               fontFamily: NavigationSidebarThemeData.monoFont,
               fontSize: 9.5,
@@ -1959,6 +1992,7 @@ class _ShortcutHint extends StatelessWidget {
           ),
         );
 
+    final combo = NavShortcutOps.isCombo(keys);
     return Tooltip(
       message: localizations.shortcutTooltip(keys),
       waitDuration: const Duration(milliseconds: 450),
@@ -1970,9 +2004,17 @@ class _ShortcutHint extends StatelessWidget {
               Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 2.5),
-                child: Icon(Icons.chevron_right,
-                    size: 10,
-                    color: capFg.withOpacity(0.65)),
+                child: combo
+                    ? Text('+',
+                        style: TextStyle(
+                          fontFamily: NavigationSidebarThemeData.monoFont,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color: capFg.withOpacity(0.65),
+                        ))
+                    : Icon(Icons.chevron_right,
+                        size: 10,
+                        color: capFg.withOpacity(0.65)),
               ),
             cap(keys[i]),
           ],

@@ -6,6 +6,81 @@ versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [2.2.0] — 2026-07-03
+
+The **ERP power-user** release: screen codes, recents, state persistence,
+badge roll-up and working keyboard shortcuts (Ctrl+Shift combos **and**
+sequential chords) — plus three real fixes.
+**Additive — no breaking changes.**
+
+### Added — screen codes & keyword search
+
+- **`NavNode.code`** — optional short screen code (SAP-style transaction
+  code, e.g. `'JE01'`). Rendered as a mono chip in the command palette and
+  matched by both the inline tree filter and the palette.
+- **`NavNode.keywords`** — hidden search aliases (synonyms, legacy names,
+  bilingual terms). Matched, never rendered. Unmodifiable after construction.
+- `NavigationSidebarController.matchSet()` and `NavSearchOps.filter` now
+  match label + code + keywords (+ group/module in the palette).
+  `NavSearchHit` gains `code`, `keywords` and a `haystack` getter.
+
+### Added — recent destinations
+
+- The controller records every successful leaf navigation in an MRU list:
+  **`recents`** / **`recentNodes`** / **`clearRecents()`** /
+  constructor `recents:` seed / **`maxRecents`** (default 8).
+- The command palette shows a **"Recent" band** first while the query is
+  empty. Localized via `NavigationSidebarLocalizations.recentsTitle`
+  (Arabic preset: `'الأخيرة'`); `NavSearchDialog.recentsLabel` /
+  `showNavSearchDialog(recentsLabel:)` for direct use.
+- `replaceSections` prunes recents whose nodes no longer exist.
+
+### Added — sidebar state persistence
+
+- **`NavSidebarStateSnapshot`** — immutable, JSON-serializable capture of
+  the user-owned state (active, expanded, favorites, recents, collapsed)
+  with `toJson` / `fromJson`.
+- **`controller.snapshot()`** / **`controller.restore(snapshot)`** — restore
+  drops ids missing from the current tree (permissions may have changed) and
+  notifies once. Persist per-user so pinned screens and open modules follow
+  the user to any workstation.
+
+### Added — badge count roll-up
+
+- **`NavigationSidebar.aggregateBadges`** — a closed module whose descendants
+  carry numeric badges shows the **summed count chip** instead of the plain
+  accent dot ("12 documents need you inside Finance"). Non-numeric badges
+  keep the dot. **`NavOps.subtreeBadgeSum`** exposed for hosts.
+
+### Added — working keyboard shortcuts
+
+- **`NavShortcutBinder<T>`** — wraps the shell and turns every leaf's
+  `NavNode.shortcut` into a working keystroke. Two styles, chosen per node
+  from its key list:
+  - **Modifier combo** — `['ctrl', 'shift', 'd']` fires on Ctrl+Shift+D
+    pressed together (any of ctrl/shift/alt/cmd + one main key), matched on
+    the exact modifier set.
+  - **Sequential chord** — `['g', 'd']` fires on "g then d", matched
+    key-by-key with a rolling buffer and `chordTimeout` (1.2 s).
+  Both are suspended while any text field has focus, refuse locked/disabled
+  nodes, rebuild on `replaceSections`, and honor the `enabled` switch.
+  `shortcut` is no longer "visual hint only" when a binder is present.
+- **`NavShortcutOps.isCombo` / `.keyLabel`** and `kNavShortcutModifiers`
+  exposed; shortcut-hint keycaps render combos with `+` separators and
+  Ctrl/Shift/Alt/Cmd labels, sequences with `›`.
+
+### Fixed
+
+- **Command palette keyboard navigation** — the footer advertised
+  `↑↓ navigate · ↵ open · esc close` but none of it was wired. Now: ↑/↓ move
+  a highlighted row (wraps), Enter opens it, Escape closes the dialog.
+- **Rail modules were dead on touch** — flyouts opened on hover only.
+  Tapping a rail module now toggles its flyout (tablets / POS terminals).
+- **No visible keyboard focus** — focused rows now show the hover tint plus
+  an accent focus ring, so Tab navigation is usable.
+
+---
+
 ## [2.1.0] — 2026-07-02
 
 Built-in command-palette search dialog. **Additive — no breaking changes.**

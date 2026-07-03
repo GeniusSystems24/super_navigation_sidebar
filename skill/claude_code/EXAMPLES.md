@@ -438,6 +438,10 @@ final index = NavSearchOps.buildIndex<String>(_nav.sections);
 final hits = NavSearchOps.filter(index, 'journal entry');
 ```
 
+---
+
+## 15 · Quick Access favorites — seed + persist
+
 ```dart
 // Pre-seed favorites in the controller:
 NavigationSidebarController<String>(
@@ -461,4 +465,102 @@ nav.addListener(() {
 
 // Restore on startup:
 nav.setFavorites(prefs.getStringList('favorites') ?? []);
+```
+
+---
+
+## 16 · Working shortcut chords — `NavShortcutBinder` (2.2)
+
+```dart
+// Declare chords on leaves (also rendered as keycap hints):
+NavNode(id: 'dashboard', label: 'Dashboard', value: 'dashboard',
+        shortcut: ['g', 'd']);
+NavNode(id: 'journalEntry', label: 'Journal Entry', value: 'journalEntry',
+        shortcut: ['g', 'j']);
+
+// Wrap the shell ONCE — chords become working keystrokes:
+NavShortcutBinder<String>(
+  controller: _nav,
+  onNavigate: (n) => setState(() => _screen = n.value!),
+  chordTimeout: const Duration(milliseconds: 1200),
+  child: NavigationShell<String>(…),
+);
+
+// Two shortcut styles, chosen per node from its key list:
+NavNode(shortcut: ['ctrl', 'shift', 'd']); // combo — Ctrl+Shift+D together
+NavNode(shortcut: ['g', 'd']);             // sequence — g then d
+
+// Guarantees:
+// • suspended while any text field has focus (never eats form input)
+// • ignores Ctrl/Cmd/Alt-combined presses (host-app shortcut territory)
+// • locked/disabled nodes are refused — onNavigate never fires for them
+// • chord map rebuilds automatically on replaceSections()
+// • enabled: false suspends everything (e.g. during a modal wizard)
+```
+
+---
+
+## 17 · Screen codes + keyword search (2.2)
+
+```dart
+// SAP-style transaction codes + hidden bilingual aliases:
+NavNode(id: 'journalEntry', label: 'Journal Entry', value: 'journalEntry',
+        code: 'JE01',                        // mono chip in the palette
+        keywords: ['قيد يومية', 'voucher', 'GL entry']);
+NavNode(id: 'apInvoice', label: 'Vendor Invoice', value: 'apInvoice',
+        code: 'AP-INV', keywords: ['فاتورة مورد', 'bill', 'payable']);
+
+// Both the inline filter (searchable: true) and the command palette match
+// label + code + keywords. Typing "JE01", "voucher" or "قيد" finds the entry.
+
+// Palette keyboard (2.2): ↑↓ move the highlighted row · ↵ opens · esc closes.
+```
+
+---
+
+## 18 · Recents + full state persistence (2.2)
+
+```dart
+// Recents fill automatically — every successful navigate() lands MRU-first:
+_nav.navigate('journalEntry');
+_nav.recents;      // ['journalEntry', …]  (max = maxRecents, default 8)
+_nav.recentNodes;  // resolved NavNode list
+// The command palette opens with a "Recent" band while the query is empty
+// (header localized via NavigationSidebarLocalizations.recentsTitle).
+
+// Persist EVERYTHING the user owns (active · expanded · favorites · recents ·
+// collapsed) in one JSON-serializable snapshot:
+_nav.addListener(() =>
+    prefs.setString('nav', jsonEncode(_nav.snapshot().toJson())));
+
+// Restore on launch — stale ids (removed screens, revoked permissions) are
+// dropped silently; ancestors of the active node re-expand; notifies once:
+final raw = prefs.getString('nav');
+if (raw != null) {
+  _nav.restore(NavSidebarStateSnapshot.fromJson(jsonDecode(raw)));
+}
+```
+
+---
+
+## 19 · Badge roll-up on collapsed modules (2.2)
+
+```dart
+// Descendants carry numeric badges:
+NavNode(id: 'finance', label: 'Finance', icon: Icons.paid_outlined, children: [
+  NavNode(id: 'approvals', label: 'Approvals', value: 'approvals',
+          badge: NavBadge('3', tone: NavBadgeTone.danger)),
+  NavNode(id: 'drafts', label: 'Draft Journals', value: 'drafts',
+          badge: NavBadge('9')),
+]);
+
+// aggregateBadges sums them onto the CLOSED module row ("12" chip):
+NavigationSidebar<String>(
+  controller: nav,
+  mode: mode,
+  aggregateBadges: true,
+);
+// Non-numeric badges ('New', 'Live') are ignored by the sum — a module whose
+// descendants have only non-numeric badges keeps the plain accent dot.
+// Programmatic access: NavOps.subtreeBadgeSum(node).
 ```

@@ -8,11 +8,13 @@
 //   NavigationSidebarScope · NavigationSidebarThemeData ·
 //   NavigationSidebarLocalizations · NavigationSidebarAppBar ·
 //   NavigationShell · NavBreadcrumb · NavigationSidebarSearchField ·
+//   NavShortcutBinder · NavSidebarStateSnapshot ·
 //   NavSection · NavNode · NavBadge · NavBadgeTone · NavNodeRole ·
 //   NavNodeId · NavNodeStatus · NavSidebarMode · NavSidebarBreakpoints ·
 //   NavSectionPlacement · NavShellHeaderLayout · NavPaneBehavior ·
 //   NavSelectionIndicator · NavShellSlotBuilder ·
-//   NavOps · NavSidebarSlotBuilder · NavShortcutMode
+//   NavSearchDialog · NavSearchHit · NavSearchOps · showNavSearchDialog ·
+//   NavOps · NavSidebarSlotBuilder · NavShortcutMode · NavShortcutOps
 
 export 'src/models.dart';
 export 'src/theme.dart';
@@ -22,3 +24,4 @@ export 'src/sidebar.dart';
 export 'src/appbar.dart';
 export 'src/shell.dart';
 export 'src/search_dialog.dart';
+export 'src/shortcut_binder.dart';

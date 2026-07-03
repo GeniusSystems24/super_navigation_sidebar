@@ -28,6 +28,7 @@
 // ============================================================
 
 import 'package:flutter/foundation.dart';
+import 'models.dart';
 
 /// All user-facing strings rendered by [NavigationSidebar].
 ///
@@ -65,6 +66,10 @@ class NavigationSidebarLocalizations {
 
   /// Tooltip on the star icon when the node **is** already a favorite.
   final String removeFromQuickAccess;
+
+  // ── Recents ───────────────────────────────────────
+  /// Header of the recent-destinations band in the command palette.
+  final String recentsTitle;
 
   // ── Locked nodes ───────────────────────────────────────────
   /// Fallback tooltip when [NavNode.locked] is `true` but
@@ -112,6 +117,7 @@ class NavigationSidebarLocalizations {
     this.quickAccessTitle = 'Quick Access',
     this.addToQuickAccess = 'Add to Quick Access',
     this.removeFromQuickAccess = 'Remove from Quick Access',
+    this.recentsTitle = 'Recent',
     this.lockedDefault = "Locked — you don't have access",
     this.shortcutPrefix = 'Shortcut · ',
     this.shortcutSeparator = ' then ',
@@ -137,6 +143,7 @@ class NavigationSidebarLocalizations {
     quickAccessTitle: 'الوصول السريع',
     addToQuickAccess: 'إضافة للوصول السريع',
     removeFromQuickAccess: 'إزالة من الوصول السريع',
+    recentsTitle: 'الأخيرة',
     lockedDefault: 'مقفل — ليس لديك صلاحية الوصول',
     shortcutPrefix: 'اختصار · ',
     shortcutSeparator: ' ثم ',
@@ -162,6 +169,10 @@ class NavigationSidebarLocalizations {
   /// Example: `shortcutTooltip(['g', 'd'])` → `'Shortcut · G then D'`.
   String shortcutTooltip(List<String> keys) {
     if (keys.isEmpty) return '';
+    if (NavShortcutOps.isCombo(keys)) {
+      final combo = keys.map(NavShortcutOps.keyLabel).join(' + ');
+      return '$shortcutPrefix$combo';
+    }
     final pretty =
         keys.map((k) => k.toUpperCase()).join(shortcutSeparator);
     return '$shortcutPrefix$pretty';
@@ -178,6 +189,7 @@ class NavigationSidebarLocalizations {
           other.quickAccessTitle == quickAccessTitle &&
           other.addToQuickAccess == addToQuickAccess &&
           other.removeFromQuickAccess == removeFromQuickAccess &&
+          other.recentsTitle == recentsTitle &&
           other.lockedDefault == lockedDefault &&
           other.shortcutPrefix == shortcutPrefix &&
           other.shortcutSeparator == shortcutSeparator &&
@@ -193,6 +205,7 @@ class NavigationSidebarLocalizations {
   int get hashCode => Object.hash(
         searchHint, searchEmpty, drawerTitle, drawerCloseLabel,
         quickAccessTitle, addToQuickAccess, removeFromQuickAccess,
+        recentsTitle,
         lockedDefault, shortcutPrefix, shortcutSeparator,
         semanticExpanded, semanticCollapsed, semanticLocked,
         semanticDisabled, semanticToggleSidebar, semanticOpenDrawer,

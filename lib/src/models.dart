@@ -92,6 +92,45 @@ enum NavShortcutMode {
   hidden,
 }
 
+/// Modifier tokens recognised inside a [NavNode.shortcut] list. When a
+/// shortcut contains one or more of these it is treated as a **simultaneous
+/// combo** (e.g. `['ctrl', 'shift', 'd']` → Ctrl+Shift+D) rather than a
+/// sequential "type g then d" chord.
+const Set<String> kNavShortcutModifiers = {
+  'ctrl', 'control', 'shift', 'alt', 'option', 'cmd', 'meta', 'super', 'win',
+};
+
+/// Helpers for interpreting a [NavNode.shortcut] key list.
+class NavShortcutOps {
+  NavShortcutOps._();
+
+  /// True when [keys] declares a modifier combo (contains Ctrl/Shift/Alt/Cmd).
+  /// False for a plain sequential chord like `['g', 'd']`.
+  static bool isCombo(List<String> keys) =>
+      keys.any((k) => kNavShortcutModifiers.contains(k.toLowerCase()));
+
+  /// Human label for one key token — `'ctrl'` → `'Ctrl'`, `'d'` → `'D'`.
+  static String keyLabel(String k) {
+    switch (k.toLowerCase()) {
+      case 'ctrl':
+      case 'control':
+        return 'Ctrl';
+      case 'shift':
+        return 'Shift';
+      case 'alt':
+      case 'option':
+        return 'Alt';
+      case 'cmd':
+      case 'meta':
+      case 'super':
+      case 'win':
+        return 'Cmd';
+      default:
+        return k.toUpperCase();
+    }
+  }
+}
+
 /// Informational state of a node — surfaced as a small status dot before the
 /// label. Built for ERP needs like fiscal-period or ledger state (an *open*
 /// period is green, a *closed* one grey, a *locked* one red). Purely
@@ -131,6 +170,16 @@ class NavNode<T> {
 
   /// Display label (also what the optional search filter matches against).
   final String label;
+
+  /// Optional short screen code (an SAP-style transaction code, e.g. `'JE01'`,
+  /// `'AP-INV'`). Rendered as a mono chip in the command palette and matched
+  /// by search — power users can jump by code instead of label.
+  final String? code;
+
+  /// Extra search terms (synonyms, legacy names, Arabic/English aliases).
+  /// Never rendered — only matched by the tree filter and the command
+  /// palette. Wrapped in [List.unmodifiable] at construction.
+  final List<String>? keywords;
 
   /// Leading icon. Optional for [NavNodeRole.group] headers (they show a
   /// bullet), required-in-spirit for everything else.
@@ -175,6 +224,8 @@ class NavNode<T> {
   NavNode({
     required this.id,
     required this.label,
+    this.code,
+    List<String>? keywords,
     this.icon,
     List<NavNode<T>>? children,
     this.badge,
@@ -184,7 +235,8 @@ class NavNode<T> {
     this.locked = false,
     this.lockMessage,
     this.status = NavNodeStatus.none,
-  }) : children = children == null
+  })  : keywords = keywords == null ? null : List.unmodifiable(keywords),
+        children = children == null
             ? const []
             : List.unmodifiable(children);
 
@@ -194,6 +246,8 @@ class NavNode<T> {
   NavNode<T> copyWith({
     NavNodeId? id,
     String? label,
+    String? code,
+    List<String>? keywords,
     IconData? icon,
     List<NavNode<T>>? children,
     NavBadge? badge,
@@ -207,6 +261,8 @@ class NavNode<T> {
       NavNode<T>(
         id: id ?? this.id,
         label: label ?? this.label,
+        code: code ?? this.code,
+        keywords: keywords ?? this.keywords,
         icon: icon ?? this.icon,
         children: children ?? List<NavNode<T>>.of(this.children),
         badge: badge ?? this.badge,
@@ -396,6 +452,20 @@ class NavOps {
       if (subtreeHasBadge(c)) return true;
     }
     return false;
+  }
+
+  /// Sum of all numeric badge texts on [node] and its descendants.
+  ///
+  /// Non-numeric badges (`'New'`, `'Live'`) count as 0. Used by
+  /// `NavigationSidebar.aggregateBadges` to roll pending-approval /
+  /// unposted-document counts up onto a collapsed module row — the ERP
+  /// "12 things need you inside" affordance.
+  static int subtreeBadgeSum<T>(NavNode<T> node) {
+    var sum = int.tryParse(node.badge?.text ?? '') ?? 0;
+    for (final c in node.children) {
+      sum += subtreeBadgeSum(c);
+    }
+    return sum;
   }
 
   /// All leaf ids beneath (and including, if leaf) [node].

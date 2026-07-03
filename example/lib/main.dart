@@ -13,6 +13,7 @@ import 'example_03_theme_rtl.dart';
 import 'example_04_erp_banking.dart';
 import 'example_05_appbar_integration.dart';
 import 'example_06_navigation_shell.dart';
+import 'example_07_kitchen_sink.dart';
 import 'navigation_sidebar_demo.dart';
 
 void main() => runApp(const ExampleApp());
@@ -67,6 +68,18 @@ class LauncherScreen extends StatelessWidget {
     final s = NavigationSidebarThemeData.of(context);
 
     final demos = <_Demo>[
+      _Demo(
+        title: 'Kitchen sink — every feature (2.2)',
+        subtitle:
+            'One workbench with the full surface: shell layouts, working '
+            'Ctrl+Shift shortcuts, screen codes + keyword search, palette with '
+            'keyboard + Recent band, snapshot save/restore, badge roll-up, '
+            'favorites, locked/status nodes, RTL — all behind live toggles.',
+        badge: 'ALL · shortcuts · codes · recents · snapshot',
+        preview: const _SidebarThumb(
+            mode: _Mode.expanded, activeIndex: 2, badges: true, erp: true),
+        screen: const KitchenSinkExample(),
+      ),
       _Demo(
         title: 'Responsive app shell',
         subtitle:
@@ -755,7 +768,7 @@ class _VersionPill extends StatelessWidget {
         border: Border.all(
             color: NavigationSidebarThemeData.accent.withOpacity(0.35)),
       ),
-      child: const Text('v2.0.0',
+      child: const Text('v2.2.1',
           style: TextStyle(
               fontFamily: NavigationSidebarThemeData.monoFont,
               fontSize: 10.5,
