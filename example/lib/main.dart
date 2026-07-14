@@ -5,6 +5,7 @@
 // is pushed with a floating "back to demos" button.
 
 import 'package:flutter/material.dart';
+import 'package:super_core/super_core.dart';
 import 'package:super_navigation_sidebar/super_navigation_sidebar.dart';
 
 import 'example_01_responsive_shell.dart';
@@ -25,24 +26,17 @@ class ExampleApp extends StatefulWidget {
 }
 
 class _ExampleAppState extends State<ExampleApp> {
-  bool _dark = true;
+  bool _dark = false;
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'super_navigation_sidebar examples',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF4A7CFF)),
-        fontFamily: NavigationSidebarThemeData.bodyFont,
-        scaffoldBackgroundColor: NavigationSidebarThemeData.light.bg,
+      theme: SuperMaterialThemeData.dark().copyWith(
         extensions: const [NavigationSidebarThemeData.light],
       ),
-      darkTheme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color(0xFF4A7CFF), brightness: Brightness.dark),
-        fontFamily: NavigationSidebarThemeData.bodyFont,
-        scaffoldBackgroundColor: NavigationSidebarThemeData.dark.bg,
+      darkTheme: SuperMaterialThemeData.dark().copyWith(
         extensions: const [NavigationSidebarThemeData.dark],
       ),
       themeMode: _dark ? ThemeMode.dark : ThemeMode.light,
@@ -70,8 +64,7 @@ class LauncherScreen extends StatelessWidget {
     final demos = <_Demo>[
       _Demo(
         title: 'Kitchen sink — every feature (2.2)',
-        subtitle:
-            'One workbench with the full surface: shell layouts, working '
+        subtitle: 'One workbench with the full surface: shell layouts, working '
             'Ctrl+Shift shortcuts, screen codes + keyword search, palette with '
             'keyboard + Recent band, snapshot save/restore, badge roll-up, '
             'favorites, locked/status nodes, RTL — all behind live toggles.',
