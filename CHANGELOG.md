@@ -6,6 +6,26 @@ versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [2.3.0] — 2026-07-16
+
+### Added
+
+- Now depends on **super_core** (previously zero third-party dependencies).
+- **`NavigationSidebarThemeData.fromMaterialTheme(SuperMaterialThemeData)`** —
+  derives the sidebar theme from a `SuperMaterialThemeData`, reading palette-,
+  brightness- and device-mode-aware surfaces and control/row sizes from its
+  `SuperThemeData` / `SuperMetrics` instead of hard-coded hex.
+- `NavigationSidebarThemeData.of(context)` now prefers an explicitly registered
+  extension, then the ambient `SuperMaterialThemeData`, then the `dark` preset.
+
+### Changed
+
+- Upgraded to **super_core 1.1.0** (`SuperMaterialThemeData` is now a
+  `ThemeData` subclass with responsive `SuperDeviceMode` tokens). Minimum
+  raised to `dart >=3.8.0`, `flutter >=3.32.0`.
+
+---
+
 ## [2.2.0] — 2026-07-03
 
 The **ERP power-user** release: screen codes, recents, state persistence,

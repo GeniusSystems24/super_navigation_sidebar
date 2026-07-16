@@ -10,7 +10,7 @@ package.
 
 ```
 name:    super_navigation_sidebar
-version: 2.2.1
+version: 2.3.0
 import:  package:super_navigation_sidebar/super_navigation_sidebar.dart
 ```
 

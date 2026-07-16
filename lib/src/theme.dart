@@ -35,6 +35,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:super_core/super_core.dart';
 import 'models.dart';
 
 @immutable
@@ -278,9 +279,48 @@ class NavigationSidebarThemeData
   );
 
   // ── helpers ────────────────────────────────────────────────
-  /// Reads the registered extension, or falls back to [dark].
-  static NavigationSidebarThemeData of(BuildContext context) =>
-      Theme.of(context).extension<NavigationSidebarThemeData>() ?? dark;
+  /// Reads the registered extension; when absent, derives from the ambient
+  /// [SuperMaterialThemeData] (palette / brightness / device-mode aware); falls
+  /// back to [dark] only when no Super/Material theme is available.
+  static NavigationSidebarThemeData of(BuildContext context) {
+    final ext = Theme.of(context).extension<NavigationSidebarThemeData>();
+    if (ext != null) return ext;
+    final superTheme = SuperMaterialThemeData.maybeOf(context);
+    if (superTheme != null) {
+      return NavigationSidebarThemeData.fromMaterialTheme(superTheme);
+    }
+    return dark;
+  }
+
+  /// Derives a [NavigationSidebarThemeData] from a [SuperMaterialThemeData],
+  /// reading palette-, brightness- and device-mode-aware tokens from
+  /// `theme.superTheme` instead of duplicating hard-coded light/dark hex. Row
+  /// and control sizes follow the active [SuperDeviceMode] via the resolved
+  /// [SuperMetrics]; every other size keeps its sensible default.
+  factory NavigationSidebarThemeData.fromMaterialTheme(
+      SuperMaterialThemeData theme) {
+    final s = theme.superTheme;
+    final z = s.sizing;
+    return NavigationSidebarThemeData(
+      bg: s.bg,
+      surface: s.surface,
+      inputBg: s.inputBg,
+      hover: s.hover,
+      border: s.border,
+      borderStrong: s.borderStrong,
+      guide: s.borderStrong,
+      fg1: s.fg1,
+      fg2: s.fg2,
+      fg3: s.fg3,
+      fg4: s.fg4,
+      directHeight: z.control,
+      moduleHeight: z.control,
+      railButton: z.iconButton,
+      railIconSize: z.icon,
+      toolbarButtonSize: z.iconButton,
+      toolbarIconSize: z.icon,
+    );
+  }
 
   /// Accent-tinted fill over [surface] at [pct] opacity.
   Color accentFill([double pct = 0.12]) =>

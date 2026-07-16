@@ -26,18 +26,20 @@ class ExampleApp extends StatefulWidget {
 }
 
 class _ExampleAppState extends State<ExampleApp> {
-  bool _dark = false;
+  bool _dark = true;
 
   @override
   Widget build(BuildContext context) {
+    final dark = SuperMaterialThemeData.dark();
+    final light = SuperMaterialThemeData.light();
     return MaterialApp(
       title: 'super_navigation_sidebar examples',
       debugShowCheckedModeBanner: false,
-      theme: SuperMaterialThemeData.dark().copyWith(
-        extensions: const [NavigationSidebarThemeData.light],
+      theme: light.copyWith(
+        extensions:  [NavigationSidebarThemeData.fromMaterialTheme(light)],
       ),
-      darkTheme: SuperMaterialThemeData.dark().copyWith(
-        extensions: const [NavigationSidebarThemeData.dark],
+      darkTheme: dark.copyWith(
+        extensions:  [NavigationSidebarThemeData.fromMaterialTheme(dark)],
       ),
       themeMode: _dark ? ThemeMode.dark : ThemeMode.light,
       home: LauncherScreen(
