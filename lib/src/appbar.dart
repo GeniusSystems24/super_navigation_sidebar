@@ -136,7 +136,8 @@ class NavigationSidebarAppBar extends StatelessWidget
     BuildContext context,
     NavSidebarMode mode,
     bool collapsed,
-  )? builder;
+  )?
+  builder;
 
   // ── appearance ─────────────────────────────────────────────
   /// Bar background colour. Falls back to [NavigationSidebarThemeData.surface].
@@ -210,8 +211,7 @@ class NavigationSidebarAppBar extends StatelessWidget
                 ? Border(bottom: BorderSide(color: t.border))
                 : null,
           ),
-          padding: padding ??
-              const EdgeInsets.symmetric(horizontal: 16),
+          padding: padding ?? const EdgeInsets.symmetric(horizontal: 16),
           child: content,
         );
       },
@@ -288,10 +288,7 @@ class NavigationSidebarAppBar extends StatelessWidget
           const Spacer(),
 
         // ── middle slot ───────────────────────────────────────
-        if (middle != null) ...[
-          middle!,
-          const SizedBox(width: 12),
-        ],
+        if (middle != null) ...[middle!, const SizedBox(width: 12)],
 
         // ── trailing actions ──────────────────────────────────
         if (actions != null)
@@ -387,9 +384,7 @@ class _AppBarIconButtonState extends State<_AppBarIconButton> {
     final t = widget.theme;
     final enabled = widget.enabled;
     return MouseRegion(
-      cursor: enabled
-          ? SystemMouseCursors.click
-          : SystemMouseCursors.basic,
+      cursor: enabled ? SystemMouseCursors.click : SystemMouseCursors.basic,
       onEnter: enabled ? (_) => setState(() => _hover = true) : null,
       onExit: enabled ? (_) => setState(() => _hover = false) : null,
       child: GestureDetector(
@@ -402,12 +397,13 @@ class _AppBarIconButtonState extends State<_AppBarIconButton> {
           alignment: Alignment.center,
           decoration: BoxDecoration(
             color: enabled && _hover ? t.hover : Colors.transparent,
-            borderRadius:
-                BorderRadius.circular(t.radiusMd),
+            borderRadius: BorderRadius.circular(t.radiusMd),
           ),
-          child: Icon(widget.icon,
-              size: t.toolbarIconSize,
-              color: enabled ? t.fg2 : t.fg4),
+          child: Icon(
+            widget.icon,
+            size: t.toolbarIconSize,
+            color: enabled ? t.fg2 : t.fg4,
+          ),
         ),
       ),
     );
@@ -500,24 +496,22 @@ class NavBreadcrumb<T> extends StatelessWidget {
 
     if (crumbs.isEmpty) return const SizedBox.shrink();
 
-    final baseStyle = style ??
+    final baseStyle =
+        style ??
         TextStyle(
           fontFamily: NavigationSidebarThemeData.bodyFont,
           fontSize: 13,
           color: t.fg3,
         );
-    final lastStyle = activeStyle ??
-        baseStyle.copyWith(
-          color: t.fg2,
-          fontWeight: FontWeight.w600,
-        );
+    final lastStyle =
+        activeStyle ??
+        baseStyle.copyWith(color: t.fg2, fontWeight: FontWeight.w600);
 
     return Text.rich(
       TextSpan(
         children: [
           for (var i = 0; i < crumbs.length; i++) ...[
-            if (i > 0)
-              TextSpan(text: separator, style: baseStyle),
+            if (i > 0) TextSpan(text: separator, style: baseStyle),
             TextSpan(
               text: crumbs[i],
               style: i == crumbs.length - 1 ? lastStyle : baseStyle,
@@ -576,8 +570,7 @@ class _NavigationSidebarSearchFieldState
           padding: const EdgeInsetsDirectional.only(start: 10, end: 4),
           decoration: BoxDecoration(
             color: t.inputBg,
-            borderRadius: BorderRadius.circular(
-                t.radiusMd),
+            borderRadius: BorderRadius.circular(t.radiusMd),
             border: Border.all(color: t.border),
           ),
           child: Row(
@@ -612,8 +605,7 @@ class _NavigationSidebarSearchFieldState
                     _ctrl.clear();
                     widget.controller.setQuery('');
                   },
-                  borderRadius: BorderRadius.circular(
-                      t.radiusSm),
+                  borderRadius: BorderRadius.circular(t.radiusSm),
                   child: Padding(
                     padding: const EdgeInsets.all(5),
                     child: Icon(Icons.close, size: 14, color: t.fg3),

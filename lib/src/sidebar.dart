@@ -42,7 +42,8 @@ import 'models.dart';
 import 'search_dialog.dart';
 import 'theme.dart';
 
-typedef NavSidebarSlotBuilder = Widget Function(BuildContext context, bool collapsed);
+typedef NavSidebarSlotBuilder =
+    Widget Function(BuildContext context, bool collapsed);
 
 class NavigationSidebar<T> extends StatefulWidget {
   /// Initial sections. Required when [controller] is null.
@@ -161,8 +162,10 @@ class NavigationSidebar<T> extends StatefulWidget {
     this.quickAccessTitle,
     this.localizations = const NavigationSidebarLocalizations(),
     this.onNavigate,
-  }) : assert(sections != null || controller != null,
-            'Provide sections or a controller.');
+  }) : assert(
+         sections != null || controller != null,
+         'Provide sections or a controller.',
+       );
 
   @override
   State<NavigationSidebar<T>> createState() => _NavigationSidebarState<T>();
@@ -187,7 +190,8 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
   @override
   void initState() {
     super.initState();
-    _controller = widget.controller ??
+    _controller =
+        widget.controller ??
         NavigationSidebarController<T>(
           sections: widget.sections!,
           active: widget.active,
@@ -294,23 +298,22 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
 
   /// Sections that flow in the scrollable pane body.
   List<NavSection<T>> get _bodySections => [
-        for (final s in _controller.sections)
-          if (s.placement == NavSectionPlacement.body) s
-      ];
+    for (final s in _controller.sections)
+      if (s.placement == NavSectionPlacement.body) s,
+  ];
 
   /// Sections pinned to the bottom of the pane (e.g. Settings / Help).
   List<NavSection<T>> get _footerSections => [
-        for (final s in _controller.sections)
-          if (s.placement == NavSectionPlacement.footer) s
-      ];
+    for (final s in _controller.sections)
+      if (s.placement == NavSectionPlacement.footer) s,
+  ];
 
   // Pane toggle (top-of-pane menu button).
   Widget _paneToggleRow(NavigationSidebarThemeData t, bool railed) {
     return Padding(
       padding: const EdgeInsetsDirectional.only(bottom: 2),
       child: Align(
-        alignment:
-            railed ? Alignment.center : AlignmentDirectional.centerStart,
+        alignment: railed ? Alignment.center : AlignmentDirectional.centerStart,
         child: Semantics(
           button: true,
           label: _l10n.semanticToggleSidebar,
@@ -342,7 +345,9 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
 
   // Pinned footer sections (expanded).
   Widget _expandedFooter(
-      NavigationSidebarThemeData t, List<NavSection<T>> footers) {
+    NavigationSidebarThemeData t,
+    List<NavSection<T>> footers,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -372,7 +377,9 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
 
   // Pinned footer sections (rail).
   Widget _railFooter(
-      NavigationSidebarThemeData t, List<NavSection<T>> footers) {
+    NavigationSidebarThemeData t,
+    List<NavSection<T>> footers,
+  ) {
     return Column(
       children: [
         Container(
@@ -415,9 +422,7 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
     return AnimatedContainer(
       duration: NavigationSidebarThemeData.durBase,
       curve: NavigationSidebarThemeData.curveStandard,
-      width: railed
-          ? t.widthRail
-          : t.widthExpanded,
+      width: railed ? t.widthRail : t.widthExpanded,
       decoration: BoxDecoration(
         color: t.surface,
         border: BorderDirectional(end: BorderSide(color: t.border)),
@@ -458,10 +463,8 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
             child: DecoratedBox(
               decoration: BoxDecoration(
                 color: t.surface,
-                boxShadow:
-                    open ? NavigationSidebarThemeData.popShadow : null,
-                border: BorderDirectional(
-                    end: BorderSide(color: t.border)),
+                boxShadow: open ? NavigationSidebarThemeData.popShadow : null,
+                border: BorderDirectional(end: BorderSide(color: t.border)),
               ),
               child: _panelContents(t, railed: false, drawer: true),
             ),
@@ -471,8 +474,11 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
     );
   }
 
-  Widget _panelContents(NavigationSidebarThemeData t,
-      {required bool railed, required bool drawer}) {
+  Widget _panelContents(
+    NavigationSidebarThemeData t, {
+    required bool railed,
+    required bool drawer,
+  }) {
     final footers = _footerSections;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
@@ -483,10 +489,7 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
             _paneToggleRow(t, railed),
             const SizedBox(height: 4),
           ],
-          if (drawer) ...[
-            _drawerHeader(t),
-            const SizedBox(height: 2),
-          ],
+          if (drawer) ...[_drawerHeader(t), const SizedBox(height: 2)],
           if (widget.header != null) ...[
             widget.header!(context, railed),
             const SizedBox(height: 12),
@@ -504,9 +507,7 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
             ),
             const SizedBox(height: 10),
           ],
-          Expanded(
-            child: railed ? _railNav(t) : _expandedNav(t),
-          ),
+          Expanded(child: railed ? _railNav(t) : _expandedNav(t)),
           if (footers.isNotEmpty)
             railed ? _railFooter(t, footers) : _expandedFooter(t, footers),
           if (widget.footer != null) ...[
@@ -538,8 +539,7 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
             label: _l10n.drawerCloseLabel,
             child: InkWell(
               onTap: _controller.closeDrawer,
-              borderRadius: BorderRadius.circular(
-                  t.radiusSm),
+              borderRadius: BorderRadius.circular(t.radiusSm),
               child: Padding(
                 padding: const EdgeInsets.all(6),
                 child: Icon(Icons.close, size: 18, color: t.fg3),
@@ -580,7 +580,8 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
       );
     }
 
-    final showQuickAccess = widget.favoritable &&
+    final showQuickAccess =
+        widget.favoritable &&
         !filtering &&
         _controller.favoriteNodes.isNotEmpty;
 
@@ -606,8 +607,7 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
                   ),
                 ),
               ),
-              for (final node in sec.items)
-                _treeNode(t, node, 0, match),
+              for (final node in sec.items) _treeNode(t, node, 0, match),
               const SizedBox(height: 6),
             ],
           ],
@@ -624,9 +624,11 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
           padding: const EdgeInsets.fromLTRB(12, 12, 12, 6),
           child: Row(
             children: [
-              const Icon(Icons.star_rounded,
-                  size: 13,
-                  color: NavigationSidebarThemeData.accent),
+              const Icon(
+                Icons.star_rounded,
+                size: 13,
+                color: NavigationSidebarThemeData.accent,
+              ),
               const SizedBox(width: 6),
               Text(
                 _quickAccessTitle.toUpperCase(),
@@ -673,8 +675,7 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
       return const SizedBox.shrink();
     }
     final filtering = match != null;
-    final role =
-        NavNodeRole.of(depth: depth, hasChildren: node.hasChildren);
+    final role = NavNodeRole.of(depth: depth, hasChildren: node.hasChildren);
 
     if (node.isLeaf) {
       return _NavRow<T>(
@@ -688,8 +689,9 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
         favoritable: widget.favoritable,
         favorite: _controller.isFavorite(node.id),
         localizations: _l10n,
-        onToggleFavorite:
-            widget.favoritable ? () => _controller.toggleFavorite(node.id) : null,
+        onToggleFavorite: widget.favoritable
+            ? () => _controller.toggleFavorite(node.id)
+            : null,
         onTap: () => _go(node),
       );
     }
@@ -923,8 +925,8 @@ class _NavRowState<T> extends State<_NavRow<T>> {
 
     final radius =
         widget.role == NavNodeRole.direct || widget.role == NavNodeRole.module
-            ? t.radiusLg
-            : t.radiusMd;
+        ? t.radiusLg
+        : t.radiusMd;
 
     final barStyle = t.selectionIndicator == NavSelectionIndicator.bar;
     final bool isLeafRow =
@@ -942,7 +944,9 @@ class _NavRowState<T> extends State<_NavRow<T>> {
     // Build accessible label for screen readers.
     final buffer = StringBuffer(widget.node.label);
     if (widget.expandable) {
-      buffer.write(', ${widget.open ? l10n.semanticExpanded : l10n.semanticCollapsed}');
+      buffer.write(
+        ', ${widget.open ? l10n.semanticExpanded : l10n.semanticCollapsed}',
+      );
     }
     if (widget.active) buffer.write(', selected');
     if (widget.node.locked) buffer.write(', ${l10n.semanticLocked}');
@@ -987,15 +991,15 @@ class _NavRowState<T> extends State<_NavRow<T>> {
                     AnimatedContainer(
                       duration: NavigationSidebarThemeData.durFast,
                       height: h,
-                      padding:
-                          EdgeInsetsDirectional.only(start: pad, end: 10),
+                      padding: EdgeInsetsDirectional.only(start: pad, end: 10),
                       decoration: BoxDecoration(
                         color: bg,
                         borderRadius: BorderRadius.circular(radius),
                         border: Border.all(
                           color: _focused
-                              ? NavigationSidebarThemeData.accent
-                                  .withOpacity(0.55)
+                              ? NavigationSidebarThemeData.accent.withOpacity(
+                                  0.55,
+                                )
                               : Colors.transparent,
                         ),
                       ),
@@ -1010,8 +1014,9 @@ class _NavRowState<T> extends State<_NavRow<T>> {
                           width: t.indicatorThickness,
                           decoration: BoxDecoration(
                             color: NavigationSidebarThemeData.accent,
-                            borderRadius:
-                                BorderRadius.circular(t.indicatorThickness),
+                            borderRadius: BorderRadius.circular(
+                              t.indicatorThickness,
+                            ),
                           ),
                         ),
                       ),
@@ -1049,25 +1054,36 @@ class _NavRowState<T> extends State<_NavRow<T>> {
   Widget _label(String text, TextStyle style) {
     final q = widget.query.trim().toLowerCase();
     if (q.isEmpty) {
-      return Text(text,
-          maxLines: 1, overflow: TextOverflow.ellipsis, style: style);
+      return Text(
+        text,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: style,
+      );
     }
     final lower = text.toLowerCase();
     final i = lower.indexOf(q);
     if (i < 0) {
-      return Text(text,
-          maxLines: 1, overflow: TextOverflow.ellipsis, style: style);
+      return Text(
+        text,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: style,
+      );
     }
     final hi = style.copyWith(
       color: NavigationSidebarThemeData.accent,
       fontWeight: FontWeight.w800,
     );
     return Text.rich(
-      TextSpan(style: style, children: [
-        TextSpan(text: text.substring(0, i)),
-        TextSpan(text: text.substring(i, i + q.length), style: hi),
-        TextSpan(text: text.substring(i + q.length)),
-      ]),
+      TextSpan(
+        style: style,
+        children: [
+          TextSpan(text: text.substring(0, i)),
+          TextSpan(text: text.substring(i, i + q.length), style: hi),
+          TextSpan(text: text.substring(i + q.length)),
+        ],
+      ),
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
     );
@@ -1079,19 +1095,22 @@ class _NavRowState<T> extends State<_NavRow<T>> {
     return Padding(
       padding: const EdgeInsetsDirectional.only(end: 7),
       child: Container(
-          width: 7,
-          height: 7,
-          decoration: BoxDecoration(color: c, shape: BoxShape.circle)),
+        width: 7,
+        height: 7,
+        decoration: BoxDecoration(color: c, shape: BoxShape.circle),
+      ),
     );
   }
 
-  Widget _trailing(NavigationSidebarThemeData t,
-      {required bool onAccent}) {
+  Widget _trailing(NavigationSidebarThemeData t, {required bool onAccent}) {
     if (widget.node.locked) {
       return Padding(
         padding: const EdgeInsetsDirectional.only(start: 6),
-        child: Icon(Icons.lock_outline,
-            size: 13, color: onAccent ? Colors.white : t.fg3),
+        child: Icon(
+          Icons.lock_outline,
+          size: 13,
+          color: onAccent ? Colors.white : t.fg3,
+        ),
       );
     }
     if (widget.favoritable && (widget.favorite || _hover)) {
@@ -1120,10 +1139,8 @@ class _NavRowState<T> extends State<_NavRow<T>> {
     final fillActive = isDirect && widget.active && !barStyle;
     final Color tint = isDirect
         ? (fillActive
-            ? Colors.white
-            : (widget.active
-                ? NavigationSidebarThemeData.accent
-                : t.fg2))
+              ? Colors.white
+              : (widget.active ? NavigationSidebarThemeData.accent : t.fg2))
         : (widget.ownsActive ? NavigationSidebarThemeData.accent : t.fg2);
     final bold = widget.active || widget.ownsActive;
     final closedWithBadges =
@@ -1135,8 +1152,11 @@ class _NavRowState<T> extends State<_NavRow<T>> {
 
     return Row(
       children: [
-        Icon(widget.node.icon ?? Icons.circle_outlined,
-            size: t.iconTop, color: tint),
+        Icon(
+          widget.node.icon ?? Icons.circle_outlined,
+          size: t.iconTop,
+          color: tint,
+        ),
         const SizedBox(width: 12),
         if (widget.node.status != NavNodeStatus.none) _statusDot(t),
         Expanded(
@@ -1163,24 +1183,21 @@ class _NavRowState<T> extends State<_NavRow<T>> {
         if (moduleDot) ...[
           const SizedBox(width: 6),
           Container(
-              width: 6,
-              height: 6,
-              decoration: const BoxDecoration(
-                  color: NavigationSidebarThemeData.accent,
-                  shape: BoxShape.circle)),
+            width: 6,
+            height: 6,
+            decoration: const BoxDecoration(
+              color: NavigationSidebarThemeData.accent,
+              shape: BoxShape.circle,
+            ),
+          ),
         ],
-        if (widget.expandable) ...[
-          const SizedBox(width: 4),
-          _chevron(t),
-        ],
+        if (widget.expandable) ...[const SizedBox(width: 4), _chevron(t)],
       ],
     );
   }
 
   Widget _group(NavigationSidebarThemeData t) {
-    final tint = widget.ownsActive
-        ? NavigationSidebarThemeData.accent
-        : t.fg3;
+    final tint = widget.ownsActive ? NavigationSidebarThemeData.accent : t.fg3;
     return Row(
       children: [
         Container(
@@ -1222,20 +1239,16 @@ class _NavRowState<T> extends State<_NavRow<T>> {
           height: t.itemBox,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(
-                t.radiusMd),
+            borderRadius: BorderRadius.circular(t.radiusMd),
             border: Border.all(
-                color: active
-                    ? NavigationSidebarThemeData.accent
-                    : t.border),
+              color: active ? NavigationSidebarThemeData.accent : t.border,
+            ),
             color: active ? t.accentFill(0.12) : t.surface,
           ),
           child: Icon(
             widget.node.icon ?? Icons.circle,
             size: t.iconItem,
-            color: active
-                ? NavigationSidebarThemeData.accent
-                : t.fg3,
+            color: active ? NavigationSidebarThemeData.accent : t.fg3,
           ),
         ),
         const SizedBox(width: 10),
@@ -1326,10 +1339,8 @@ class _RailItemState<T> extends State<_RailItem<T>> {
           child: CompositedTransformFollower(
             link: _link,
             showWhenUnlinked: false,
-            targetAnchor:
-                widget.rtl ? Alignment.topLeft : Alignment.topRight,
-            followerAnchor:
-                widget.rtl ? Alignment.topRight : Alignment.topLeft,
+            targetAnchor: widget.rtl ? Alignment.topLeft : Alignment.topRight,
+            followerAnchor: widget.rtl ? Alignment.topRight : Alignment.topLeft,
             offset: Offset(widget.rtl ? -10.0 : 10.0, -4),
             child: Theme(
               data: themeData,
@@ -1340,8 +1351,9 @@ class _RailItemState<T> extends State<_RailItem<T>> {
                   _scheduleClose();
                 },
                 child: Directionality(
-                  textDirection:
-                      widget.rtl ? TextDirection.rtl : TextDirection.ltr,
+                  textDirection: widget.rtl
+                      ? TextDirection.rtl
+                      : TextDirection.ltr,
                   child: _RailFlyout<T>(
                     node: widget.node,
                     theme: t,
@@ -1367,8 +1379,7 @@ class _RailItemState<T> extends State<_RailItem<T>> {
     final t = NavigationSidebarThemeData.of(context);
     final isModule = widget.node.hasChildren;
     final hasBadge = NavOps.subtreeHasBadge(widget.node);
-    final isInteractive =
-        widget.node.enabled && !widget.node.locked;
+    final isInteractive = widget.node.enabled && !widget.node.locked;
 
     final barStyle = t.selectionIndicator == NavSelectionIndicator.bar;
     Color bg = Colors.transparent;
@@ -1392,7 +1403,8 @@ class _RailItemState<T> extends State<_RailItem<T>> {
     return Semantics(
       button: isInteractive,
       selected: widget.active,
-      label: widget.node.label +
+      label:
+          widget.node.label +
           (widget.node.locked
               ? ', ${widget.localizations.semanticLocked}'
               : ''),
@@ -1430,19 +1442,18 @@ class _RailItemState<T> extends State<_RailItem<T>> {
                 margin: const EdgeInsets.symmetric(vertical: 2.5),
                 decoration: BoxDecoration(
                   color: bg,
-                  borderRadius: BorderRadius.circular(
-                      t.radiusLg),
+                  borderRadius: BorderRadius.circular(t.radiusLg),
                 ),
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
                     Opacity(
-                      opacity:
-                          widget.node.locked ? 0.45 : 1.0,
+                      opacity: widget.node.locked ? 0.45 : 1.0,
                       child: Icon(
-                          widget.node.icon ?? Icons.circle_outlined,
-                          size: t.railIconSize,
-                          color: fg),
+                        widget.node.icon ?? Icons.circle_outlined,
+                        size: t.railIconSize,
+                        color: fg,
+                      ),
                     ),
                     if (barStyle && widget.active && !isModule)
                       PositionedDirectional(
@@ -1453,8 +1464,9 @@ class _RailItemState<T> extends State<_RailItem<T>> {
                           width: t.indicatorThickness,
                           decoration: BoxDecoration(
                             color: NavigationSidebarThemeData.accent,
-                            borderRadius:
-                                BorderRadius.circular(t.indicatorThickness),
+                            borderRadius: BorderRadius.circular(
+                              t.indicatorThickness,
+                            ),
                           ),
                         ),
                       ),
@@ -1468,8 +1480,7 @@ class _RailItemState<T> extends State<_RailItem<T>> {
                           decoration: BoxDecoration(
                             color: badgeColor,
                             shape: BoxShape.circle,
-                            border: Border.all(
-                                color: t.surface, width: 1.5),
+                            border: Border.all(color: t.surface, width: 1.5),
                           ),
                         ),
                       ),
@@ -1477,8 +1488,7 @@ class _RailItemState<T> extends State<_RailItem<T>> {
                       PositionedDirectional(
                         end: 6,
                         bottom: 6,
-                        child:
-                            Icon(Icons.lock_outline, size: 10, color: t.fg3),
+                        child: Icon(Icons.lock_outline, size: 10, color: t.fg3),
                       ),
                   ],
                 ),
@@ -1515,8 +1525,7 @@ class _RailFlyout<T> extends StatelessWidget {
         constraints: const BoxConstraints(maxHeight: 360),
         decoration: BoxDecoration(
           color: t.surface,
-          borderRadius: BorderRadius.circular(
-              t.radiusXl),
+          borderRadius: BorderRadius.circular(t.radiusXl),
           border: Border.all(color: t.borderStrong),
           boxShadow: NavigationSidebarThemeData.popShadow,
         ),
@@ -1530,8 +1539,11 @@ class _RailFlyout<T> extends StatelessWidget {
                 padding: const EdgeInsets.fromLTRB(8, 4, 8, 10),
                 child: Row(
                   children: [
-                    Icon(node.icon ?? Icons.circle_outlined,
-                        size: 17, color: t.fg2),
+                    Icon(
+                      node.icon ?? Icons.circle_outlined,
+                      size: 17,
+                      color: t.fg2,
+                    ),
                     const SizedBox(width: 9),
                     Expanded(
                       child: Text(
@@ -1542,8 +1554,7 @@ class _RailFlyout<T> extends StatelessWidget {
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
                           color: t.fg1,
-                          fontFamily:
-                              NavigationSidebarThemeData.bodyFont,
+                          fontFamily: NavigationSidebarThemeData.bodyFont,
                         ),
                       ),
                     ),
@@ -1552,8 +1563,7 @@ class _RailFlyout<T> extends StatelessWidget {
               ),
               Container(height: 1, color: t.border),
               const SizedBox(height: 4),
-              for (final group in node.children)
-                _flyoutGroup(t, group),
+              for (final group in node.children) _flyoutGroup(t, group),
             ],
           ),
         ),
@@ -1627,7 +1637,8 @@ class _FlyoutRowState<T> extends State<_FlyoutRow<T>> {
     return Semantics(
       button: isInteractive,
       selected: active,
-      label: widget.leaf.label +
+      label:
+          widget.leaf.label +
           (widget.leaf.locked ? ', ${l10n.semanticLocked}' : '') +
           (!widget.leaf.enabled ? ', ${l10n.semanticDisabled}' : ''),
       child: MouseRegion(
@@ -1648,8 +1659,7 @@ class _FlyoutRowState<T> extends State<_FlyoutRow<T>> {
                 color: active
                     ? t.accentFill(0.10)
                     : (_hover ? t.hover : Colors.transparent),
-                borderRadius: BorderRadius.circular(
-                    t.radiusMd),
+                borderRadius: BorderRadius.circular(t.radiusMd),
               ),
               child: Row(
                 children: [
@@ -1660,16 +1670,15 @@ class _FlyoutRowState<T> extends State<_FlyoutRow<T>> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(7),
                       border: Border.all(
-                          color: active
-                              ? NavigationSidebarThemeData.accent
-                              : t.border),
+                        color: active
+                            ? NavigationSidebarThemeData.accent
+                            : t.border,
+                      ),
                     ),
                     child: Icon(
                       widget.leaf.icon ?? Icons.circle,
                       size: 13,
-                      color: active
-                          ? NavigationSidebarThemeData.accent
-                          : t.fg3,
+                      color: active ? NavigationSidebarThemeData.accent : t.fg3,
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -1680,9 +1689,7 @@ class _FlyoutRowState<T> extends State<_FlyoutRow<T>> {
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: 12.5,
-                        fontWeight: active
-                            ? FontWeight.w600
-                            : FontWeight.w500,
+                        fontWeight: active ? FontWeight.w600 : FontWeight.w500,
                         color: active
                             ? NavigationSidebarThemeData.accent
                             : t.fg1,
@@ -1725,7 +1732,9 @@ class _NavBadgeChip extends StatelessWidget {
     final c = t.badgeColors(badge.tone);
     return Container(
       padding: EdgeInsets.symmetric(
-          horizontal: small ? 5 : 6, vertical: small ? 2 : 3),
+        horizontal: small ? 5 : 6,
+        vertical: small ? 2 : 3,
+      ),
       decoration: BoxDecoration(
         color: c.bg,
         borderRadius: BorderRadius.circular(999),
@@ -1750,10 +1759,11 @@ class _SearchField extends StatelessWidget {
   final TextEditingController controller;
   final String hint;
   final ValueChanged<String> onChanged;
-  const _SearchField(
-      {required this.controller,
-      required this.hint,
-      required this.onChanged});
+  const _SearchField({
+    required this.controller,
+    required this.hint,
+    required this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1764,12 +1774,10 @@ class _SearchField extends StatelessWidget {
         final hasText = value.text.isNotEmpty;
         return Container(
           height: 36,
-          padding:
-              const EdgeInsetsDirectional.only(start: 10, end: 4),
+          padding: const EdgeInsetsDirectional.only(start: 10, end: 4),
           decoration: BoxDecoration(
             color: t.inputBg,
-            borderRadius: BorderRadius.circular(
-                t.radiusMd),
+            borderRadius: BorderRadius.circular(t.radiusMd),
             border: Border.all(color: t.border),
           ),
           child: Row(
@@ -1804,8 +1812,7 @@ class _SearchField extends StatelessWidget {
                     controller.clear();
                     onChanged('');
                   },
-                  borderRadius: BorderRadius.circular(
-                      t.radiusSm),
+                  borderRadius: BorderRadius.circular(t.radiusSm),
                   child: Padding(
                     padding: const EdgeInsets.all(5),
                     child: Icon(Icons.close, size: 14, color: t.fg3),
@@ -1874,8 +1881,10 @@ class _SearchTriggerState extends State<_SearchTrigger> {
                   ),
                 ),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 1,
+                  ),
                   decoration: BoxDecoration(
                     border: Border.all(color: t.border),
                     borderRadius: BorderRadius.circular(t.radiusSm),
@@ -1956,41 +1965,38 @@ class _ShortcutHint extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = NavigationSidebarThemeData.of(context);
-    final capBg =
-        onAccent ? Colors.white.withOpacity(0.20) : t.surface;
-    final capBorder =
-        onAccent ? Colors.white.withOpacity(0.38) : t.border;
+    final capBg = onAccent ? Colors.white.withOpacity(0.20) : t.surface;
+    final capBorder = onAccent ? Colors.white.withOpacity(0.38) : t.border;
     final capFg = onAccent ? Colors.white : t.fg3;
 
     Widget cap(String k) => Container(
-          constraints: const BoxConstraints(minWidth: 17),
-          alignment: Alignment.center,
-          padding:
-              const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
-          decoration: BoxDecoration(
-            color: capBg,
-            borderRadius: BorderRadius.circular(
-                t.radiusSm),
-            border: Border.all(color: capBorder),
-            boxShadow: onAccent
-                ? null
-                : [
-                    BoxShadow(
-                        color: t.guide.withOpacity(0.55),
-                        offset: const Offset(0, 1))
-                  ],
-          ),
-          child: Text(
-            NavShortcutOps.keyLabel(k),
-            style: TextStyle(
-              fontFamily: NavigationSidebarThemeData.monoFont,
-              fontSize: 9.5,
-              height: 1.25,
-              fontWeight: FontWeight.w700,
-              color: capFg,
-            ),
-          ),
-        );
+      constraints: const BoxConstraints(minWidth: 17),
+      alignment: Alignment.center,
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+      decoration: BoxDecoration(
+        color: capBg,
+        borderRadius: BorderRadius.circular(t.radiusSm),
+        border: Border.all(color: capBorder),
+        boxShadow: onAccent
+            ? null
+            : [
+                BoxShadow(
+                  color: t.guide.withOpacity(0.55),
+                  offset: const Offset(0, 1),
+                ),
+              ],
+      ),
+      child: Text(
+        NavShortcutOps.keyLabel(k),
+        style: TextStyle(
+          fontFamily: NavigationSidebarThemeData.monoFont,
+          fontSize: 9.5,
+          height: 1.25,
+          fontWeight: FontWeight.w700,
+          color: capFg,
+        ),
+      ),
+    );
 
     final combo = NavShortcutOps.isCombo(keys);
     return Tooltip(
@@ -2002,19 +2008,22 @@ class _ShortcutHint extends StatelessWidget {
           for (var i = 0; i < keys.length; i++) ...[
             if (i > 0)
               Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 2.5),
+                padding: const EdgeInsets.symmetric(horizontal: 2.5),
                 child: combo
-                    ? Text('+',
+                    ? Text(
+                        '+',
                         style: TextStyle(
                           fontFamily: NavigationSidebarThemeData.monoFont,
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
                           color: capFg.withOpacity(0.65),
-                        ))
-                    : Icon(Icons.chevron_right,
+                        ),
+                      )
+                    : Icon(
+                        Icons.chevron_right,
                         size: 10,
-                        color: capFg.withOpacity(0.65)),
+                        color: capFg.withOpacity(0.65),
+                      ),
               ),
             cap(keys[i]),
           ],

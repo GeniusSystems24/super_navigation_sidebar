@@ -84,32 +84,36 @@ class NavSearchOps {
     for (final sec in sections) {
       for (final top in sec.items) {
         if (top.isLeaf) {
-          out.add(NavSearchHit(
-            id: top.id,
-            label: top.label,
-            code: top.code,
-            keywords: top.keywords,
-            icon: top.icon ?? Icons.circle_outlined,
-            module: sec.title,
-            group: '',
-            badge: top.badge,
-            shortcut: top.shortcut,
-          ));
+          out.add(
+            NavSearchHit(
+              id: top.id,
+              label: top.label,
+              code: top.code,
+              keywords: top.keywords,
+              icon: top.icon ?? Icons.circle_outlined,
+              module: sec.title,
+              group: '',
+              badge: top.badge,
+              shortcut: top.shortcut,
+            ),
+          );
         } else {
           for (final grp in top.children) {
             final leaves = grp.hasChildren ? grp.children : [grp];
             for (final leaf in leaves) {
-              out.add(NavSearchHit(
-                id: leaf.id,
-                label: leaf.label,
-                code: leaf.code,
-                keywords: leaf.keywords,
-                icon: leaf.icon ?? Icons.circle_outlined,
-                module: top.label,
-                group: grp.hasChildren ? grp.label : '',
-                badge: leaf.badge,
-                shortcut: leaf.shortcut,
-              ));
+              out.add(
+                NavSearchHit(
+                  id: leaf.id,
+                  label: leaf.label,
+                  code: leaf.code,
+                  keywords: leaf.keywords,
+                  icon: leaf.icon ?? Icons.circle_outlined,
+                  module: top.label,
+                  group: grp.hasChildren ? grp.label : '',
+                  badge: leaf.badge,
+                  shortcut: leaf.shortcut,
+                ),
+              );
             }
           }
         }
@@ -188,8 +192,9 @@ class NavSearchDialog<T> extends StatefulWidget {
 }
 
 class _NavSearchDialogState<T> extends State<NavSearchDialog<T>> {
-  late final List<NavSearchHit> _index =
-      NavSearchOps.buildIndex<T>(widget.controller.sections);
+  late final List<NavSearchHit> _index = NavSearchOps.buildIndex<T>(
+    widget.controller.sections,
+  );
   final TextEditingController _text = TextEditingController();
   final FocusNode _focus = FocusNode();
   String _q = '';
@@ -252,7 +257,10 @@ class _NavSearchDialogState<T> extends State<NavSearchDialog<T>> {
   }
 
   KeyEventResult _onKey(
-      FocusNode node, KeyEvent event, List<NavSearchHit> flat) {
+    FocusNode node,
+    KeyEvent event,
+    List<NavSearchHit> flat,
+  ) {
     if (event is KeyUpEvent) return KeyEventResult.ignored;
     final key = event.logicalKey;
     if (key == LogicalKeyboardKey.escape) {
@@ -333,52 +341,54 @@ class _NavSearchDialogState<T> extends State<NavSearchDialog<T>> {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
       decoration: BoxDecoration(
-          border: Border(bottom: BorderSide(color: t.border))),
-      child: Row(children: [
-        Icon(Icons.search, size: 18, color: t.fg3),
-        const SizedBox(width: 11),
-        Expanded(
-          child: TextField(
-            controller: _text,
-            focusNode: _focus,
-            onChanged: (v) => setState(() {
-              _q = v;
-              _sel = 0;
-            }),
-            cursorColor: NavigationSidebarThemeData.accent,
-            style: TextStyle(
-              fontSize: 15.5,
-              color: t.fg1,
-              fontFamily: NavigationSidebarThemeData.bodyFont,
-            ),
-            decoration: InputDecoration(
-              isDense: true,
-              border: InputBorder.none,
-              hintText: widget.hint,
-              hintStyle: TextStyle(fontSize: 15.5, color: t.fg3),
-            ),
-          ),
-        ),
-        GestureDetector(
-          onTap: widget.onClose,
-          child: Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-            decoration: BoxDecoration(
-              border: Border.all(color: t.border),
-              borderRadius: BorderRadius.circular(5),
-            ),
-            child: Text(
-              'ESC',
+        border: Border(bottom: BorderSide(color: t.border)),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.search, size: 18, color: t.fg3),
+          const SizedBox(width: 11),
+          Expanded(
+            child: TextField(
+              controller: _text,
+              focusNode: _focus,
+              onChanged: (v) => setState(() {
+                _q = v;
+                _sel = 0;
+              }),
+              cursorColor: NavigationSidebarThemeData.accent,
               style: TextStyle(
-                fontFamily: NavigationSidebarThemeData.monoFont,
-                fontSize: 10,
-                color: t.fg3,
+                fontSize: 15.5,
+                color: t.fg1,
+                fontFamily: NavigationSidebarThemeData.bodyFont,
+              ),
+              decoration: InputDecoration(
+                isDense: true,
+                border: InputBorder.none,
+                hintText: widget.hint,
+                hintStyle: TextStyle(fontSize: 15.5, color: t.fg3),
               ),
             ),
           ),
-        ),
-      ]),
+          GestureDetector(
+            onTap: widget.onClose,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+              decoration: BoxDecoration(
+                border: Border.all(color: t.border),
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: Text(
+                'ESC',
+                style: TextStyle(
+                  fontFamily: NavigationSidebarThemeData.monoFont,
+                  fontSize: 10,
+                  color: t.fg3,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -448,15 +458,18 @@ class _NavSearchDialogState<T> extends State<NavSearchDialog<T>> {
   Widget _footerHints(NavigationSidebarThemeData t) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      decoration:
-          BoxDecoration(border: Border(top: BorderSide(color: t.border))),
-      child: Row(children: [
-        _NavSearchKbdHint(kbd: '↑↓', label: 'navigate', t: t),
-        const SizedBox(width: 16),
-        _NavSearchKbdHint(kbd: '↵', label: 'open', t: t),
-        const SizedBox(width: 16),
-        _NavSearchKbdHint(kbd: 'esc', label: 'close', t: t),
-      ]),
+      decoration: BoxDecoration(
+        border: Border(top: BorderSide(color: t.border)),
+      ),
+      child: Row(
+        children: [
+          _NavSearchKbdHint(kbd: '↑↓', label: 'navigate', t: t),
+          const SizedBox(width: 16),
+          _NavSearchKbdHint(kbd: '↵', label: 'open', t: t),
+          const SizedBox(width: 16),
+          _NavSearchKbdHint(kbd: 'esc', label: 'close', t: t),
+        ],
+      ),
     );
   }
 }
@@ -491,8 +504,8 @@ class _NavSearchResultRowState extends State<_NavSearchResultRow> {
     final bg = highlighted
         ? t.accentFill(0.10)
         : active
-            ? t.accentFill(0.10)
-            : (_hover ? t.hover : Colors.transparent);
+        ? t.accentFill(0.10)
+        : (_hover ? t.hover : Colors.transparent);
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
@@ -512,77 +525,79 @@ class _NavSearchResultRowState extends State<_NavSearchResultRow> {
                   : Colors.transparent,
             ),
           ),
-          child: Row(children: [
-            Container(
-              width: 30,
-              height: 30,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: active ? t.accentFill(0.16) : t.inputBg,
-                borderRadius: BorderRadius.circular(8),
+          child: Row(
+            children: [
+              Container(
+                width: 30,
+                height: 30,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: active ? t.accentFill(0.16) : t.inputBg,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  widget.hit.icon,
+                  size: 16,
+                  color: active ? NavigationSidebarThemeData.accent : t.fg3,
+                ),
               ),
-              child: Icon(
-                widget.hit.icon,
-                size: 16,
-                color: active
-                    ? NavigationSidebarThemeData.accent
-                    : t.fg3,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    widget.hit.label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 13.5,
-                      fontWeight: FontWeight.w500,
-                      color: t.fg1,
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      widget.hit.label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w500,
+                        color: t.fg1,
+                      ),
                     ),
+                    Text(
+                      widget.hit.group.isEmpty
+                          ? widget.hit.module
+                          : widget.hit.group,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontFamily: NavigationSidebarThemeData.monoFont,
+                        color: t.fg3,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (widget.hit.code != null) ...[
+                Container(
+                  margin: const EdgeInsetsDirectional.only(end: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 5,
+                    vertical: 2,
                   ),
-                  Text(
-                    widget.hit.group.isEmpty
-                        ? widget.hit.module
-                        : widget.hit.group,
+                  decoration: BoxDecoration(
+                    color: t.inputBg,
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(color: t.border),
+                  ),
+                  child: Text(
+                    widget.hit.code!.toUpperCase(),
                     style: TextStyle(
-                      fontSize: 11,
                       fontFamily: NavigationSidebarThemeData.monoFont,
+                      fontSize: 9,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.4,
                       color: t.fg3,
                     ),
                   ),
-                ],
-              ),
-            ),
-            if (widget.hit.code != null) ...[
-              Container(
-                margin: const EdgeInsetsDirectional.only(end: 6),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                decoration: BoxDecoration(
-                  color: t.inputBg,
-                  borderRadius: BorderRadius.circular(4),
-                  border: Border.all(color: t.border),
                 ),
-                child: Text(
-                  widget.hit.code!.toUpperCase(),
-                  style: TextStyle(
-                    fontFamily: NavigationSidebarThemeData.monoFont,
-                    fontSize: 9,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.4,
-                    color: t.fg3,
-                  ),
-                ),
-              ),
+              ],
+              if (widget.hit.badge != null)
+                _NavSearchBadgePill(badge: widget.hit.badge!),
             ],
-            if (widget.hit.badge != null)
-              _NavSearchBadgePill(badge: widget.hit.badge!),
-          ]),
+          ),
         ),
       ),
     );
@@ -621,37 +636,43 @@ class _NavSearchKbdHint extends StatelessWidget {
   final String kbd;
   final String label;
   final NavigationSidebarThemeData t;
-  const _NavSearchKbdHint(
-      {required this.kbd, required this.label, required this.t});
+  const _NavSearchKbdHint({
+    required this.kbd,
+    required this.label,
+    required this.t,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Row(mainAxisSize: MainAxisSize.min, children: [
-      Container(
-        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-        decoration: BoxDecoration(
-          border: Border.all(color: t.border),
-          borderRadius: BorderRadius.circular(4),
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+          decoration: BoxDecoration(
+            border: Border.all(color: t.border),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Text(
+            kbd,
+            style: TextStyle(
+              fontFamily: NavigationSidebarThemeData.monoFont,
+              fontSize: 10.5,
+              color: t.fg3,
+            ),
+          ),
         ),
-        child: Text(
-          kbd,
+        const SizedBox(width: 6),
+        Text(
+          label,
           style: TextStyle(
             fontFamily: NavigationSidebarThemeData.monoFont,
             fontSize: 10.5,
-            color: t.fg3,
+            color: t.fg4,
           ),
         ),
-      ),
-      const SizedBox(width: 6),
-      Text(
-        label,
-        style: TextStyle(
-          fontFamily: NavigationSidebarThemeData.monoFont,
-          fontSize: 10.5,
-          color: t.fg4,
-        ),
-      ),
-    ]);
+      ],
+    );
   }
 }
 

@@ -47,10 +47,8 @@ import 'theme.dart';
 /// Typically returns a [NavigationSidebar] (from [NavigationShell.sidebarBuilder])
 /// or a `NavigationSidebarAppBar` (from [NavigationShell.appBarBuilder]),
 /// configured with the [mode] the shell passes in.
-typedef NavShellSlotBuilder = Widget Function(
-  BuildContext context,
-  NavSidebarMode mode,
-);
+typedef NavShellSlotBuilder =
+    Widget Function(BuildContext context, NavSidebarMode mode);
 
 /// An integrated app shell that composes an app bar, a navigation pane and the
 /// page content in the Microsoft NavigationView arrangement.
@@ -169,7 +167,10 @@ class NavigationShell<T> extends StatelessWidget {
 
   // ── spanning: full-width bar above pane + content ──────────
   Widget _spanning(
-      BuildContext ctx, NavigationSidebarThemeData t, NavSidebarMode mode) {
+    BuildContext ctx,
+    NavigationSidebarThemeData t,
+    NavSidebarMode mode,
+  ) {
     return Column(
       children: [
         if (appBarBuilder != null) appBarBuilder!(ctx, mode),
@@ -180,7 +181,10 @@ class NavigationShell<T> extends StatelessWidget {
 
   // ── inset: full-height pane, bar above content only ────────
   Widget _inset(
-      BuildContext ctx, NavigationSidebarThemeData t, NavSidebarMode mode) {
+    BuildContext ctx,
+    NavigationSidebarThemeData t,
+    NavSidebarMode mode,
+  ) {
     return Row(
       children: [
         sidebarBuilder(ctx, mode),
@@ -198,7 +202,10 @@ class NavigationShell<T> extends StatelessWidget {
 
   // ── pane + content, honouring push / overlay ───────────────
   Widget _paneAndContent(
-      BuildContext ctx, NavigationSidebarThemeData t, NavSidebarMode mode) {
+    BuildContext ctx,
+    NavigationSidebarThemeData t,
+    NavSidebarMode mode,
+  ) {
     if (paneBehavior == NavPaneBehavior.push) {
       return Row(
         children: [
@@ -245,8 +252,9 @@ class NavigationShell<T> extends StatelessWidget {
           width: expandedW,
           child: DecoratedBox(
             decoration: BoxDecoration(
-              boxShadow:
-                  collapsed ? null : NavigationSidebarThemeData.popShadow,
+              boxShadow: collapsed
+                  ? null
+                  : NavigationSidebarThemeData.popShadow,
             ),
             child: sidebarBuilder(ctx, NavSidebarMode.expanded),
           ),
@@ -259,8 +267,7 @@ class NavigationShell<T> extends StatelessWidget {
   Widget _drawer(BuildContext ctx, NavigationSidebarThemeData t) {
     return Column(
       children: [
-        if (appBarBuilder != null)
-          appBarBuilder!(ctx, NavSidebarMode.drawer),
+        if (appBarBuilder != null) appBarBuilder!(ctx, NavSidebarMode.drawer),
         Expanded(
           child: Stack(
             children: [

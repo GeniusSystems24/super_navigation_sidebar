@@ -85,12 +85,14 @@ class _NavCombo {
   final NavNodeId id;
   final bool ctrl, shift, alt, meta;
   final String key; // lowercased main key char
-  const _NavCombo(this.id,
-      {required this.ctrl,
-      required this.shift,
-      required this.alt,
-      required this.meta,
-      required this.key});
+  const _NavCombo(
+    this.id, {
+    required this.ctrl,
+    required this.shift,
+    required this.alt,
+    required this.meta,
+    required this.key,
+  });
 }
 
 class _NavShortcutBinderState<T> extends State<NavShortcutBinder<T>> {
@@ -173,8 +175,14 @@ class _NavShortcutBinderState<T> extends State<NavShortcutBinder<T>> {
       }
     }
     if (main == null || main.isEmpty) return null;
-    return _NavCombo(id,
-        ctrl: ctrl, shift: shift, alt: alt, meta: meta, key: main);
+    return _NavCombo(
+      id,
+      ctrl: ctrl,
+      shift: shift,
+      alt: alt,
+      meta: meta,
+      key: main,
+    );
   }
 
   /// True while an editable text field owns primary focus — shortcuts must not

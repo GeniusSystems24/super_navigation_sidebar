@@ -136,25 +136,25 @@ class NavigationSidebarLocalizations {
   /// `Directionality(textDirection: TextDirection.rtl, …)`.
   static const NavigationSidebarLocalizations arabic =
       NavigationSidebarLocalizations(
-    searchHint: 'البحث في القائمة…',
-    searchEmpty: 'لا توجد نتائج لـ "{query}"',
-    drawerTitle: 'القائمة',
-    drawerCloseLabel: 'إغلاق القائمة',
-    quickAccessTitle: 'الوصول السريع',
-    addToQuickAccess: 'إضافة للوصول السريع',
-    removeFromQuickAccess: 'إزالة من الوصول السريع',
-    recentsTitle: 'الأخيرة',
-    lockedDefault: 'مقفل — ليس لديك صلاحية الوصول',
-    shortcutPrefix: 'اختصار · ',
-    shortcutSeparator: ' ثم ',
-    semanticExpanded: 'مفتوح',
-    semanticCollapsed: 'مغلق',
-    semanticLocked: 'مقفل',
-    semanticDisabled: 'غير متاح',
-    semanticToggleSidebar: 'تبديل الشريط الجانبي',
-    semanticOpenDrawer: 'فتح القائمة',
-    semanticBack: 'رجوع',
-  );
+        searchHint: 'البحث في القائمة…',
+        searchEmpty: 'لا توجد نتائج لـ "{query}"',
+        drawerTitle: 'القائمة',
+        drawerCloseLabel: 'إغلاق القائمة',
+        quickAccessTitle: 'الوصول السريع',
+        addToQuickAccess: 'إضافة للوصول السريع',
+        removeFromQuickAccess: 'إزالة من الوصول السريع',
+        recentsTitle: 'الأخيرة',
+        lockedDefault: 'مقفل — ليس لديك صلاحية الوصول',
+        shortcutPrefix: 'اختصار · ',
+        shortcutSeparator: ' ثم ',
+        semanticExpanded: 'مفتوح',
+        semanticCollapsed: 'مغلق',
+        semanticLocked: 'مقفل',
+        semanticDisabled: 'غير متاح',
+        semanticToggleSidebar: 'تبديل الشريط الجانبي',
+        semanticOpenDrawer: 'فتح القائمة',
+        semanticBack: 'رجوع',
+      );
 
   // ── Helpers ────────────────────────────────────────────────
 
@@ -173,8 +173,7 @@ class NavigationSidebarLocalizations {
       final combo = keys.map(NavShortcutOps.keyLabel).join(' + ');
       return '$shortcutPrefix$combo';
     }
-    final pretty =
-        keys.map((k) => k.toUpperCase()).join(shortcutSeparator);
+    final pretty = keys.map((k) => k.toUpperCase()).join(shortcutSeparator);
     return '$shortcutPrefix$pretty';
   }
 
@@ -203,12 +202,23 @@ class NavigationSidebarLocalizations {
 
   @override
   int get hashCode => Object.hash(
-        searchHint, searchEmpty, drawerTitle, drawerCloseLabel,
-        quickAccessTitle, addToQuickAccess, removeFromQuickAccess,
-        recentsTitle,
-        lockedDefault, shortcutPrefix, shortcutSeparator,
-        semanticExpanded, semanticCollapsed, semanticLocked,
-        semanticDisabled, semanticToggleSidebar, semanticOpenDrawer,
-        semanticBack,
-      );
+    searchHint,
+    searchEmpty,
+    drawerTitle,
+    drawerCloseLabel,
+    quickAccessTitle,
+    addToQuickAccess,
+    removeFromQuickAccess,
+    recentsTitle,
+    lockedDefault,
+    shortcutPrefix,
+    shortcutSeparator,
+    semanticExpanded,
+    semanticCollapsed,
+    semanticLocked,
+    semanticDisabled,
+    semanticToggleSidebar,
+    semanticOpenDrawer,
+    semanticBack,
+  );
 }

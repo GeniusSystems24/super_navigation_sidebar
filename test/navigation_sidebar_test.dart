@@ -48,7 +48,7 @@ List<NavSection<String>> _basicSections({int approvals = 3}) => [
                 label: 'Journal Entry',
                 icon: Icons.edit_note_outlined,
                 value: 'journalEntry',
-                shortcut: ['g', 'j'],
+                shortcut: const ['g', 'j'],
               ),
               NavNode(
                 id: 'wire',
@@ -1161,7 +1161,7 @@ void main() {
               id: 'journalEntry',
               label: 'Journal Entry',
               code: 'JE01',
-              keywords: ['voucher', 'قيد'],
+              keywords: const ['voucher', 'قيد'],
               value: 'journalEntry',
             ),
             NavNode(id: 'plain', label: 'Plain', value: 'plain'),
@@ -1194,7 +1194,7 @@ void main() {
     });
 
     test('keywords list is unmodifiable', () {
-      final n = NavNode<String>(id: 'x', label: 'X', keywords: ['a']);
+      final n = NavNode<String>(id: 'x', label: 'X', keywords: const ['a']);
       expect(() => (n.keywords! as List).add('b'), throwsUnsupportedError);
     });
   });
@@ -1295,10 +1295,10 @@ void main() {
   group('NavOps.subtreeBadgeSum', () {
     test('sums numeric badges, ignores non-numeric', () {
       final node = NavNode<String>(id: 'm', label: 'M', children: [
-        NavNode(id: 'a', label: 'A', badge: NavBadge('3')),
-        NavNode(id: 'b', label: 'B', badge: NavBadge('New')),
+        NavNode(id: 'a', label: 'A', badge: const NavBadge('3')),
+        NavNode(id: 'b', label: 'B', badge: const NavBadge('New')),
         NavNode(id: 'g', label: 'G', children: [
-          NavNode(id: 'c', label: 'C', badge: NavBadge('9')),
+          NavNode(id: 'c', label: 'C', badge: const NavBadge('9')),
         ]),
       ]);
       expect(NavOps.subtreeBadgeSum(node), 12);
@@ -1309,8 +1309,8 @@ void main() {
       final sections = [
         NavSection<String>(title: 'Fin', items: [
           NavNode(id: 'mod', label: 'Finance', icon: Icons.paid, children: [
-            NavNode(id: 'l1', label: 'L1', badge: NavBadge('3'), value: 'l1'),
-            NavNode(id: 'l2', label: 'L2', badge: NavBadge('9'), value: 'l2'),
+            NavNode(id: 'l1', label: 'L1', badge: const NavBadge('3'), value: 'l1'),
+            NavNode(id: 'l2', label: 'L2', badge: const NavBadge('9'), value: 'l2'),
           ]),
         ]),
       ];
@@ -1383,7 +1383,7 @@ void main() {
                 id: 'dashboard',
                 label: 'Dashboard',
                 value: 'dashboard',
-                shortcut: ['ctrl', 'shift', 'd']),
+                shortcut: const ['ctrl', 'shift', 'd']),
             NavNode(id: 'inbox', label: 'Inbox', value: 'inbox'),
           ]),
         ];
@@ -1417,7 +1417,7 @@ void main() {
                 id: 'dashboard',
                 label: 'Dashboard',
                 value: 'dashboard',
-                shortcut: ['ctrl', 'shift', 'd']),
+                shortcut: const ['ctrl', 'shift', 'd']),
             NavNode(id: 'inbox', label: 'Inbox', value: 'inbox'),
           ]),
         ];

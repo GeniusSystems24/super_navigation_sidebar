@@ -97,7 +97,15 @@ enum NavShortcutMode {
 /// combo** (e.g. `['ctrl', 'shift', 'd']` → Ctrl+Shift+D) rather than a
 /// sequential "type g then d" chord.
 const Set<String> kNavShortcutModifiers = {
-  'ctrl', 'control', 'shift', 'alt', 'option', 'cmd', 'meta', 'super', 'win',
+  'ctrl',
+  'control',
+  'shift',
+  'alt',
+  'option',
+  'cmd',
+  'meta',
+  'super',
+  'win',
 };
 
 /// Helpers for interpreting a [NavNode.shortcut] key list.
@@ -235,10 +243,8 @@ class NavNode<T> {
     this.locked = false,
     this.lockMessage,
     this.status = NavNodeStatus.none,
-  })  : keywords = keywords == null ? null : List.unmodifiable(keywords),
-        children = children == null
-            ? const []
-            : List.unmodifiable(children);
+  }) : keywords = keywords == null ? null : List.unmodifiable(keywords),
+       children = children == null ? const [] : List.unmodifiable(children);
 
   bool get hasChildren => children.isNotEmpty;
   bool get isLeaf => children.isEmpty;
@@ -257,22 +263,21 @@ class NavNode<T> {
     bool? locked,
     String? lockMessage,
     NavNodeStatus? status,
-  }) =>
-      NavNode<T>(
-        id: id ?? this.id,
-        label: label ?? this.label,
-        code: code ?? this.code,
-        keywords: keywords ?? this.keywords,
-        icon: icon ?? this.icon,
-        children: children ?? List<NavNode<T>>.of(this.children),
-        badge: badge ?? this.badge,
-        shortcut: shortcut ?? this.shortcut,
-        value: value ?? this.value,
-        enabled: enabled ?? this.enabled,
-        locked: locked ?? this.locked,
-        lockMessage: lockMessage ?? this.lockMessage,
-        status: status ?? this.status,
-      );
+  }) => NavNode<T>(
+    id: id ?? this.id,
+    label: label ?? this.label,
+    code: code ?? this.code,
+    keywords: keywords ?? this.keywords,
+    icon: icon ?? this.icon,
+    children: children ?? List<NavNode<T>>.of(this.children),
+    badge: badge ?? this.badge,
+    shortcut: shortcut ?? this.shortcut,
+    value: value ?? this.value,
+    enabled: enabled ?? this.enabled,
+    locked: locked ?? this.locked,
+    lockMessage: lockMessage ?? this.lockMessage,
+    status: status ?? this.status,
+  );
 
   @override
   bool operator ==(Object other) => other is NavNode<T> && other.id == id;
@@ -425,7 +430,9 @@ class NavOps {
 
   /// Ancestor ids of [id], outermost-first (empty if top-level or missing).
   static List<NavNodeId> ancestorsOf<T>(
-      List<NavSection<T>> sections, NavNodeId id) {
+    List<NavSection<T>> sections,
+    NavNodeId id,
+  ) {
     List<NavNodeId>? result;
     void rec(List<NavNode<T>> nodes, List<NavNodeId> path) {
       for (final n in nodes) {
@@ -475,7 +482,9 @@ class NavOps {
       if (n.isLeaf) {
         out.add(n.id);
       } else {
-        for (final c in n.children) rec(c);
+        for (final c in n.children) {
+          rec(c);
+        }
       }
     }
 

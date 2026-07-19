@@ -30,7 +30,6 @@
 //   File: lib/src/controller.dart
 // ============================================================
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'models.dart';
 
@@ -46,15 +45,15 @@ class NavigationSidebarController<T> extends ChangeNotifier {
     bool drawerOpen = false,
     bool canGoBack = false,
     bool autoExpandActive = true,
-  })  : _sections = List.unmodifiable(sections),
-        _active = active,
-        _expanded = {...?expanded},
-        _favorites = {...?favorites},
-        _recents = [...?recents],
-        _collapsed = collapsed,
-        _drawerOpen = drawerOpen,
-        _canGoBack = canGoBack,
-        _autoExpandActive = autoExpandActive {
+  }) : _sections = List.unmodifiable(sections),
+       _active = active,
+       _expanded = {...?expanded},
+       _favorites = {...?favorites},
+       _recents = [...?recents],
+       _collapsed = collapsed,
+       _drawerOpen = drawerOpen,
+       _canGoBack = canGoBack,
+       _autoExpandActive = autoExpandActive {
     assert(
       _debugAssertNoDuplicates(_sections),
       // Message is produced inside _debugAssertNoDuplicates via assert().
@@ -137,9 +136,9 @@ class NavigationSidebarController<T> extends ChangeNotifier {
 
   /// [recents] resolved to their nodes (missing ids are skipped).
   List<NavNode<T>> get recentNodes => [
-        for (final id in _recents)
-          if (node(id) != null) node(id)!
-      ];
+    for (final id in _recents)
+      if (node(id) != null) node(id)!,
+  ];
 
   void clearRecents() {
     if (_recents.isEmpty) return;
@@ -324,12 +323,12 @@ class NavigationSidebarController<T> extends ChangeNotifier {
   /// nav.restore(NavSidebarStateSnapshot.fromJson(jsonDecode(raw)));
   /// ```
   NavSidebarStateSnapshot snapshot() => NavSidebarStateSnapshot(
-        active: _active,
-        expanded: Set.unmodifiable(_expanded),
-        favorites: Set.unmodifiable(_favorites),
-        recents: List.unmodifiable(_recents),
-        collapsed: _collapsed,
-      );
+    active: _active,
+    expanded: Set.unmodifiable(_expanded),
+    favorites: Set.unmodifiable(_favorites),
+    recents: List.unmodifiable(_recents),
+    collapsed: _collapsed,
+  );
 
   /// Apply a previously captured [snapshot]. Ids that no longer exist in the
   /// current tree are dropped silently (permissions / modules may have
@@ -383,8 +382,8 @@ class NavigationSidebarController<T> extends ChangeNotifier {
 
   // ── InheritedNotifier access ───────────────────────────────
   static NavigationSidebarController<T>? of<T>(BuildContext context) {
-    final scope =
-        context.dependOnInheritedWidgetOfExactType<NavigationSidebarScope<T>>();
+    final scope = context
+        .dependOnInheritedWidgetOfExactType<NavigationSidebarScope<T>>();
     return scope?.controller;
   }
 }
@@ -413,12 +412,12 @@ class NavSidebarStateSnapshot {
   });
 
   Map<String, Object?> toJson() => {
-        'active': active,
-        'expanded': expanded.toList(),
-        'favorites': favorites.toList(),
-        'recents': recents,
-        'collapsed': collapsed,
-      };
+    'active': active,
+    'expanded': expanded.toList(),
+    'favorites': favorites.toList(),
+    'recents': recents,
+    'collapsed': collapsed,
+  };
 
   factory NavSidebarStateSnapshot.fromJson(Map<String, Object?> json) {
     List<String> strs(Object? v) =>
