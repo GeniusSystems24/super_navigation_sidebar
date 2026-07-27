@@ -1,4 +1,4 @@
-// ============================================================
+﻿// ============================================================
 // NavigationSidebar — THEME.
 // ------------------------------------------------------------
 // The component's own ThemeExtension. All visual tokens live here:
@@ -318,8 +318,8 @@ class NavigationSidebarThemeData
       fg2: s.fg2,
       fg3: s.fg3,
       fg4: s.fg4,
-      directHeight: z.control,
-      moduleHeight: z.control,
+      directHeight: z.fieldComfortable,
+      moduleHeight: z.fieldComfortable,
       railButton: z.iconButton,
       railIconSize: z.icon,
       toolbarButtonSize: z.iconButton,
@@ -329,34 +329,34 @@ class NavigationSidebarThemeData
 
   /// Accent-tinted fill over [surface] at [pct] opacity.
   Color accentFill([double pct = 0.12]) =>
-      Color.alphaBlend(accent.withOpacity(pct), surface);
+      Color.alphaBlend(accent.withValues(alpha: pct), surface);
 
   /// Resolves a [NavBadgeTone] to its (background, foreground, border) trio.
   ({Color bg, Color fg, Color border}) badgeColors(NavBadgeTone tone) {
     switch (tone) {
       case NavBadgeTone.accent:
         return (
-          bg: accent.withOpacity(0.16),
+          bg: accent.withValues(alpha: 0.16),
           fg: accent,
-          border: accent.withOpacity(0.34),
+          border: accent.withValues(alpha: 0.34),
         );
       case NavBadgeTone.success:
         return (
-          bg: success.withOpacity(0.16),
+          bg: success.withValues(alpha: 0.16),
           fg: const Color(0xFF2BBE7C),
-          border: success.withOpacity(0.34),
+          border: success.withValues(alpha: 0.34),
         );
       case NavBadgeTone.warning:
         return (
-          bg: warning.withOpacity(0.16),
+          bg: warning.withValues(alpha: 0.16),
           fg: const Color(0xFFE0A23B),
-          border: warning.withOpacity(0.34),
+          border: warning.withValues(alpha: 0.34),
         );
       case NavBadgeTone.danger:
         return (
-          bg: danger.withOpacity(0.16),
+          bg: danger.withValues(alpha: 0.16),
           fg: const Color(0xFFF26464),
-          border: danger.withOpacity(0.34),
+          border: danger.withValues(alpha: 0.34),
         );
       case NavBadgeTone.muted:
         return (bg: inputBg, fg: fg3, border: border);

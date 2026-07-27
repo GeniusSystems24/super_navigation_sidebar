@@ -1,4 +1,4 @@
-// super_navigation_sidebar · Example 03 — Custom theme + RTL + branded colours
+﻿// super_navigation_sidebar · Example 03 — Custom theme + RTL + branded colours
 // ─────────────────────────────────────────────────────────────────────────────
 // Goal: demonstrate the theming API, RTL mirror, and every chrome toggle.
 //
@@ -336,7 +336,7 @@ class _FooterHelp extends StatelessWidget {
           height: 30,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: NavigationSidebarThemeData.accent.withOpacity(0.14),
+            color: NavigationSidebarThemeData.accent.withValues(alpha: 0.14),
             borderRadius: BorderRadius.circular(8),
           ),
           child: const Icon(Icons.info_outline,
@@ -422,11 +422,11 @@ class _Toggle extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
           color: value
-              ? NavigationSidebarThemeData.accent.withOpacity(0.12)
+              ? NavigationSidebarThemeData.accent.withValues(alpha: 0.12)
               : s.inputBg,
           border: Border.all(
               color: value
-                  ? NavigationSidebarThemeData.accent.withOpacity(0.4)
+                  ? NavigationSidebarThemeData.accent.withValues(alpha: 0.4)
                   : s.border),
           borderRadius: BorderRadius.circular(
               s.radiusMd),

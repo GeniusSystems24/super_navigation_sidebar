@@ -1,4 +1,4 @@
-// ============================================================
+﻿// ============================================================
 // Example 07 · Kitchen sink — every feature on one screen
 // ------------------------------------------------------------
 // One comprehensive workbench that exercises the FULL 2.2 surface:
@@ -648,10 +648,10 @@ class _EnvBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: NavigationSidebarThemeData.success.withOpacity(0.14),
+        color: NavigationSidebarThemeData.success.withValues(alpha: 0.14),
         borderRadius: BorderRadius.circular(999),
         border: Border.all(
-            color: NavigationSidebarThemeData.success.withOpacity(0.35)),
+            color: NavigationSidebarThemeData.success.withValues(alpha: 0.35)),
       ),
       child: Text('PRODUCTION',
           style: TextStyle(
@@ -673,10 +673,10 @@ class _Avatar extends StatelessWidget {
       height: 30,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: NavigationSidebarThemeData.accent.withOpacity(0.18),
+        color: NavigationSidebarThemeData.accent.withValues(alpha: 0.18),
         shape: BoxShape.circle,
         border: Border.all(
-            color: NavigationSidebarThemeData.accent.withOpacity(0.4)),
+            color: NavigationSidebarThemeData.accent.withValues(alpha: 0.4)),
       ),
       child: const Text('AR',
           style: TextStyle(
@@ -781,7 +781,7 @@ class _Seg extends StatelessWidget {
           duration: NavigationSidebarThemeData.durFast,
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           decoration: BoxDecoration(
-            color: on ? accent.withOpacity(0.14) : Colors.transparent,
+            color: on ? accent.withValues(alpha: 0.14) : Colors.transparent,
             borderRadius: BorderRadius.circular(999),
             border: Border.all(color: on ? accent : t.border),
           ),

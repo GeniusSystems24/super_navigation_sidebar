@@ -1,4 +1,4 @@
-// super_navigation_sidebar · Example 06 — NavigationShell (integrated)
+﻿// super_navigation_sidebar · Example 06 — NavigationShell (integrated)
 // ────────────────────────────────────────────────────────────
 // The 2.0 integrated shell. A single NavigationShell composes the app bar, the
 // navigation pane and the content in the Microsoft-NavigationView arrangement —
@@ -293,13 +293,13 @@ class _Segmented extends StatelessWidget {
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: on
-                  ? NavigationSidebarThemeData.accent.withOpacity(0.15)
+                  ? NavigationSidebarThemeData.accent.withValues(alpha: 0.15)
                   : s.inputBg,
               borderRadius:
                   BorderRadius.circular(s.radiusMd),
               border: Border.all(
                   color: on
-                      ? NavigationSidebarThemeData.accent.withOpacity(0.4)
+                      ? NavigationSidebarThemeData.accent.withValues(alpha: 0.4)
                       : s.border),
             ),
             child: Icon(icon,

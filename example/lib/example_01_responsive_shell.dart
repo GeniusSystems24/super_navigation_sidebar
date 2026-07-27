@@ -1,4 +1,4 @@
-// super_navigation_sidebar · Example 01 — Responsive app shell
+﻿// super_navigation_sidebar · Example 01 — Responsive app shell
 // ─────────────────────────────────────────────────────────────────
 // Goal: demonstrate all three modes live via a device-width simulator.
 //
@@ -397,7 +397,7 @@ class _Footer extends StatelessWidget {
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   color: NavigationSidebarThemeData.accent
-                      .withOpacity(0.14),
+                      .withValues(alpha: 0.14),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(Icons.info_outline,

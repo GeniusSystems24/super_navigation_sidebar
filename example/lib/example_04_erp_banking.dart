@@ -1,4 +1,4 @@
-// super_navigation_sidebar · Example 04 — Banking / accounting ERP
+﻿// super_navigation_sidebar · Example 04 — Banking / accounting ERP
 // ─────────────────────────────────────────────────────────────────
 // Goal: a realistic banking & accounting navigation that exercises the
 // ERP-focused capabilities of the package:
@@ -328,7 +328,7 @@ class _Page extends StatelessWidget {
           height: 30,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: NavigationSidebarThemeData.accent.withOpacity(0.12),
+            color: NavigationSidebarThemeData.accent.withValues(alpha: 0.12),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(icon, size: 15, color: NavigationSidebarThemeData.accent),

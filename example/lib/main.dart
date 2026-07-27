@@ -1,4 +1,4 @@
-// super_navigation_sidebar · Example app launcher
+﻿// super_navigation_sidebar · Example app launcher
 //
 // A polished launcher: hero header + responsive card grid, each card carrying
 // a live token-driven mini-preview of the sidebar mode it opens. Every example
@@ -299,7 +299,7 @@ class _DemoCardState extends State<_DemoCard> {
             color: s.surface,
             border: Border.all(
                 color: _h
-                    ? NavigationSidebarThemeData.accent.withOpacity(0.55)
+                    ? NavigationSidebarThemeData.accent.withValues(alpha: 0.55)
                     : s.border),
             borderRadius: BorderRadius.circular(s.radiusXl),
             boxShadow: _h ? NavigationSidebarThemeData.popShadow : null,
@@ -319,7 +319,7 @@ class _DemoCardState extends State<_DemoCard> {
                       height: 24,
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: s.bg.withOpacity(0.82),
+                        color: s.bg.withValues(alpha: 0.82),
                         borderRadius: BorderRadius.circular(7),
                         border: Border.all(color: s.border),
                       ),
@@ -467,9 +467,9 @@ class _SidebarThumb extends StatelessWidget {
         margin: const EdgeInsets.symmetric(vertical: 3),
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: active ? accent.withOpacity(0.16) : Colors.transparent,
+          color: active ? accent.withValues(alpha: 0.16) : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
-          border: active ? Border.all(color: accent.withOpacity(0.5)) : null,
+          border: active ? Border.all(color: accent.withValues(alpha: 0.5)) : null,
         ),
         child: Stack(clipBehavior: Clip.none, children: [
           Icon(icon, size: 15, color: active ? accent : s.fg3),
@@ -531,8 +531,8 @@ class _SidebarThumb extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
                 decoration: BoxDecoration(
                   color: active
-                      ? Colors.white.withOpacity(0.25)
-                      : toneColor(tone).withOpacity(0.18),
+                      ? Colors.white.withValues(alpha: 0.25)
+                      : toneColor(tone).withValues(alpha: 0.18),
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: Text(tone == NavBadgeTone.success ? 'Live' : '9+',
@@ -696,7 +696,7 @@ class _SidebarThumb extends StatelessWidget {
                     width: 80,
                     height: 8,
                     decoration: BoxDecoration(
-                        color: s.fg1.withOpacity(0.65),
+                        color: s.fg1.withValues(alpha: 0.65),
                         borderRadius: BorderRadius.circular(3))),
                 const SizedBox(height: 10),
                 Row(children: [
@@ -758,10 +758,10 @@ class _VersionPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: NavigationSidebarThemeData.accent.withOpacity(0.13),
+        color: NavigationSidebarThemeData.accent.withValues(alpha: 0.13),
         borderRadius: BorderRadius.circular(999),
         border: Border.all(
-            color: NavigationSidebarThemeData.accent.withOpacity(0.35)),
+            color: NavigationSidebarThemeData.accent.withValues(alpha: 0.35)),
       ),
       child: const Text('v2.2.1',
           style: TextStyle(
@@ -846,7 +846,7 @@ class _BackScaffold extends StatelessWidget {
         bottom: 16,
         child: SafeArea(
           child: Material(
-            color: Colors.black.withOpacity(0.62),
+            color: Colors.black.withValues(alpha: 0.62),
             borderRadius: BorderRadius.circular(999),
             child: InkWell(
               borderRadius: BorderRadius.circular(999),

@@ -1,4 +1,4 @@
-// ============================================================
+﻿// ============================================================
 // NavigationSidebar — SEARCH DIALOG (command palette).
 // ------------------------------------------------------------
 // Built-in command-palette overlay. Opened automatically by
@@ -521,7 +521,7 @@ class _NavSearchResultRowState extends State<_NavSearchResultRow> {
             borderRadius: BorderRadius.circular(7),
             border: Border.all(
               color: highlighted
-                  ? NavigationSidebarThemeData.accent.withOpacity(0.45)
+                  ? NavigationSidebarThemeData.accent.withValues(alpha: 0.45)
                   : Colors.transparent,
             ),
           ),

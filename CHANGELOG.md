@@ -6,6 +6,15 @@ versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [2.4.0] - 2026-07-27
+
+### Changed
+
+- Updated `super_core` dependency constraint from `>=2.1.0 <3.0.0` to `^3.0.0` for compatibility with the breaking 3.0.0 consolidation release.
+- `SectionCard`, `SuperSection`, `SuperCard`, and `SectionHeader` were removed from `super_core` in 3.0.0; this package contains no direct usage of those widgets — no widget-level changes required.
+
+---
+
 ## [2.3.0] — 2026-07-16
 
 ### Added

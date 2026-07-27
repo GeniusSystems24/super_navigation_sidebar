@@ -1,4 +1,4 @@
-// ============================================================
+﻿// ============================================================
 // NavigationSidebar — VIEW.
 // ------------------------------------------------------------
 // A thin, customisable render of NavigationSidebarController<T>. Paints the
@@ -997,7 +997,7 @@ class _NavRowState<T> extends State<_NavRow<T>> {
                         borderRadius: BorderRadius.circular(radius),
                         border: Border.all(
                           color: _focused
-                              ? NavigationSidebarThemeData.accent.withOpacity(
+                              ? NavigationSidebarThemeData.accent.withValues(alpha: 
                                   0.55,
                                 )
                               : Colors.transparent,
@@ -1926,7 +1926,7 @@ class _StarButton extends StatelessWidget {
     final l10n = localizations;
     final color = on
         ? (onAccent ? Colors.white : NavigationSidebarThemeData.accent)
-        : (onAccent ? Colors.white.withOpacity(0.8) : t.fg3);
+        : (onAccent ? Colors.white.withValues(alpha: 0.8) : t.fg3);
     return Semantics(
       button: true,
       label: on ? l10n.removeFromQuickAccess : l10n.addToQuickAccess,
@@ -1965,8 +1965,8 @@ class _ShortcutHint extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = NavigationSidebarThemeData.of(context);
-    final capBg = onAccent ? Colors.white.withOpacity(0.20) : t.surface;
-    final capBorder = onAccent ? Colors.white.withOpacity(0.38) : t.border;
+    final capBg = onAccent ? Colors.white.withValues(alpha: 0.20) : t.surface;
+    final capBorder = onAccent ? Colors.white.withValues(alpha: 0.38) : t.border;
     final capFg = onAccent ? Colors.white : t.fg3;
 
     Widget cap(String k) => Container(
@@ -1981,7 +1981,7 @@ class _ShortcutHint extends StatelessWidget {
             ? null
             : [
                 BoxShadow(
-                  color: t.guide.withOpacity(0.55),
+                  color: t.guide.withValues(alpha: 0.55),
                   offset: const Offset(0, 1),
                 ),
               ],
@@ -2016,13 +2016,13 @@ class _ShortcutHint extends StatelessWidget {
                           fontFamily: NavigationSidebarThemeData.monoFont,
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
-                          color: capFg.withOpacity(0.65),
+                          color: capFg.withValues(alpha: 0.65),
                         ),
                       )
                     : Icon(
                         Icons.chevron_right,
                         size: 10,
-                        color: capFg.withOpacity(0.65),
+                        color: capFg.withValues(alpha: 0.65),
                       ),
               ),
             cap(keys[i]),

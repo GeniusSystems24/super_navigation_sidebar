@@ -1,4 +1,4 @@
-// ============================================================
+﻿// ============================================================
 // NavigationSidebar — example screen.
 // ------------------------------------------------------------
 // A faithful Flutter reproduction of the GeniusLink web
@@ -574,7 +574,7 @@ class _WorkspaceMenu extends StatelessWidget {
           width: s,
           height: s,
           alignment: Alignment.center,
-          decoration: BoxDecoration(color: NavigationSidebarThemeData.accent.withOpacity(0.18), borderRadius: BorderRadius.circular(7)),
+          decoration: BoxDecoration(color: NavigationSidebarThemeData.accent.withValues(alpha: 0.18), borderRadius: BorderRadius.circular(7)),
           child: Icon(Icons.apartment, size: s * 0.56, color: NavigationSidebarThemeData.accent),
         );
 
@@ -646,9 +646,9 @@ class _UserMenu extends StatelessWidget {
         height: s,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: NavigationSidebarThemeData.accent.withOpacity(0.16),
+          color: NavigationSidebarThemeData.accent.withValues(alpha: 0.16),
           shape: BoxShape.circle,
-          border: Border.all(color: NavigationSidebarThemeData.accent.withOpacity(0.35)),
+          border: Border.all(color: NavigationSidebarThemeData.accent.withValues(alpha: 0.35)),
         ),
         child: Text('SM', style: TextStyle(fontSize: s * 0.36, fontWeight: FontWeight.w700, color: NavigationSidebarThemeData.accent)),
       );
@@ -953,7 +953,7 @@ class _SidebarFooter extends StatelessWidget {
             height: 34,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: NavigationSidebarThemeData.accent.withOpacity(0.14),
+              color: NavigationSidebarThemeData.accent.withValues(alpha: 0.14),
               borderRadius: BorderRadius.circular(9),
             ),
             child: const Icon(Icons.info_outline, size: 18, color: NavigationSidebarThemeData.accent),

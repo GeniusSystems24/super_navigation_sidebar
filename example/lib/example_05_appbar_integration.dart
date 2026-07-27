@@ -1,4 +1,4 @@
-// super_navigation_sidebar · Example 05 — AppBar Integration
+﻿// super_navigation_sidebar · Example 05 — AppBar Integration
 // ────────────────────────────────────────────────────────────
 // Demonstrates NavigationSidebarAppBar connected to the same controller as
 // the sidebar. Shows two scenarios side-by-side via a toggle:
@@ -356,11 +356,11 @@ class _UserAvatar extends StatelessWidget {
       height: 36,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: NavigationSidebarThemeData.accent.withOpacity(0.18),
+        color: NavigationSidebarThemeData.accent.withValues(alpha: 0.18),
         borderRadius:
             BorderRadius.circular(NavigationSidebarThemeData.of(context).radiusMd),
         border: Border.all(
-            color: NavigationSidebarThemeData.accent.withOpacity(0.38)),
+            color: NavigationSidebarThemeData.accent.withValues(alpha: 0.38)),
       ),
       child: Text(
         name,
@@ -548,7 +548,7 @@ class _PageBody extends StatelessWidget {
           height: 30,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: NavigationSidebarThemeData.accent.withOpacity(0.12),
+            color: NavigationSidebarThemeData.accent.withValues(alpha: 0.12),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(icon,
