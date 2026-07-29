@@ -1,785 +1,1052 @@
 # super_navigation_sidebar
 
-[![pub package](https://img.shields.io/badge/pub-v2.2.1-4A7CFF.svg)](https://pub.dev/packages/super_navigation_sidebar)
-[![flutter](https://img.shields.io/badge/Flutter-%E2%89%A53.10-1DB88A.svg)](https://flutter.dev)
-[![style](https://img.shields.io/badge/style-MVC-F97316.svg)](#architecture)
-[![license](https://img.shields.io/badge/license-MIT-64748B.svg)](#license)
+[![pub package](https://img.shields.io/pub/v/super_navigation_sidebar.svg)](https://pub.dev/packages/super_navigation_sidebar)
+[![Flutter](https://img.shields.io/badge/Flutter-%E2%89%A53.32.0-02569B.svg)](https://flutter.dev)
+[![Dart](https://img.shields.io/badge/Dart-%E2%89%A53.8.0-0175C2.svg)](https://dart.dev)
+[![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-A themeable, responsive app navigation sidebar for Flutter. One data model
-renders in three modes the host picks from the available width: a full
-**expanded** labelled tree with `│ ├ └` connectors, an icon-only **rail** with
-hover flyouts, and an off-canvas **drawer** with a scrim. Typed `NavNode<T>`
-tree, badges, shortcut hints, header/footer slots, AppBar integration,
-localization, accessibility, RTL. Zero third-party dependencies.
+A responsive, themeable navigation sidebar for Flutter applications.
 
----
+Build one typed navigation tree and render it as an expanded sidebar, a compact
+icon rail, or an off-canvas drawer. The package also provides an integrated app
+shell, a controller-driven state model, AppBar integration, search, favorites,
+recent destinations, keyboard shortcuts, state persistence, localization, RTL,
+and accessibility support.
 
 ## Features
 
-- 🗂 **Three layout modes** — `expanded` (full labelled tree + connectors),
-  `rail` (icon-only, hover flyouts), `drawer` (off-canvas, scrim) — one
-  controller drives all three.
-- 📐 **Auto breakpoints** — `NavSidebarBreakpoints().modeFor(width)` maps an
-  available width to the right mode: expanded ≥ 1200 px · rail ≥ 768 px ·
-  drawer below.
-- 🧭 **AppBar integration** — `NavigationSidebarAppBar` connects directly to
-  the controller. Drawer mode inserts a hamburger; desktop mode adds a collapse
-  toggle. Slots: `title`, `pageTitle`, `globalSearch`, `middle`, `actions`,
-  custom `builder`. `NavBreadcrumb<T>` and `NavigationSidebarSearchField` are
-  ready-made slot widgets.
-- 🧱 **Integrated `NavigationShell`** — one widget composes the app bar, pane
-  and content in the Microsoft NavigationView arrangement: full-width spanning
-  header or inset, push or overlay pane behavior, adaptive by width, and correct
-  content margins — no hand-wired Row/Column/Stack.
-- ⬅️ **Back button** — `NavigationSidebarAppBar.showBackButton` + `onBack`,
-  enabled from `controller.canGoBack` (à la `IsBackEnabled`), in the top-left
-  corner mirroring RTL.
-- 📌 **Footer nav items** — `NavSection.placement: NavSectionPlacement.footer`
-  pins Settings / Help to the pane bottom, sharing the one selection model
-  (NavigationView's `FooterMenuItems`).
-- 🎯 **Fluent selection indicator** — `selectionIndicator: NavSelectionIndicator.bar`
-  swaps the fill for a leading accent pill in the tree **and** the rail.
-- 🌳 **Typed `NavNode<T>` tree** — each node carries a strongly-typed `value`
-  (route, screen enum, …); `node.value` reads with no casting.
-- 🎭 **Role derived from position** — depth-0 leaf = *direct*; depth-0 branch
-  = *module*; nested branch = *group*; nested leaf = *item*.
-- ✅ **Active-screen highlight + ancestor auto-expand** — `navigate(id)` sets
-  the active row, opens every ancestor module, and (in drawer mode) dismisses
-  the drawer.
-- 🔴 **Badges** — `NavBadge(text, tone: NavBadgeTone.success/danger/muted)`.
-- ⌨ **Shortcut hints** — two-key `['g', 'd']`-style keycaps shown on hover.
-  Visual by default — wrap the shell in `NavShortcutBinder` to make them
-  working keystrokes.
-- 🔎 **Built-in search & filter** — `searchable: true` adds a filter field that
-  matches every level, auto-expands hits, and highlights the matched run.
-- 🧭 **Command palette** — `allowSearchDialog: true` adds a search trigger to the
-  pane that opens a full `NavSearchDialog` overlay. The single switch that
-  enables dialog search — no `Stack` / `Overlay` wiring in the host app.
-- ⭐ **Quick Access favorites** — `favoritable: true` adds per-row star toggles
-  and a synthesized favorites band pinned at the top.
-- 🔢 **Screen codes & keyword search** — `NavNode.code` (SAP-style transaction
-  code, shown as a mono chip in the palette) and hidden `NavNode.keywords`
-  aliases; both matched by the tree filter and the palette.
-- 🕒 **Recent destinations** — every successful navigation lands in an MRU
-  `controller.recents` list; the palette opens with a "Recent" band.
-- 💾 **State persistence** — `controller.snapshot()` / `restore()` with a
-  JSON-serializable `NavSidebarStateSnapshot` (active · expanded · favorites ·
-  recents · collapsed) — persist per-user across sessions and workstations.
-- 🔔 **Badge roll-up** — `aggregateBadges: true` sums numeric descendant
-  badges onto a collapsed module row (pending approvals bubble up).
-- ⌨ **Working shortcut chords** — wrap the shell in `NavShortcutBinder` and
-  every `NavNode.shortcut` chord (`g` then `d`) actually navigates —
-  suspended while text fields have focus.
-- 🔒 **Permission-gated nodes** — `NavNode.locked` + `lockMessage` dim a row,
-  add a lock glyph, block navigation, and surface the reason as a tooltip.
-- 🟢 **Status dots** — `NavNode.status` (`open` · `closed` · `locked` ·
-  `attention`) marks fiscal-period / ledger state before the label.
-- ♿ **Accessibility** — every interactive row is wrapped in `Semantics`
-  (button role, selected, expanded/collapsed state, lock/disable hints) and a
-  `Focus` with `onKeyEvent` for keyboard activation (Enter / Space). The drawer
-  close button has an accessible label.
-- 🌐 **Localization** — `NavigationSidebarLocalizations` puts every user-facing
-  string in one immutable class. English default; Arabic preset included.
-- 🔐 **Deep immutability** — `NavNode.children` and `NavSection.items` are
-  wrapped in `List.unmodifiable()` at construction.
-- 🆔 **Duplicate ID validation** — debug-build assertion detects duplicate
-  `NavNode.id` values with a clear error message.
-- 🛡 **Navigation safety** — `navigate()` returns `bool`; `onNavigate` is only
-  fired when navigation is actually applied (locked/disabled nodes are always
-  refused).
-- 🌍 **RTL** — connectors, flyouts, drawer slide direction, and all row
-  padding mirror under `Directionality(textDirection: TextDirection.rtl, …)`.
-- 🔌 **Zero dependencies** — pure Flutter + Material.
+- Three presentation modes: expanded, rail, and drawer.
+- Adaptive mode selection with configurable width breakpoints.
+- Typed, deeply immutable `NavNode<T>` and `NavSection<T>` models.
+- Nested modules, groups, destinations, tree guides, and hover flyouts.
+- Shared `NavigationSidebarController<T>` for navigation and UI state.
+- Integrated `NavigationShell<T>` for AppBar, pane, and content layout.
+- AppBar controls, breadcrumbs, global search, and custom slots.
+- Built-in tree filtering and command-palette search.
+- Quick Access favorites and recent destinations.
+- Sequential chords and modifier-based keyboard shortcuts.
+- Badges, numeric badge aggregation, permission locks, and status indicators.
+- JSON-serializable state snapshots.
+- Light and dark themes with `super_core` integration.
+- Arabic strings, RTL mirroring, keyboard navigation, and semantic labels.
 
----
+## Requirements
+
+| Requirement | Version |
+|---|---:|---
+| Dart SDK | `>=3.8.0 <4.0.0` |
+| Flutter | `>=3.32.0` |
+| `super_core` | `>=3.0.0 <4.0.0` |
 
 ## Installation
 
+Add the package to `pubspec.yaml`:
+
 ```yaml
 dependencies:
-  super_navigation_sidebar: ^2.1.0
+  super_navigation_sidebar: ^2.4.0
 ```
+
+Install the dependency:
 
 ```bash
 flutter pub get
 ```
 
----
-
-## Setup
-
-Register `NavigationSidebarThemeData` on your `MaterialApp`:
+Import the public library:
 
 ```dart
 import 'package:super_navigation_sidebar/super_navigation_sidebar.dart';
+```
 
+## Theme setup
+
+Register the package theme extension in `MaterialApp`:
+
+```dart
 MaterialApp(
   theme: ThemeData(
-    extensions: const [NavigationSidebarThemeData.light],
+    brightness: Brightness.light,
+    extensions: const <ThemeExtension<dynamic>>[
+      NavigationSidebarThemeData.light,
+    ],
   ),
   darkTheme: ThemeData(
-    extensions: const [NavigationSidebarThemeData.dark],
+    brightness: Brightness.dark,
+    extensions: const <ThemeExtension<dynamic>>[
+      NavigationSidebarThemeData.dark,
+    ],
   ),
-  home: const MyApp(),
+  home: const AppShell(),
 );
 ```
 
----
+When the extension is not registered, `NavigationSidebarThemeData.of(context)`
+tries to derive its tokens from the ambient `SuperMaterialThemeData` supplied
+by `super_core`. An explicitly registered `NavigationSidebarThemeData` always
+takes precedence.
 
 ## Quick start
 
-### 1 · Self-contained (no external controller)
+The recommended setup uses one external controller shared by the sidebar,
+AppBar, shell, and keyboard-shortcut binder.
 
 ```dart
-NavigationSidebar<String>(
-  sections: [
-    NavSection(title: 'Overview', items: [
-      NavNode(id: 'dashboard', label: 'Dashboard',
-              icon: Icons.dashboard_outlined, value: 'dashboard',
-              shortcut: ['g', 'd']),
-    ]),
-    NavSection(title: 'Finance', items: [
-      NavNode(id: 'accounts', label: 'Accounts',
-              icon: Icons.menu_book_outlined, children: [
-        NavNode(id: 'coa', label: 'Chart of Accounts', children: [
-          NavNode(id: 'accounts_list', label: 'Account List',
-                  icon: Icons.menu_book_outlined, value: 'accounts_list'),
-        ]),
-      ]),
-    ]),
-  ],
-  active: 'dashboard',
-  mode: NavSidebarMode.expanded,
-  onNavigate: (node) => openScreen(node.value!),
-);
-```
+import 'package:flutter/material.dart';
+import 'package:super_navigation_sidebar/super_navigation_sidebar.dart';
 
-> **Note (1.2+):** `NavNode` and `NavSection` constructors are no longer `const`
-> (children/items are wrapped in `List.unmodifiable`). Remove the `const` keyword
-> from any `const NavNode(…)` or `const NavSection(…)` call sites.
+enum AppDestination {
+  dashboard,
+  chartOfAccounts,
+  journalEntries,
+  settings,
+}
 
-### 2 · Responsive shell with AppBar
+final navigationSections = <NavSection<AppDestination>>[
+  NavSection<AppDestination>(
+    title: 'Workspace',
+    items: <NavNode<AppDestination>>[
+      NavNode<AppDestination>(
+        id: 'dashboard',
+        label: 'Dashboard',
+        icon: Icons.dashboard_outlined,
+        value: AppDestination.dashboard,
+        shortcut: const <String>['g', 'd'],
+      ),
+      NavNode<AppDestination>(
+        id: 'accounting',
+        label: 'Accounting',
+        icon: Icons.account_balance_outlined,
+        children: <NavNode<AppDestination>>[
+          NavNode<AppDestination>(
+            id: 'accounts_group',
+            label: 'Accounts',
+            children: <NavNode<AppDestination>>[
+              NavNode<AppDestination>(
+                id: 'chart_of_accounts',
+                label: 'Chart of accounts',
+                code: 'COA',
+                keywords: const <String>['ledger', 'accounts tree'],
+                icon: Icons.account_tree_outlined,
+                value: AppDestination.chartOfAccounts,
+              ),
+              NavNode<AppDestination>(
+                id: 'journal_entries',
+                label: 'Journal entries',
+                code: 'JE01',
+                icon: Icons.receipt_long_outlined,
+                badge: const NavBadge('4', tone: NavBadgeTone.warning),
+                shortcut: const <String>['ctrl', 'j'],
+                value: AppDestination.journalEntries,
+              ),
+            ],
+          ),
+        ],
+      ),
+    ],
+  ),
+  NavSection<AppDestination>(
+    title: 'System',
+    placement: NavSectionPlacement.footer,
+    items: <NavNode<AppDestination>>[
+      NavNode<AppDestination>(
+        id: 'settings',
+        label: 'Settings',
+        icon: Icons.settings_outlined,
+        value: AppDestination.settings,
+      ),
+    ],
+  ),
+];
 
-```dart
-class _AppShellState extends State<AppShell> {
-  final _nav = NavigationSidebarController<String>(
-    sections: mySections,
-    active: 'dashboard',
-  );
-  String _screen = 'dashboard';
+class AppShell extends StatefulWidget {
+  const AppShell({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, c) {
-      final mode = const NavSidebarBreakpoints().modeFor(c.maxWidth);
+  State<AppShell> createState() => _AppShellState();
+}
 
-      final sidebar = NavigationSidebar<String>(
-        controller: _nav,
-        mode: mode,
-        header: (ctx, collapsed) => MyLogo(collapsed: collapsed),
-        onNavigate: (node) => setState(() => _screen = node.value!),
-      );
+class _AppShellState extends State<AppShell> {
+  late final NavigationSidebarController<AppDestination> _navigation;
+  AppDestination _destination = AppDestination.dashboard;
 
-      if (mode == NavSidebarMode.drawer) {
-        return Scaffold(
-          appBar: NavigationSidebarAppBar(
-            controller: _nav,
-            mode: NavSidebarMode.drawer,
-            pageTitle: NavBreadcrumb<String>(controller: _nav),
-          ),
-          body: Stack(children: [
-            Positioned.fill(child: PageFor(screen: _screen)),
-            Positioned.fill(child: sidebar),
-          ]),
-        );
-      }
-
-      return Row(children: [
-        sidebar,
-        Expanded(
-          child: Column(children: [
-            NavigationSidebarAppBar(
-              controller: _nav,
-              mode: mode,
-              showCollapseToggle: true,
-              pageTitle: NavBreadcrumb<String>(controller: _nav),
-              globalSearch: NavigationSidebarSearchField(controller: _nav),
-              actions: [NotificationBell(), UserAvatar()],
-            ),
-            Expanded(child: PageFor(screen: _screen)),
-          ]),
-        ),
-      ]);
-    });
+  @override
+  void initState() {
+    super.initState();
+    _navigation = NavigationSidebarController<AppDestination>(
+      sections: navigationSections,
+      active: 'dashboard',
+    );
   }
 
   @override
-  void dispose() { _nav.dispose(); super.dispose(); }
+  void dispose() {
+    _navigation.dispose();
+    super.dispose();
+  }
+
+  void _openNode(NavNode<AppDestination> node) {
+    final destination = node.value;
+    if (destination == null) return;
+
+    setState(() => _destination = destination);
+    // Update go_router, Navigator, or another router here.
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return NavShortcutBinder<AppDestination>(
+      controller: _navigation,
+      onNavigate: _openNode,
+      child: NavigationShell<AppDestination>(
+        controller: _navigation,
+        appBarBuilder: (BuildContext context, NavSidebarMode mode) {
+          return NavigationSidebarAppBar(
+            controller: _navigation,
+            mode: mode,
+            title: const Text('Example ERP'),
+            pageTitle: NavBreadcrumb<AppDestination>(
+              controller: _navigation,
+            ),
+            actions: <Widget>[
+              IconButton(
+                tooltip: 'Notifications',
+                onPressed: () {},
+                icon: const Icon(Icons.notifications_outlined),
+              ),
+            ],
+          );
+        },
+        sidebarBuilder: (BuildContext context, NavSidebarMode mode) {
+          return NavigationSidebar<AppDestination>(
+            controller: _navigation,
+            mode: mode,
+            searchable: true,
+            allowSearchDialog: true,
+            favoritable: true,
+            aggregateBadges: true,
+            onNavigate: _openNode,
+          );
+        },
+        body: Center(
+          child: Text('Current destination: ${_destination.name}'),
+        ),
+      ),
+    );
+  }
 }
 ```
 
----
+`NavigationShell` derives the active presentation mode from the available width.
+The default breakpoints are:
 
-## Integrated shell (`NavigationShell`)
+| Width | Mode |
+|---:|---|---
+| `>= 1200` | `NavSidebarMode.expanded` |
+| `>= 768` and `< 1200` | `NavSidebarMode.rail` |
+| `< 768` | `NavSidebarMode.drawer` |
 
-`NavigationShell<T>` composes the app bar, the navigation pane and the page
-content in the Microsoft NavigationView arrangement — so you stop hand-wiring
-`Row` / `Column` / `Stack` and getting the alignment subtly wrong. The bar's
-leading zone (back button + pane toggle) lines up directly over the pane.
-
-```
-┌────────────────────────────────────┐
-│  App bar  (full width)              │   spanning: back + toggle
-├──────────┬────────────────────────┤   sit over the pane
-│  Pane    │  Content (padded)        │
-└──────────┴────────────────────────┘
-```
-
-```dart
-NavigationShell<String>(
-  controller: _nav,
-  headerLayout: NavShellHeaderLayout.spanning, // or .inset
-  paneBehavior: NavPaneBehavior.push,          // or .overlay
-  appBarBuilder: (ctx, mode) => NavigationSidebarAppBar(
-    controller: _nav,
-    mode: mode,
-    showBackButton: true,
-    onBack: _goBack,
-    pageTitle: NavBreadcrumb<String>(controller: _nav),
-    globalSearch: NavigationSidebarSearchField(controller: _nav),
-    actions: [NotificationBell(), UserAvatar()],
-  ),
-  sidebarBuilder: (ctx, mode) => NavigationSidebar<String>(
-    controller: _nav,
-    mode: mode,
-    onNavigate: (n) => setState(() => _screen = n.value!),
-  ),
-  body: PageFor(screen: _screen),
-)
-```
-
-| Property | Type | Description |
-|---|---|---|
-| `controller` | `NavigationSidebarController<T>` | **Required.** Shared by bar + pane. |
-| `sidebarBuilder` | `NavShellSlotBuilder` | **Required.** Builds the pane for the resolved mode. |
-| `body` | `Widget` | **Required.** Page content. |
-| `appBarBuilder` | `NavShellSlotBuilder?` | Builds the app bar; omit for none. |
-| `mode` | `NavSidebarMode?` | Force a mode; `null` = adaptive from width. |
-| `breakpoints` | `NavSidebarBreakpoints` | Width thresholds when adaptive. |
-| `headerLayout` | `NavShellHeaderLayout` | `spanning` (default) or `inset`. |
-| `paneBehavior` | `NavPaneBehavior` | `push` (default) or `overlay`. |
-| `contentPadding` | `EdgeInsetsGeometry?` | Content margins (24 / 12 px default). |
-
-> **Overlay tip:** with `paneBehavior: NavPaneBehavior.overlay`, construct the
-> controller with `collapsed: true` so the pane starts closed and opens as a
-> flyout over the content.
-
-### Back button
-
-```dart
-// Bind can-pop to the controller (à la NavigationView IsBackEnabled):
-_nav.canGoBack = router.canPop();
-
-NavigationSidebarAppBar(
-  controller: _nav, mode: mode,
-  showBackButton: true,
-  onBack: () => router.pop(),
-)
-```
-
-### Footer navigation items
-
-```dart
-NavSection(
-  title: '',
-  placement: NavSectionPlacement.footer, // pinned to the pane bottom
-  items: [
-    NavNode(id: 'help', label: 'Help', icon: Icons.help_outline, value: 'help'),
-    NavNode(id: 'settings', label: 'Settings',
-            icon: Icons.settings_outlined, value: 'settings'),
-  ],
-)
-```
-
-### Fluent selection indicator
-
-```dart
-ThemeData(extensions: [
-  NavigationSidebarThemeData.dark.copyWith(
-    selectionIndicator: NavSelectionIndicator.bar, // leading accent pill
-  ),
-]);
-```
-
----
-
-## AppBar integration
-
-### `NavigationSidebarAppBar`
-
-A `PreferredSizeWidget` connected to the controller. Rebuilds automatically
-when the controller notifies (drawer open, collapsed flag, etc.).
-
-| Property | Type | Description |
-|---|---|---|
-| `controller` | `NavigationSidebarController` | **Required.** |
-| `mode` | `NavSidebarMode` | **Required.** Determines leading controls. |
-| `leading` | `Widget?` | Custom leading. Null → hamburger in drawer mode. |
-| `title` | `Widget?` | App / product name. |
-| `pageTitle` | `Widget?` | Breadcrumb or screen subtitle. |
-| `globalSearch` | `Widget?` | A `NavigationSidebarSearchField` or custom widget. |
-| `middle` | `Widget?` | Workspace switcher, env badge, etc. |
-| `actions` | `List<Widget>?` | Trailing action buttons. |
-| `showCollapseToggle` | `bool?` | Collapse ↔ expand toggle (default true in expanded/rail). |
-| `builder` | `Function?` | Full custom content — overrides all slots. |
-| `backgroundColor` | `Color?` | Falls back to `NavigationSidebarThemeData.surface`. |
-| `showBorder` | `bool` | Bottom hairline border. Default `true`. |
-| `height` | `double?` | Bar height. Default `kToolbarHeight` (56 px). |
-| `localizations` | `NavigationSidebarLocalizations` | Semantic labels for built-in controls. |
-
-### `NavBreadcrumb<T>`
-
-Reads `controller.active` and renders a `›`-separated ancestor trail:
-
-```dart
-NavBreadcrumb<String>(
-  controller: nav,
-  separator: '  ›  ',       // default
-  // style / activeStyle for custom TextStyles
-)
-```
-
-### `NavigationSidebarSearchField`
-
-A compact themed search field that drives `controller.setQuery` in real time —
-use it for inline tree filtering (see `NavigationSidebar.searchable`):
-
-```dart
-NavigationSidebarSearchField(
-  controller: nav,
-  hint: 'Search accounts, journals, reports…',
-)
-```
-
-### Command-palette search dialog
-
-Enable the palette with a **single switch** on the sidebar —
-`allowSearchDialog: true`. The sidebar renders the search trigger inside the
-pane (a field in expanded / drawer modes, an icon button in rail) and opens
-`NavSearchDialog` end-to-end — host apps never build the dialog:
-
-```dart
-NavigationSidebar<String>(
-  controller: nav,
-  allowSearchDialog: true,          // ← the only switch that enables search
-  searchHint: 'Search tabs & actions…',
-  onSearchPick: (node) { … },       // optional — navigates + fires onNavigate by default
-)
-```
-
-For custom entry points (a button, a keyboard shortcut) the same dialog can be
-opened imperatively from any `BuildContext`:
-
-```dart
-showNavSearchDialog<String>(context, controller: nav);
-```
-
-Or embed in a `Stack` directly:
-
-```dart
-Stack(children: [
-  MyShell(),
-  if (_open)
-    NavSearchDialog<String>(
-      controller: _nav,
-      onClose: () => setState(() => _open = false),
-    ),
-])
-```
-
-**`NavSearchOps`** — low-level helpers for custom search UIs:
-
-```dart
-final index = NavSearchOps.buildIndex<String>(_nav.sections); // List<NavSearchHit>
-final hits  = NavSearchOps.filter(index, 'journal entry');
-```
-
----
-
-## Localization
-
-All user-facing strings are in `NavigationSidebarLocalizations`. Pass a
-custom instance via `NavigationSidebar.localizations` and
-`NavigationSidebarAppBar.localizations`:
-
-```dart
-// English (default — no configuration needed):
-NavigationSidebar<String>(controller: nav, mode: mode)
-
-// Arabic (pair with RTL Directionality):
-Directionality(
-  textDirection: TextDirection.rtl,
-  child: NavigationSidebar<String>(
-    controller: nav,
-    mode: mode,
-    localizations: NavigationSidebarLocalizations.arabic,
-  ),
-)
-
-// Partial override — only change what you need:
-NavigationSidebar<String>(
-  controller: nav, mode: mode,
-  localizations: const NavigationSidebarLocalizations(
-    searchHint: 'Buscar navegación…',
-    lockedDefault: 'Acceso restringido',
-  ),
-)
-```
-
-### Available strings
-
-| Field | Default (English) |
-|---|---|
-| `searchHint` | `'Search navigation…'` |
-| `searchEmpty` | `'No matches for "{query}"'` |
-| `drawerTitle` | `'Navigation'` |
-| `drawerCloseLabel` | `'Close navigation'` |
-| `quickAccessTitle` | `'Quick Access'` |
-| `recentsTitle` | `'Recent'` |
-| `addToQuickAccess` | `'Add to Quick Access'` |
-| `removeFromQuickAccess` | `'Remove from Quick Access'` |
-| `lockedDefault` | `"Locked — you don't have access"` |
-| `shortcutPrefix` | `'Shortcut · '` |
-| `shortcutSeparator` | `' then '` |
-| `semanticExpanded` | `'expanded'` |
-| `semanticCollapsed` | `'collapsed'` |
-| `semanticLocked` | `'locked'` |
-| `semanticDisabled` | `'disabled'` |
-| `semanticToggleSidebar` | `'Toggle sidebar'` |
-| `semanticOpenDrawer` | `'Open navigation'` |
-
----
-
-## Data model
+## Navigation model
 
 ### `NavSection<T>`
 
+A section groups top-level navigation nodes. Body sections scroll with the pane;
+footer sections remain pinned near the bottom.
+
 ```dart
 NavSection<String>(
-  title: 'Finance',
-  items: [...],           // List<NavNode<T>> — unmodifiable after construction
-)
+  title: 'Support',
+  placement: NavSectionPlacement.footer,
+  items: <NavNode<String>>[
+    NavNode<String>(
+      id: 'help',
+      label: 'Help',
+      icon: Icons.help_outline,
+      value: '/help',
+    ),
+  ],
+);
 ```
 
 ### `NavNode<T>`
 
-| Field | Type | Description |
-|---|---|---|
-| `id` | `NavNodeId` (String) | **Required.** Unique across the whole sidebar (validated in debug builds). |
-| `label` | `String` | **Required.** Display text; search matches against this. |
-| `code` | `String?` | Short screen code (`'JE01'`) — mono chip in the palette, searchable. |
-| `keywords` | `List<String>?` | Hidden search aliases — matched, never rendered. |
-| `icon` | `IconData?` | Leading icon. |
-| `children` | `List<NavNode<T>>` | Child nodes. Unmodifiable after construction. |
-| `value` | `T?` | Strongly-typed host payload. |
-| `badge` | `NavBadge?` | Trailing badge pill. |
-| `shortcut` | `List<String>?` | Visual hint only — `['g', 'd']` renders `G › D`. |
-| `locked` | `bool` | Permission-gate: dim, lock glyph, block nav, tooltip. |
-| `lockMessage` | `String?` | Tooltip on a locked row. |
-| `status` | `NavNodeStatus` | State dot — `none`/`open`/`closed`/`locked`/`attention`. |
-| `enabled` | `bool` | When `false`, row shown but not activatable. |
+A node can be a structural branch or a navigable leaf. Its visual role is
+derived from its depth and whether it has children.
 
----
+| Property | Purpose |
+|---|---|---
+| `id` | Stable, unique identity across the full tree. |
+| `label` | Visible title and primary search text. |
+| `value` | Strongly typed destination payload. |
+| `children` | Nested immutable nodes. |
+| `icon` | Leading icon. |
+| `code` | Short screen or transaction code used by search. |
+| `keywords` | Hidden aliases and search terms. |
+| `badge` | Count or status pill. |
+| `shortcut` | Sequential chord or modifier shortcut declaration. |
+| `enabled` | Displays the node but prevents activation when `false`. |
+| `locked` | Permission-gates the node and prevents activation. |
+| `lockMessage` | Tooltip explaining why the node is locked. |
+| `status` | Informational status dot. |
 
-## Navigation safety
+`NavNode.children` and `NavSection.items` are wrapped with
+`List.unmodifiable`. Their constructors are intentionally not `const`.
 
-`navigate()` returns `bool`: `true` = applied, `false` = refused (locked,
-disabled, or id not found). `onNavigate` is **only** fired on `true`:
+### Node roles
+
+`NavNodeRole.of` resolves one of four visual roles:
+
+| Role | Structure |
+|---|---|---
+| `direct` | Top-level leaf. |
+| `module` | Top-level branch. |
+| `group` | Nested branch. |
+| `item` | Nested leaf. |
+
+## Presentation modes
+
+### Expanded
+
+`NavSidebarMode.expanded` displays the full labeled tree, section titles,
+optional guide connectors, badges, shortcuts, and nested disclosure controls.
+
+### Rail
+
+`NavSidebarMode.rail` displays an icon-only column. Hovering a branch can open a
+flyout when `railFlyouts` is enabled.
+
+### Drawer
+
+`NavSidebarMode.drawer` renders an off-canvas pane above the current page. The
+AppBar automatically shows a menu button, and successful navigation closes the
+drawer.
+
+### Custom breakpoints
 
 ```dart
-// Safe — onNavigate is never called for locked / disabled nodes:
-NavigationSidebar<String>(
-  controller: nav,
+const breakpoints = NavSidebarBreakpoints(
+  expanded: 1366,
+  rail: 720,
+);
+
+final mode = breakpoints.modeFor(MediaQuery.sizeOf(context).width);
+```
+
+Pass custom breakpoints directly to `NavigationShell`:
+
+```dart
+NavigationShell<String>(
+  controller: controller,
+  breakpoints: const NavSidebarBreakpoints(
+    expanded: 1366,
+    rail: 720,
+  ),
+  sidebarBuilder: buildSidebar,
+  body: const SizedBox(),
+);
+```
+
+## Controller
+
+`NavigationSidebarController<T>` is the single source of truth for active,
+expanded, collapsed, drawer, search, favorites, and recent state.
+
+### Create and dispose
+
+Keep the controller in a `State`, dependency container, or another owner with a
+matching lifecycle:
+
+```dart
+late final NavigationSidebarController<String> controller;
+
+@override
+void initState() {
+  super.initState();
+  controller = NavigationSidebarController<String>(
+    sections: sections,
+    active: 'dashboard',
+    expanded: <NavNodeId>{'accounting'},
+    favorites: <NavNodeId>{'journal_entries'},
+    maxRecents: 10,
+  );
+}
+
+@override
+void dispose() {
+  controller.dispose();
+  super.dispose();
+}
+```
+
+`NavigationSidebar` can create an internal controller when only `sections` are
+provided, but an external controller is recommended when other widgets or the
+router need to read or change navigation state.
+
+### Navigation
+
+```dart
+final didNavigate = controller.navigate('journal_entries');
+
+if (didNavigate) {
+  final destination = controller.activeValue;
+}
+```
+
+`navigate` returns `false` when the node does not exist, is disabled, or is
+locked. `NavigationSidebar.onNavigate` is invoked only after successful
+navigation.
+
+### Expansion
+
+```dart
+controller.expand('accounting');
+controller.collapse('accounting');
+controller.toggleNode('accounting');
+controller.expandAll();
+controller.collapseAll();
+```
+
+### Rail and drawer state
+
+```dart
+controller.toggleCollapsed();
+controller.openDrawer();
+controller.closeDrawer();
+controller.toggleDrawer();
+```
+
+### Read state
+
+```dart
+final activeId = controller.active;
+final activeValue = controller.activeValue;
+final isOpen = controller.isExpanded('accounting');
+final ownsActive = controller.ownsActive('accounting');
+final node = controller.node('journal_entries');
+```
+
+### Replace the tree
+
+Use `replaceSections` when permissions, modules, or tenant configuration changes:
+
+```dart
+controller.replaceSections(updatedSections);
+```
+
+The controller removes stale recent entries and clears the active ID when the
+active node no longer exists. Duplicate IDs are asserted in debug builds.
+
+### Access from descendants
+
+`NavigationSidebar` publishes the controller through `NavigationSidebarScope`.
+A descendant can retrieve it without manually passing it through every widget:
+
+```dart
+final controller =
+    NavigationSidebarController.of<AppDestination>(context);
+
+controller?.navigate('settings');
+```
+
+## Integrated app shell
+
+`NavigationShell<T>` composes three surfaces:
+
+1. An optional AppBar.
+2. A responsive navigation pane.
+3. The current page body.
+
+It removes the need to manually coordinate `Row`, `Column`, `Stack`, drawer
+scrims, and responsive pane widths.
+
+### Header layout
+
+```dart
+NavigationShell<String>(
+  controller: controller,
+  headerLayout: NavShellHeaderLayout.spanning,
+  sidebarBuilder: buildSidebar,
+  appBarBuilder: buildAppBar,
+  body: page,
+);
+```
+
+- `spanning`: the AppBar spans the entire width above pane and content.
+- `inset`: the pane occupies full height and the AppBar sits above content only.
+
+### Pane behavior
+
+```dart
+NavigationShell<String>(
+  controller: controller,
+  paneBehavior: NavPaneBehavior.overlay,
+  sidebarBuilder: buildSidebar,
+  body: page,
+);
+```
+
+- `push`: the pane takes layout space and pushes the content.
+- `overlay`: a rail remains in-flow while the expanded pane floats above content.
+
+For overlay behavior, initialize the controller with `collapsed: true` when the
+pane should start closed.
+
+### Force a mode
+
+The shell is adaptive by default. Set `mode` only when the host application must
+force a presentation:
+
+```dart
+NavigationShell<String>(
+  controller: controller,
+  mode: NavSidebarMode.rail,
+  sidebarBuilder: buildSidebar,
+  body: page,
+);
+```
+
+## AppBar integration
+
+`NavigationSidebarAppBar` is a `PreferredSizeWidget` connected directly to the
+sidebar controller.
+
+```dart
+Scaffold(
+  appBar: NavigationSidebarAppBar(
+    controller: controller,
+    mode: NavSidebarMode.drawer,
+    title: const Text('Genius Link'),
+    pageTitle: NavBreadcrumb<String>(controller: controller),
+    globalSearch: NavigationSidebarSearchField(
+      controller: controller,
+    ),
+    middle: const Chip(label: Text('Production')),
+    actions: <Widget>[
+      IconButton(
+        onPressed: () {},
+        icon: const Icon(Icons.notifications_outlined),
+      ),
+    ],
+  ),
+  body: const SizedBox(),
+);
+```
+
+The AppBar:
+
+- inserts a drawer menu button in drawer mode;
+- can display a collapse/expand button in expanded and rail modes;
+- supports title, page title, global search, middle, actions, and custom leading;
+- rebuilds when the controller changes;
+- can be fully replaced through `builder`.
+
+### Back button
+
+Bind `controller.canGoBack` to the router's current pop state:
+
+```dart
+controller.canGoBack = Navigator.of(context).canPop();
+
+NavigationSidebarAppBar(
+  controller: controller,
   mode: mode,
-  onNavigate: (node) => setState(() => _screen = node.value!),
-)
-
-// Programmatic nav with return-value check:
-final ok = nav.navigate('wire');  // false if locked/disabled
+  showBackButton: true,
+  onBack: () => Navigator.of(context).maybePop(),
+);
 ```
 
----
+The button is disabled while `canGoBack` is `false`.
 
-## Deep immutability
-
-`NavNode.children` and `NavSection.items` are `List.unmodifiable` after
-construction. Attempts to mutate throw `UnsupportedError`:
+### Breadcrumbs
 
 ```dart
-final node = NavNode(id: 'parent', label: 'Parent', children: [
-  NavNode(id: 'child', label: 'Child'),
-]);
-node.children.add(NavNode(id: 'x', label: 'X')); // throws UnsupportedError
+NavBreadcrumb<String>(
+  controller: controller,
+  separator: ' / ',
+);
 ```
 
-All structural changes must go through the controller (`replaceSections`,
-`navigate`, etc.) which notifies listeners correctly.
+The breadcrumb automatically reads the active node and its ancestor path.
 
----
-
-## Duplicate ID validation
-
-In debug builds the controller asserts that every `NavNode.id` is unique:
+### Search field
 
 ```dart
-NavigationSidebarController<String>(sections: myBadSections);
-// → AssertionError: duplicate NavNode IDs detected: [myId]
+NavigationSidebarSearchField(
+  controller: controller,
+  hint: 'Search navigation',
+);
 ```
 
-Programmatic check (for tests or host validation):
+This widget updates `controller.query`, which filters the sidebar tree.
 
-```dart
-final dups = NavOps.findDuplicateIds<String>(sections);
-assert(dups.isEmpty, 'Duplicate nav ids: $dups');
-```
+## Search
 
----
+The package provides two complementary search experiences.
 
-## Accessibility
+### Inline tree filter
 
-- Every interactive row: `Semantics` (button role, `selected`, `toggled`
-  expanded/collapsed, lock/disable hints) + `Focus` + `onKeyEvent` (Enter/Space).
-- Drawer close button: accessible label from `localizations.drawerCloseLabel`.
-- Locked/disabled rows: `SystemMouseCursors.forbidden` cursor.
-- Rail items: `Tooltip` with the node label; lock glyph shown on locked nodes.
-
----
-
-## ERP / banking features
-
-### Built-in search & filter
+Enable the built-in field in expanded and drawer modes:
 
 ```dart
 NavigationSidebar<String>(
-  controller: nav,
+  controller: controller,
+  mode: mode,
   searchable: true,
-  searchHint: 'Search accounts, journals, reports…',
 );
 ```
 
-### Command palette (search dialog)
+Filtering matches `label`, `code`, and `keywords`, and keeps ancestor nodes
+visible so each result remains reachable.
+
+### Command palette
+
+Enable the package-owned command palette:
 
 ```dart
 NavigationSidebar<String>(
-  controller: nav,
-  allowSearchDialog: true,   // the single switch that enables dialog search
-  searchHint: 'Search tabs & actions…',
+  controller: controller,
+  mode: mode,
+  allowSearchDialog: true,
+  onSearchPick: (NavNode<String> node) {
+    final route = node.value;
+    if (route == null) return;
+    // Send route to Navigator, go_router, or your routing layer.
+  },
 );
 ```
 
-### Quick Access (favorites)
+When `allowSearchDialog` and `searchable` are both `true`, the command-palette
+trigger takes precedence in the sidebar chrome.
+
+Open the palette from a custom button:
 
 ```dart
-NavigationSidebarController<String>(
-  sections: sections,
-  favorites: {'journalEntry', 'trialBalance'},
+showNavSearchDialog<String>(
+  context,
+  controller: controller,
+  hint: 'Search screens and actions…',
+  recentsLabel: 'Recent',
+  onPick: (NavNodeId id) {
+    if (controller.navigate(id)) {
+      final node = controller.node(id);
+      // Update the application router from node?.value.
+    }
+  },
 );
-NavigationSidebar<String>(controller: nav, favoritable: true);
 ```
 
-### Screen codes & keyword search (2.2)
+For advanced custom search interfaces, use `NavSearchOps.buildIndex` and
+`NavSearchOps.filter`.
+
+## Favorites and recent destinations
+
+### Quick Access favorites
 
 ```dart
-NavNode(id: 'journalEntry', label: 'Journal Entry', value: 'journalEntry',
-        code: 'JE01',                       // mono chip + searchable
-        keywords: ['قيد', 'voucher', 'GL entry']); // hidden aliases
+NavigationSidebar<String>(
+  controller: controller,
+  mode: mode,
+  favoritable: true,
+  quickAccessTitle: 'Pinned',
+);
 ```
 
-### Recent destinations (2.2)
+Programmatic operations:
 
 ```dart
-nav.recents;      // MRU ids — filled automatically on navigate()
-nav.recentNodes;  // resolved nodes
-// The command palette shows a "Recent" band while the query is empty.
+controller.toggleFavorite('journal_entries');
+controller.setFavorites(<NavNodeId>{'dashboard', 'journal_entries'});
+
+final ids = controller.favorites;
+final nodes = controller.favoriteNodes;
 ```
 
-### State persistence (2.2)
+### Recents
+
+Successful navigation to a leaf automatically updates a most-recently-used list:
 
 ```dart
-// Persist on change:
-nav.addListener(() =>
-    prefs.setString('nav', jsonEncode(nav.snapshot().toJson())));
-// Restore on launch:
-nav.restore(NavSidebarStateSnapshot.fromJson(jsonDecode(raw)));
+final ids = controller.recents;
+final nodes = controller.recentNodes;
+
+controller.clearRecents();
 ```
 
-### Badge roll-up (2.2)
+The command palette displays recent destinations while its query is empty.
+Control the maximum list size with `maxRecents` in the controller constructor.
+
+## State persistence
+
+Capture the user-owned UI state as JSON:
 
 ```dart
-NavigationSidebar<String>(controller: nav, aggregateBadges: true);
-// Closed "Finance" module shows “12” — the sum of its descendants' counts.
+import 'dart:convert';
+
+final encoded = jsonEncode(controller.snapshot().toJson());
 ```
 
-### Working shortcut chords (2.2)
+Restore it after rebuilding the navigation tree:
+
+```dart
+final decoded = Map<String, Object?>.from(
+  jsonDecode(encoded) as Map<dynamic, dynamic>,
+);
+
+controller.restore(NavSidebarStateSnapshot.fromJson(decoded));
+```
+
+The snapshot contains:
+
+- active node ID;
+- expanded node IDs;
+- favorite node IDs;
+- recent node IDs;
+- collapsed rail state.
+
+IDs that no longer exist are ignored during restore.
+
+## Keyboard shortcuts
+
+Declare a sequential chord:
+
+```dart
+NavNode<String>(
+  id: 'dashboard',
+  label: 'Dashboard',
+  shortcut: const <String>['g', 'd'],
+  value: '/dashboard',
+);
+```
+
+Declare a modifier combination:
+
+```dart
+NavNode<String>(
+  id: 'journal_entries',
+  label: 'Journal entries',
+  shortcut: const <String>['ctrl', 'shift', 'j'],
+  value: '/journal-entries',
+);
+```
+
+`NavNode.shortcut` is a visual declaration until the relevant subtree is
+wrapped with `NavShortcutBinder<T>`:
 
 ```dart
 NavShortcutBinder<String>(
-  controller: nav,
-  onNavigate: (n) => openScreen(n.value!),
-  child: NavigationShell<String>(…),
+  controller: controller,
+  chordTimeout: const Duration(milliseconds: 1200),
+  onNavigate: (NavNode<String> node) {
+    final route = node.value;
+    if (route == null) return;
+    // Send route to Navigator, go_router, or your routing layer.
+  },
+  child: appShell,
 );
 ```
+
+Shortcuts are suspended while an `EditableText` has primary focus. Locked and
+disabled nodes remain protected. Use `enabled: false` to temporarily suspend all
+registered shortcuts, such as while a modal workflow is open.
+
+Control how hints appear in the expanded tree:
+
+```dart
+NavigationSidebar<String>(
+  controller: controller,
+  mode: mode,
+  shortcutMode: NavShortcutMode.onHover,
+);
+```
+
+Available modes are `onHover`, `always`, and `hidden`.
+
+## Badges, status, and permissions
+
+### Badges
+
+```dart
+NavNode<String>(
+  id: 'approvals',
+  label: 'Approvals',
+  badge: const NavBadge('12', tone: NavBadgeTone.danger),
+  value: '/approvals',
+);
+```
+
+Tones: `accent`, `success`, `warning`, `danger`, and `muted`.
+
+Enable numeric badge aggregation to roll descendant counts up to a collapsed
+module:
+
+```dart
+NavigationSidebar<String>(
+  controller: controller,
+  mode: mode,
+  aggregateBadges: true,
+);
+```
+
+### Status indicators
+
+```dart
+NavNode<String>(
+  id: 'current_period',
+  label: 'Current period',
+  status: NavNodeStatus.open,
+  value: '/period/current',
+);
+```
+
+Statuses are informational only: `none`, `open`, `closed`, `locked`, and
+`attention`.
 
 ### Permission-gated nodes
 
 ```dart
-NavNode(id: 'wire', label: 'Wire / SWIFT', icon: Icons.bolt_outlined,
-        value: 'wire', locked: true,
-        lockMessage: 'Requires Treasury Approver role');
+NavNode<String>(
+  id: 'audit_log',
+  label: 'Audit log',
+  icon: Icons.policy_outlined,
+  locked: true,
+  lockMessage: 'Requires the Auditor role',
+  value: '/audit-log',
+);
 ```
 
-### Status dots
+A locked node is dimmed, receives lock semantics, displays its message in a
+tooltip, and cannot trigger controller or host navigation.
+
+Use `enabled: false` for temporarily unavailable destinations that are not
+permission-gated.
+
+## Localization and RTL
+
+The package uses an immutable `NavigationSidebarLocalizations` object rather
+than Flutter localization delegates. English is the default, and an Arabic
+preset is included.
 
 ```dart
-NavNode(id: 'fy25q3', label: 'FY2025 · Q3', value: 'fy25q3',
-        status: NavNodeStatus.open); // open · closed · locked · attention
-```
+const arabic = NavigationSidebarLocalizations.arabic;
 
----
-
-## Three modes
-
-### `expanded` — 248 px full tree
-
-### `rail` — 76 px icon column with hover flyouts
-
-### `drawer` — 280 px off-canvas overlay
-
-```dart
-// Place in a Stack + Positioned.fill; open via controller.openDrawer():
-Stack(children: [
-  Positioned.fill(child: MyPage()),
-  Positioned.fill(
-    child: NavigationSidebar<String>(
-      controller: nav,
-      mode: NavSidebarMode.drawer,
-    ),
+Directionality(
+  textDirection: TextDirection.rtl,
+  child: NavigationShell<String>(
+    controller: controller,
+    appBarBuilder: (BuildContext context, NavSidebarMode mode) {
+      return NavigationSidebarAppBar(
+        controller: controller,
+        mode: mode,
+        title: const Text('نظام المحاسبة'),
+        localizations: arabic,
+      );
+    },
+    sidebarBuilder: (BuildContext context, NavSidebarMode mode) {
+      return NavigationSidebar<String>(
+        controller: controller,
+        mode: mode,
+        localizations: arabic,
+      );
+    },
+    body: const SizedBox(),
   ),
-])
+);
 ```
 
----
+Create a custom translation by overriding only the required strings:
 
-## `NavigationSidebarController<T>` API
+```dart
+const customStrings = NavigationSidebarLocalizations(
+  searchHint: 'Find a screen…',
+  quickAccessTitle: 'Pinned',
+  recentsTitle: 'History',
+  semanticOpenDrawer: 'Open application navigation',
+);
+```
 
-### Navigation
-
-| Method | Returns | Description |
-|---|---|---|
-| `navigate(id)` | `bool` | Set active, open ancestors, close drawer. `false` if refused. |
-
-### Expansion
-
-| Method | Description |
-|---|---|
-| `expand(id)` · `collapse(id)` · `toggleNode(id)` | Open / close / flip a branch. |
-| `expandAll()` · `collapseAll()` | All branches. |
-
-### Rail / drawer
-
-| Method / setter | Description |
-|---|---|
-| `toggleCollapsed()` · `collapsed = bool` | Flip expanded ↔ rail. |
-| `openDrawer()` · `closeDrawer()` · `toggleDrawer()` | Drawer state. |
-
-### Data
-
-| Method | Description |
-|---|---|
-| `replaceSections(sections)` | Hot-swap the section forest. Validates duplicates in debug. |
-| `setQuery(q)` · `matchSet()` | Search filter. |
-| `toggleFavorite(id)` · `setFavorites(ids)` | Quick Access. |
-| `recents` · `recentNodes` · `clearRecents()` | MRU history (auto-filled by `navigate`). |
-| `snapshot()` · `restore(s)` | Persistable `NavSidebarStateSnapshot` (JSON). |
-
-### Reads
-
-| Property / method | Description |
-|---|---|
-| `sections` | `List<NavSection<T>>` |
-| `active` / `activeValue` | Active id / typed value. |
-| `collapsed` / `drawerOpen` / `filtering` | State flags. |
-| `isActive(id)` / `isExpanded(id)` / `ownsActive(id)` | Per-node queries. |
-| `node(id)` | `NavNode<T>?` by id. |
-| `matchSet()` | Matching ids + ancestors for the current query. |
-| `favorites` / `favoriteNodes` / `isFavorite(id)` | Quick Access. |
-
----
+RTL affects drawer direction, connector geometry, flyouts, row padding, and
+back-button direction.
 
 ## Theming
 
+### Presets
+
 ```dart
-ThemeData(
-  extensions: [
-    NavigationSidebarThemeData.light.copyWith(
-      surface: const Color(0xFFFFFFFF),
-      bg:      const Color(0xFFF5F3EF),
-      border:  const Color(0xFFDDD7CE),
-    ),
+const light = NavigationSidebarThemeData.light;
+const dark = NavigationSidebarThemeData.dark;
+```
+
+### Customize the extension
+
+```dart
+final sidebarTheme = NavigationSidebarThemeData.light.copyWith(
+  widthExpanded: 280,
+  widthRail: 72,
+  widthDrawer: 304,
+  directHeight: 46,
+  moduleHeight: 46,
+  selectionIndicator: NavSelectionIndicator.bar,
+  indicatorThickness: 3,
+  radiusLg: 12,
+);
+
+final theme = ThemeData(
+  brightness: Brightness.light,
+  extensions: <ThemeExtension<dynamic>>[
+    sidebarTheme,
   ],
-)
+);
 ```
 
----
+### Color tokens
 
-## Architecture
+| Token | Purpose |
+|---|---|---
+| `bg` | Shell background. |
+| `surface` | Sidebar and AppBar surface. |
+| `inputBg` | Search fields, chips, and boxed icons. |
+| `hover` | Hovered control fill. |
+| `border` | Standard dividers and outlines. |
+| `borderStrong` | Strong outlines and flyout borders. |
+| `guide` | Tree connector color. |
+| `fg1` | Primary foreground. |
+| `fg2` | Standard labels. |
+| `fg3` | Secondary labels and icons. |
+| `fg4` | Muted and disabled content. |
 
+Semantic constants are available as `accent`, `success`, `warning`, and
+`danger`.
+
+### Geometry tokens
+
+The extension exposes row heights, sidebar widths, rail and toolbar dimensions,
+icon sizes, radii, gutter spacing, selection-indicator geometry, and shell header
+height. Common properties include:
+
+```text
+directHeight, moduleHeight, groupHeight, itemHeight
+widthExpanded, widthRail, widthDrawer
+railButton, railIconSize
+iconTop, iconItem, itemBox
+toolbarButtonSize, toolbarIconSize
+radiusSm, radiusMd, radiusLg, radiusXl
+gutter, indicatorThickness, indicatorInset, headerHeight
 ```
-lib/
-├── super_navigation_sidebar.dart   public barrel
-└── src/
-    ├── models.dart          NavSection · NavNode · NavBadge · NavBadgeTone
-    │                        NavNodeRole · NavNodeId · NavNodeStatus
-    │                        NavSidebarMode · NavSidebarBreakpoints · NavOps
-    ├── theme.dart           NavigationSidebarThemeData (ThemeExtension)
-    ├── localizations.dart   NavigationSidebarLocalizations
-    ├── controller.dart      NavigationSidebarController (ChangeNotifier)
-    │                        NavigationSidebarScope (InheritedNotifier)
-    ├── sidebar.dart         NavigationSidebar<T> widget
-    │                        _NavRow · _RailItem · _RailFlyout · _FlyoutRow
-    │                        _NavBadgeChip · _ShortcutHint · _StarButton
-    ├── appbar.dart          NavigationSidebarAppBar · NavBreadcrumb<T>
-    │                        NavigationSidebarSearchField
-    ├── search_dialog.dart   NavSearchDialog<T> · NavSearchHit · NavSearchOps
-    │                        showNavSearchDialog
-    └── shell.dart           NavigationShell<T> · NavShellSlotBuilder
+
+Use `NavigationSidebarThemeData.of(context)` inside custom widgets to read the
+resolved extension.
+
+The theme references `Manrope`, `Inter`, and `JetBrainsMono` by family name, but
+the package does not bundle font files. Add those fonts to the host application
+or allow Flutter to use its platform fallback.
+
+## Accessibility
+
+The sidebar includes:
+
+- semantic button, selection, expansion, lock, and disabled states;
+- Enter and Space activation for focused rows;
+- tooltips for rail items, locked nodes, and shortcut hints;
+- accessible labels for drawer, collapse, and back controls;
+- RTL-aware navigation and directional geometry.
+
+Keep destination labels concise and provide meaningful `lockMessage` text when
+using permission-gated nodes.
+
+## Testing
+
+The controller can be tested without rendering the sidebar:
+
+```dart
+import 'package:flutter_test/flutter_test.dart';
+import 'package:super_navigation_sidebar/super_navigation_sidebar.dart';
+
+void main() {
+  test('navigate updates active destination', () {
+    final controller = NavigationSidebarController<String>(
+      sections: <NavSection<String>>[
+        NavSection<String>(
+          title: 'Main',
+          items: <NavNode<String>>[
+            NavNode<String>(
+              id: 'dashboard',
+              label: 'Dashboard',
+              value: '/dashboard',
+            ),
+          ],
+        ),
+      ],
+    );
+
+    addTearDown(controller.dispose);
+
+    expect(controller.navigate('dashboard'), isTrue);
+    expect(controller.active, 'dashboard');
+    expect(controller.activeValue, '/dashboard');
+  });
+}
 ```
 
-**MVC:** immutable `NavNode<T>` models → `NavigationSidebarController<T>`
-(ChangeNotifier) → thin `NavigationSidebar<T>` view →
-`NavigationSidebarThemeData` (ThemeExtension). The controller is published to
-descendant pages via `NavigationSidebarScope<T>` (InheritedNotifier).
+Use `NavOps.findDuplicateIds` in tests that generate navigation trees from
+permissions or remote configuration:
 
----
+```dart
+expect(
+  NavOps.findDuplicateIds<String>(sections),
+  isEmpty,
+);
+```
 
-## Gotchas
+## Public API overview
 
-1. **Host derives `mode`.** Use `LayoutBuilder` + `NavSidebarBreakpoints().modeFor(width)`.
-2. **Role is positional.** Depth determines visual treatment, not an explicit field.
-3. **`value` vs `id`.** `value` is the typed host payload; `id` is the nav identity.
-4. **Drawer must overlay.** Place in `Stack + Positioned.fill`.
-5. **Register the theme extension.** Without it the dark preset is used.
-6. **Shortcuts need a binder.** Keycaps are visual until you wrap the shell in
-   `NavShortcutBinder` (or wire `Shortcuts`/`Actions` yourself).
-7. **No `const NavNode/NavSection` (1.2+).** Constructors are non-const; remove the `const` keyword.
-8. **`navigate()` returns `bool`.** Code calling it in a void context compiles unchanged; only explicit `void` variable assignment needs updating.
-9. **`NavigationSidebar(allowSearchDialog: true)`** — the single switch that enables the search dialog; `showNavSearchDialog` is the imperative escape hatch.
+| API | Purpose |
+|---|---|---
+| `NavigationSidebar<T>` | Renders the navigation pane. |
+| `NavigationShell<T>` | Composes AppBar, pane, and page content. |
+| `NavigationSidebarAppBar` | Sidebar-aware AppBar. |
+| `NavBreadcrumb<T>` | Active-node breadcrumb. |
+| `NavigationSidebarSearchField` | Controller-backed tree search field. |
+| `NavSearchDialog<T>` | Command-palette widget. |
+| `showNavSearchDialog<T>` | Opens the command palette through `Overlay`. |
+| `NavShortcutBinder<T>` | Activates declared keyboard shortcuts. |
+| `NavigationSidebarController<T>` | Owns all navigation state. |
+| `NavigationSidebarScope<T>` | Exposes the controller to descendants. |
+| `NavSidebarStateSnapshot` | JSON-serializable persisted state. |
+| `NavSection<T>` | Navigation section model. |
+| `NavNode<T>` | Typed navigation node model. |
+| `NavNodeId` | Alias for a stable node identifier (`String`). |
+| `NavBadge` | Badge model. |
+| `NavSearchHit` | Flattened command-palette search result. |
+| `NavSidebarBreakpoints` | Resolves a mode from width. |
+| `NavigationSidebarThemeData` | Theme extension and visual tokens. |
+| `NavigationSidebarLocalizations` | User-facing and semantic strings. |
+| `NavOps` | Tree traversal, badge, leaf, and validation utilities. |
+| `NavSearchOps` | Search indexing and filtering utilities. |
+| `NavShortcutOps` | Shortcut parsing and label utilities. |
+| `NavSidebarSlotBuilder` | Builder signature for sidebar header and footer slots. |
+| `NavShellSlotBuilder` | Builder signature for shell surfaces. |
+| `kNavShortcutModifiers` | Recognized modifier names for shortcut declarations. |
 
----
+Public enums include `NavSidebarMode`, `NavNodeRole`, `NavBadgeTone`,
+`NavShortcutMode`, `NavNodeStatus`, `NavSectionPlacement`,
+`NavShellHeaderLayout`, `NavPaneBehavior`, and `NavSelectionIndicator`.
+
+## Recommended practices
+
+- Keep node IDs stable and unique across the entire tree.
+- Store typed route or screen data in `NavNode<T>.value`.
+- Use branches for organization and leaves for destinations.
+- Keep the application router as the source of truth for page navigation.
+- Keep one controller shared by the shell, sidebar, AppBar, and shortcut binder.
+- Dispose externally owned controllers.
+- Use `replaceSections` after permission or tenant changes.
+- Persist `snapshot()` per user when navigation preferences should survive restarts.
+- Use `NavigationShell` instead of duplicating responsive pane layout.
+- Provide localized semantic labels and lock messages.
 
 ## Additional information
 
-- **Changelog:** [CHANGELOG.md](CHANGELOG.md)
-- **Repository:** https://github.com/GeniusSystems24/super_navigation_sidebar
-- **Issues:** https://github.com/GeniusSystems24/super_navigation_sidebar/issues
-- **License:** MIT — see [LICENSE](LICENSE)
+- Repository: <https://github.com/GeniusSystems24/super_navigation_sidebar>
+- Issues: <https://github.com/GeniusSystems24/super_navigation_sidebar/issues>
+- Changelog: [CHANGELOG.md](CHANGELOG.md)
+- License: [LICENSE](LICENSE)
