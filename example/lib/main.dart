@@ -1,4 +1,4 @@
-﻿// super_navigation_sidebar · Example app launcher
+// super_navigation_sidebar · Example app launcher
 //
 // A polished launcher: hero header + responsive card grid, each card carrying
 // a live token-driven mini-preview of the sidebar mode it opens. Every example
@@ -30,8 +30,15 @@ class _ExampleAppState extends State<ExampleApp> {
 
   @override
   Widget build(BuildContext context) {
-    final dark = SuperMaterialThemeData.dark();
-    final light = SuperMaterialThemeData.light();
+    final typography = SuperTextTheme();
+    final dark = SuperMaterialThemeData.dark(
+      textTheme: typography,
+      primaryTextTheme: typography,
+    );
+    final light = SuperMaterialThemeData.light(
+      textTheme: typography,
+      primaryTextTheme: typography,
+    );
     return MaterialApp(
       title: 'super_navigation_sidebar examples',
       debugShowCheckedModeBanner: false,
@@ -763,7 +770,7 @@ class _VersionPill extends StatelessWidget {
         border: Border.all(
             color: NavigationSidebarThemeData.accent.withValues(alpha: 0.35)),
       ),
-      child: const Text('v2.2.1',
+      child: const Text('v2.4.2',
           style: TextStyle(
               fontFamily: NavigationSidebarThemeData.monoFont,
               fontSize: 10.5,

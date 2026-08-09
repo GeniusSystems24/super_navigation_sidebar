@@ -17,7 +17,7 @@ A themeable, responsive **app navigation sidebar**. One data model (titled
 **sections** of a **node tree**) renders in three modes the host picks from
 the available width: a full **expanded** labelled tree with `│ ├ └`
 connectors, an icon-only **rail** whose modules open hover flyouts, and an
-off-canvas **drawer** with a scrim. Zero third-party dependencies.
+off-canvas **drawer** with a scrim. One first-party design-system dependency: `super_core >=3.3.0 <4.0.0`.
 
 > **Live preview:** open [`docs/preview.html`](../../docs/preview.html) — a
 > faithful browser recreation whose controls toggle every feature (modes,
@@ -26,11 +26,26 @@ off-canvas **drawer** with a scrim. Zero third-party dependencies.
 ## Import & theme
 
 ```dart
+import 'package:super_core/super_core.dart';
 import 'package:super_navigation_sidebar/super_navigation_sidebar.dart';
 
-// Register on MaterialApp (falls back to dark if omitted):
-ThemeData(extensions: const [NavigationSidebarThemeData.light]); // + .dark
+final typography = SuperTextTheme();
+final theme = SuperMaterialThemeData.light(
+  textTheme: typography,
+  primaryTextTheme: typography,
+);
 ```
+
+`NavigationSidebarThemeData.of(context)` derives sidebar colors and responsive
+sizing from the ambient `SuperMaterialThemeData` when no explicit sidebar
+extension is registered. A standalone `ThemeData` may still register
+`NavigationSidebarThemeData.light` / `.dark` explicitly.
+
+> **super_core 3.3.0 typography rule:** `textTheme` and `primaryTextTheme` are
+> required `SuperTextTheme` inputs to `SuperMaterialThemeData.light/dark`.
+> Typography is not exposed by `SuperThemeData`. Never generate
+> `context.superTheme.textTheme` or `SuperThemeData.of(context).textTheme`; use
+> `context.superTextTheme` or `SuperMaterialThemeData.of(context).textTheme`.
 
 ## Quick start
 

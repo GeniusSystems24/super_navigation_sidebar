@@ -1,0 +1,363 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 8d1ce9e..d2b8458 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -6,6 +6,22 @@ versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+ 
+ ---
+ 
++## [2.4.2] - 2026-08-10
++
++### Changed
++
++- Raised the minimum `super_core` dependency to `>=3.3.0 <4.0.0`.
++- Updated the runnable example to satisfy the `super_core` 3.3.0 typography API:
++  `SuperMaterialThemeData.light` and `.dark` now receive required
++  `SuperTextTheme` values through `textTheme` and `primaryTextTheme`.
++- Documented that typography no longer comes from `SuperThemeData`; consumers
++  must use `SuperMaterialThemeData.textTheme` / `context.superTextTheme` instead
++  of `context.superTheme.textTheme`.
++- Added regression coverage for deriving `NavigationSidebarThemeData` from a
++  `SuperMaterialThemeData` built with the 3.3.0 API.
++
++---
++
+ ## [2.4.0] - 2026-07-27
+ 
+ ### Changed
+diff --git a/README.md b/README.md
+index de0c557..302d4d6 100644
+--- a/README.md
++++ b/README.md
+@@ -36,7 +36,7 @@ and accessibility support.
+ |---|---:|---
+ | Dart SDK | `>=3.8.0 <4.0.0` |
+ | Flutter | `>=3.32.0` |
+-| `super_core` | `>=3.0.0 <4.0.0` |
++| `super_core` | `>=3.3.0 <4.0.0` |
+ 
+ ## Installation
+ 
+@@ -44,7 +44,7 @@ Add the package to `pubspec.yaml`:
+ 
+ ```yaml
+ dependencies:
+-  super_navigation_sidebar: ^2.4.0
++  super_navigation_sidebar: ^2.4.2
+ ```
+ 
+ Install the dependency:
+@@ -86,6 +86,40 @@ tries to derive its tokens from the ambient `SuperMaterialThemeData` supplied
+ by `super_core`. An explicitly registered `NavigationSidebarThemeData` always
+ takes precedence.
+ 
++### `super_core` 3.3.0 integration
++
++`super_core` 3.3.0 requires both Material typography inputs to be explicit
++`SuperTextTheme` values. When this package is hosted inside a
++`SuperMaterialThemeData`, construct the light/dark themes like this:
++
++```dart
++import 'package:super_core/super_core.dart';
++
++final typography = SuperTextTheme();
++
++final lightTheme = SuperMaterialThemeData.light(
++  textTheme: typography,
++  primaryTextTheme: typography,
++);
++final darkTheme = SuperMaterialThemeData.dark(
++  textTheme: typography,
++  primaryTextTheme: typography,
++);
++
++MaterialApp(
++  theme: lightTheme,
++  darkTheme: darkTheme,
++  home: const AppShell(),
++);
++```
++
++The sidebar continues to derive color and responsive sizing tokens from
++`SuperMaterialThemeData.superTheme`. Typography no longer belongs to
++`SuperThemeData`; use `SuperMaterialThemeData.textTheme` (or
++`context.superTextTheme` when the `super_core` context extension is imported)
++for typography. Do not use `context.superTheme.textTheme` or
++`SuperThemeData.of(context).textTheme`.
++
+ ## Quick start
+ 
+ The recommended setup uses one external controller shared by the sidebar,
+diff --git a/example/lib/main.dart b/example/lib/main.dart
+index 1744e0b..071c7a3 100644
+--- a/example/lib/main.dart
++++ b/example/lib/main.dart
+@@ -1,4 +1,4 @@
+-﻿// super_navigation_sidebar · Example app launcher
++// super_navigation_sidebar · Example app launcher
+ //
+ // A polished launcher: hero header + responsive card grid, each card carrying
+ // a live token-driven mini-preview of the sidebar mode it opens. Every example
+@@ -30,8 +30,15 @@ class _ExampleAppState extends State<ExampleApp> {
+ 
+   @override
+   Widget build(BuildContext context) {
+-    final dark = SuperMaterialThemeData.dark();
+-    final light = SuperMaterialThemeData.light();
++    final typography = SuperTextTheme();
++    final dark = SuperMaterialThemeData.dark(
++      textTheme: typography,
++      primaryTextTheme: typography,
++    );
++    final light = SuperMaterialThemeData.light(
++      textTheme: typography,
++      primaryTextTheme: typography,
++    );
+     return MaterialApp(
+       title: 'super_navigation_sidebar examples',
+       debugShowCheckedModeBanner: false,
+@@ -763,7 +770,7 @@ class _VersionPill extends StatelessWidget {
+         border: Border.all(
+             color: NavigationSidebarThemeData.accent.withValues(alpha: 0.35)),
+       ),
+-      child: const Text('v2.2.1',
++      child: const Text('v2.4.2',
+           style: TextStyle(
+               fontFamily: NavigationSidebarThemeData.monoFont,
+               fontSize: 10.5,
+diff --git a/example/pubspec.yaml b/example/pubspec.yaml
+index d79f166..b259445 100644
+--- a/example/pubspec.yaml
++++ b/example/pubspec.yaml
+@@ -12,7 +12,7 @@ dependencies:
+     sdk: flutter
+   super_navigation_sidebar:
+     path: ../
+-  super_core: ">=3.0.0 <4.0.0"
++  super_core: ">=3.3.0 <4.0.0"
+ 
+ flutter:
+   uses-material-design: true
+diff --git a/lib/src/theme.dart b/lib/src/theme.dart
+index b4f4884..0634f10 100644
+--- a/lib/src/theme.dart
++++ b/lib/src/theme.dart
+@@ -1,4 +1,4 @@
+-﻿// ============================================================
++// ============================================================
+ // NavigationSidebar — THEME.
+ // ------------------------------------------------------------
+ // The component's own ThemeExtension. All visual tokens live here:
+@@ -301,6 +301,11 @@ class NavigationSidebarThemeData
+   /// `theme.superTheme` instead of duplicating hard-coded light/dark hex. Row
+   /// and control sizes follow the active [SuperDeviceMode] via the resolved
+   /// [SuperMetrics]; every other size keeps its sensible default.
++  ///
++  /// In `super_core` 3.3.0 typography is owned by
++  /// [SuperMaterialThemeData.textTheme], not [SuperThemeData]. Do not read
++  /// `theme.superTheme.textTheme` here; sidebar token derivation only needs the
++  /// color and sizing data exposed by [SuperThemeData].
+   factory NavigationSidebarThemeData.fromMaterialTheme(
+     SuperMaterialThemeData theme,
+   ) {
+diff --git a/pubspec.yaml b/pubspec.yaml
+index 0444651..8b15c50 100644
+--- a/pubspec.yaml
++++ b/pubspec.yaml
+@@ -8,7 +8,7 @@ description: >
+   and an integrated NavigationShell (app bar + pane + content).
+   Depends only on the first-party super_core design-system foundation.
+ 
+-version: 2.4.1
++version: 2.4.2
+ 
+ homepage: https://github.com/GeniusSystems24/super_navigation_sidebar
+ repository: https://github.com/GeniusSystems24/super_navigation_sidebar
+@@ -24,8 +24,8 @@ dependencies:
+   # Shared GeniusLink design-system foundation — provides SuperMaterialThemeData
+   # / SuperThemeData so the sidebar derives palette-, brightness- and
+   # device-mode-aware tokens automatically via
+-  # NavigationSidebarThemeData.fromMaterialTheme (v2.3.2).
+-  super_core: ">=3.0.0 <4.0.0"
++  # NavigationSidebarThemeData.fromMaterialTheme (v2.4.2 / super_core 3.3.0).
++  super_core: ">=3.3.0 <4.0.0"
+ 
+ dev_dependencies:
+   flutter_test:
+diff --git a/skill/chatgpt_codex/AGENTS.md b/skill/chatgpt_codex/AGENTS.md
+index 1d1dde8..4064902 100644
+--- a/skill/chatgpt_codex/AGENTS.md
++++ b/skill/chatgpt_codex/AGENTS.md
+@@ -10,7 +10,7 @@ package.
+ 
+ ```
+ name:    super_navigation_sidebar
+-version: 2.3.2
++version: 2.4.2
+ import:  package:super_navigation_sidebar/super_navigation_sidebar.dart
+ ```
+ 
+@@ -29,20 +29,38 @@ Apply this skill when the user asks for:
+ 
+ ```yaml
+ dependencies:
+-  super_navigation_sidebar: ^2.2.1
++  super_navigation_sidebar: ^2.4.2
+ ```
+ 
+-### 2 · Register the theme extension
++### 2 · Integrate with `super_core` 3.3.0
+ 
+ ```dart
++import 'package:super_core/super_core.dart';
+ import 'package:super_navigation_sidebar/super_navigation_sidebar.dart';
+ 
++final typography = SuperTextTheme();
++
+ MaterialApp(
+-  theme:     ThemeData(extensions: const [NavigationSidebarThemeData.light]),
+-  darkTheme: ThemeData(extensions: const [NavigationSidebarThemeData.dark]),
++  theme: SuperMaterialThemeData.light(
++    textTheme: typography,
++    primaryTextTheme: typography,
++  ),
++  darkTheme: SuperMaterialThemeData.dark(
++    textTheme: typography,
++    primaryTextTheme: typography,
++  ),
+ )
+ ```
+ 
++The sidebar automatically derives its colors and responsive sizes from the
++ambient `SuperMaterialThemeData` unless an explicit
++`NavigationSidebarThemeData` extension is registered.
++
++**super_core 3.3.0 rule:** `textTheme` and `primaryTextTheme` are required
++`SuperTextTheme` values. `SuperThemeData` no longer exposes `textTheme`; never
++use `context.superTheme.textTheme` or `SuperThemeData.of(context).textTheme`.
++Use `context.superTextTheme` or `SuperMaterialThemeData.of(context).textTheme`.
++
+ ---
+ 
+ ## Core API cheatsheet
+diff --git a/skill/chatgpt_codex/EXAMPLES.md b/skill/chatgpt_codex/EXAMPLES.md
+index c3f6fd9..23f3977 100644
+--- a/skill/chatgpt_codex/EXAMPLES.md
++++ b/skill/chatgpt_codex/EXAMPLES.md
+@@ -1,7 +1,9 @@
+ # super_navigation_sidebar — professional examples
+ 
+ Realistic, copy-ready recipes. Each assumes the import +
+-`NavigationSidebarThemeData` registration from AGENTS.md.
++theme setup from AGENTS.md. With `super_core` 3.3.0, construct
++`SuperMaterialThemeData.light/dark` with required `SuperTextTheme` values for
++`textTheme` and `primaryTextTheme`; do not read typography from `SuperThemeData`.
+ 
+ ---
+ 
+diff --git a/skill/claude_code/EXAMPLES.md b/skill/claude_code/EXAMPLES.md
+index 77032d0..540d892 100644
+--- a/skill/claude_code/EXAMPLES.md
++++ b/skill/claude_code/EXAMPLES.md
+@@ -1,7 +1,9 @@
+ # super_navigation_sidebar — professional examples
+ 
+ Realistic, copy-ready recipes. Each assumes the import +
+-`NavigationSidebarThemeData` registration from SKILL.md.
++theme setup from SKILL.md. With `super_core` 3.3.0, construct
++`SuperMaterialThemeData.light/dark` with required `SuperTextTheme` values for
++`textTheme` and `primaryTextTheme`; do not read typography from `SuperThemeData`.
+ 
+ ---
+ 
+diff --git a/skill/claude_code/SKILL.md b/skill/claude_code/SKILL.md
+index 6f6d4fc..aba2361 100644
+--- a/skill/claude_code/SKILL.md
++++ b/skill/claude_code/SKILL.md
+@@ -17,7 +17,7 @@ A themeable, responsive **app navigation sidebar**. One data model (titled
+ **sections** of a **node tree**) renders in three modes the host picks from
+ the available width: a full **expanded** labelled tree with `│ ├ └`
+ connectors, an icon-only **rail** whose modules open hover flyouts, and an
+-off-canvas **drawer** with a scrim. Zero third-party dependencies.
++off-canvas **drawer** with a scrim. One first-party design-system dependency: `super_core >=3.3.0 <4.0.0`.
+ 
+ > **Live preview:** open [`docs/preview.html`](../../docs/preview.html) — a
+ > faithful browser recreation whose controls toggle every feature (modes,
+@@ -26,12 +26,27 @@ off-canvas **drawer** with a scrim. Zero third-party dependencies.
+ ## Import & theme
+ 
+ ```dart
++import 'package:super_core/super_core.dart';
+ import 'package:super_navigation_sidebar/super_navigation_sidebar.dart';
+ 
+-// Register on MaterialApp (falls back to dark if omitted):
+-ThemeData(extensions: const [NavigationSidebarThemeData.light]); // + .dark
++final typography = SuperTextTheme();
++final theme = SuperMaterialThemeData.light(
++  textTheme: typography,
++  primaryTextTheme: typography,
++);
+ ```
+ 
++`NavigationSidebarThemeData.of(context)` derives sidebar colors and responsive
++sizing from the ambient `SuperMaterialThemeData` when no explicit sidebar
++extension is registered. A standalone `ThemeData` may still register
++`NavigationSidebarThemeData.light` / `.dark` explicitly.
++
++> **super_core 3.3.0 typography rule:** `textTheme` and `primaryTextTheme` are
++> required `SuperTextTheme` inputs to `SuperMaterialThemeData.light/dark`.
++> Typography is not exposed by `SuperThemeData`. Never generate
++> `context.superTheme.textTheme` or `SuperThemeData.of(context).textTheme`; use
++> `context.superTextTheme` or `SuperMaterialThemeData.of(context).textTheme`.
++
+ ## Quick start
+ 
+ ```dart
+diff --git a/test/navigation_sidebar_test.dart b/test/navigation_sidebar_test.dart
+index 2ecd6f2..b697cb7 100644
+--- a/test/navigation_sidebar_test.dart
++++ b/test/navigation_sidebar_test.dart
+@@ -15,6 +15,7 @@
+ import 'package:flutter/material.dart';
+ import 'package:flutter/services.dart';
+ import 'package:flutter_test/flutter_test.dart';
++import 'package:super_core/super_core.dart';
+ import 'package:super_navigation_sidebar/super_navigation_sidebar.dart';
+ 
+ // ── helpers ────────────────────────────────────────────────────────
+@@ -94,6 +95,35 @@ Widget _wrap(Widget child, {bool dark = true, bool rtl = false}) {
+ // 1. NavigationSidebarLocalizations
+ // ════════════════════════════════════════════════════════════
+ void main() {
++  testWidgets(
++    'derives theme from super_core 3.3.0 SuperMaterialThemeData',
++    (tester) async {
++      final typography = SuperTextTheme();
++      final materialTheme = SuperMaterialThemeData.light(
++        textTheme: typography,
++        primaryTextTheme: typography,
++      );
++
++      late NavigationSidebarThemeData resolved;
++      await tester.pumpWidget(
++        MaterialApp(
++          theme: materialTheme,
++          home: Builder(
++            builder: (context) {
++              resolved = NavigationSidebarThemeData.of(context);
++              return const SizedBox();
++            },
++          ),
++        ),
++      );
++
++      expect(resolved.bg, materialTheme.superTheme.bg);
++      expect(resolved.surface, materialTheme.superTheme.surface);
++      expect(resolved.fg1, materialTheme.superTheme.fg1);
++      expect(resolved.railButton, materialTheme.superTheme.sizing.iconButton);
++    },
++  );
++
+   group('NavigationSidebarLocalizations', () {
+     test('default English strings are non-empty', () {
+       const l10n = NavigationSidebarLocalizations();

@@ -6,6 +6,22 @@ versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [2.4.2] - 2026-08-10
+
+### Changed
+
+- Raised the minimum `super_core` dependency to `>=3.3.0 <4.0.0`.
+- Updated the runnable example to satisfy the `super_core` 3.3.0 typography API:
+  `SuperMaterialThemeData.light` and `.dark` now receive required
+  `SuperTextTheme` values through `textTheme` and `primaryTextTheme`.
+- Documented that typography no longer comes from `SuperThemeData`; consumers
+  must use `SuperMaterialThemeData.textTheme` / `context.superTextTheme` instead
+  of `context.superTheme.textTheme`.
+- Added regression coverage for deriving `NavigationSidebarThemeData` from a
+  `SuperMaterialThemeData` built with the 3.3.0 API.
+
+---
+
 ## [2.4.0] - 2026-07-27
 
 ### Changed

@@ -15,6 +15,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:super_core/super_core.dart';
 import 'package:super_navigation_sidebar/super_navigation_sidebar.dart';
 
 // ── helpers ────────────────────────────────────────────────────────
@@ -94,6 +95,35 @@ Widget _wrap(Widget child, {bool dark = true, bool rtl = false}) {
 // 1. NavigationSidebarLocalizations
 // ════════════════════════════════════════════════════════════
 void main() {
+  testWidgets(
+    'derives theme from super_core 3.3.0 SuperMaterialThemeData',
+    (tester) async {
+      final typography = SuperTextTheme();
+      final materialTheme = SuperMaterialThemeData.light(
+        textTheme: typography,
+        primaryTextTheme: typography,
+      );
+
+      late NavigationSidebarThemeData resolved;
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: materialTheme,
+          home: Builder(
+            builder: (context) {
+              resolved = NavigationSidebarThemeData.of(context);
+              return const SizedBox();
+            },
+          ),
+        ),
+      );
+
+      expect(resolved.bg, materialTheme.superTheme.bg);
+      expect(resolved.surface, materialTheme.superTheme.surface);
+      expect(resolved.fg1, materialTheme.superTheme.fg1);
+      expect(resolved.railButton, materialTheme.superTheme.sizing.iconButton);
+    },
+  );
+
   group('NavigationSidebarLocalizations', () {
     test('default English strings are non-empty', () {
       const l10n = NavigationSidebarLocalizations();

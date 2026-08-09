@@ -1,4 +1,4 @@
-﻿// ============================================================
+// ============================================================
 // NavigationSidebar — THEME.
 // ------------------------------------------------------------
 // The component's own ThemeExtension. All visual tokens live here:
@@ -301,6 +301,11 @@ class NavigationSidebarThemeData
   /// `theme.superTheme` instead of duplicating hard-coded light/dark hex. Row
   /// and control sizes follow the active [SuperDeviceMode] via the resolved
   /// [SuperMetrics]; every other size keeps its sensible default.
+  ///
+  /// In `super_core` 3.3.0 typography is owned by
+  /// [SuperMaterialThemeData.textTheme], not [SuperThemeData]. Do not read
+  /// `theme.superTheme.textTheme` here; sidebar token derivation only needs the
+  /// color and sizing data exposed by [SuperThemeData].
   factory NavigationSidebarThemeData.fromMaterialTheme(
     SuperMaterialThemeData theme,
   ) {

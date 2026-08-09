@@ -1,7 +1,9 @@
 # super_navigation_sidebar — professional examples
 
 Realistic, copy-ready recipes. Each assumes the import +
-`NavigationSidebarThemeData` registration from SKILL.md.
+theme setup from SKILL.md. With `super_core` 3.3.0, construct
+`SuperMaterialThemeData.light/dark` with required `SuperTextTheme` values for
+`textTheme` and `primaryTextTheme`; do not read typography from `SuperThemeData`.
 
 ---
 

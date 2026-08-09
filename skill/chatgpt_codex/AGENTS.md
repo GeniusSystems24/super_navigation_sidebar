@@ -10,7 +10,7 @@ package.
 
 ```
 name:    super_navigation_sidebar
-version: 2.3.2
+version: 2.4.2
 import:  package:super_navigation_sidebar/super_navigation_sidebar.dart
 ```
 
@@ -29,19 +29,37 @@ Apply this skill when the user asks for:
 
 ```yaml
 dependencies:
-  super_navigation_sidebar: ^2.2.1
+  super_navigation_sidebar: ^2.4.2
 ```
 
-### 2 · Register the theme extension
+### 2 · Integrate with `super_core` 3.3.0
 
 ```dart
+import 'package:super_core/super_core.dart';
 import 'package:super_navigation_sidebar/super_navigation_sidebar.dart';
 
+final typography = SuperTextTheme();
+
 MaterialApp(
-  theme:     ThemeData(extensions: const [NavigationSidebarThemeData.light]),
-  darkTheme: ThemeData(extensions: const [NavigationSidebarThemeData.dark]),
+  theme: SuperMaterialThemeData.light(
+    textTheme: typography,
+    primaryTextTheme: typography,
+  ),
+  darkTheme: SuperMaterialThemeData.dark(
+    textTheme: typography,
+    primaryTextTheme: typography,
+  ),
 )
 ```
+
+The sidebar automatically derives its colors and responsive sizes from the
+ambient `SuperMaterialThemeData` unless an explicit
+`NavigationSidebarThemeData` extension is registered.
+
+**super_core 3.3.0 rule:** `textTheme` and `primaryTextTheme` are required
+`SuperTextTheme` values. `SuperThemeData` no longer exposes `textTheme`; never
+use `context.superTheme.textTheme` or `SuperThemeData.of(context).textTheme`.
+Use `context.superTextTheme` or `SuperMaterialThemeData.of(context).textTheme`.
 
 ---
 

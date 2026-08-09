@@ -36,7 +36,7 @@ and accessibility support.
 |---|---:|---
 | Dart SDK | `>=3.8.0 <4.0.0` |
 | Flutter | `>=3.32.0` |
-| `super_core` | `>=3.0.0 <4.0.0` |
+| `super_core` | `>=3.3.0 <4.0.0` |
 
 ## Installation
 
@@ -44,7 +44,7 @@ Add the package to `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  super_navigation_sidebar: ^2.4.0
+  super_navigation_sidebar: ^2.4.2
 ```
 
 Install the dependency:
@@ -85,6 +85,40 @@ When the extension is not registered, `NavigationSidebarThemeData.of(context)`
 tries to derive its tokens from the ambient `SuperMaterialThemeData` supplied
 by `super_core`. An explicitly registered `NavigationSidebarThemeData` always
 takes precedence.
+
+### `super_core` 3.3.0 integration
+
+`super_core` 3.3.0 requires both Material typography inputs to be explicit
+`SuperTextTheme` values. When this package is hosted inside a
+`SuperMaterialThemeData`, construct the light/dark themes like this:
+
+```dart
+import 'package:super_core/super_core.dart';
+
+final typography = SuperTextTheme();
+
+final lightTheme = SuperMaterialThemeData.light(
+  textTheme: typography,
+  primaryTextTheme: typography,
+);
+final darkTheme = SuperMaterialThemeData.dark(
+  textTheme: typography,
+  primaryTextTheme: typography,
+);
+
+MaterialApp(
+  theme: lightTheme,
+  darkTheme: darkTheme,
+  home: const AppShell(),
+);
+```
+
+The sidebar continues to derive color and responsive sizing tokens from
+`SuperMaterialThemeData.superTheme`. Typography no longer belongs to
+`SuperThemeData`; use `SuperMaterialThemeData.textTheme` (or
+`context.superTextTheme` when the `super_core` context extension is imported)
+for typography. Do not use `context.superTheme.textTheme` or
+`SuperThemeData.of(context).textTheme`.
 
 ## Quick start
 
