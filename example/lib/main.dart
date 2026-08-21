@@ -12,8 +12,7 @@ import 'example_01_responsive_shell.dart';
 import 'example_02_admin_dashboard.dart';
 import 'example_03_theme_rtl.dart';
 import 'example_04_erp_banking.dart';
-import 'example_05_appbar_integration.dart';
-import 'example_06_navigation_shell.dart';
+import 'example_05_navigation_search_view.dart';
 import 'example_07_kitchen_sink.dart';
 import 'navigation_sidebar_demo.dart';
 
@@ -40,7 +39,7 @@ class _ExampleAppState extends State<ExampleApp> {
       primaryTextTheme: typography,
     );
     return MaterialApp(
-      title: 'super_navigation_sidebar examples',
+      title: 'super_navigation_sidebar 3.0.0 examples',
       debugShowCheckedModeBanner: false,
       theme: light.copyWith(
         extensions:  [NavigationSidebarThemeData.fromMaterialTheme(light)],
@@ -72,12 +71,12 @@ class LauncherScreen extends StatelessWidget {
 
     final demos = <_Demo>[
       _Demo(
-        title: 'Kitchen sink — every feature (2.2)',
-        subtitle: 'One workbench with the full surface: shell layouts, working '
-            'Ctrl+Shift shortcuts, screen codes + keyword search, palette with '
-            'keyboard + Recent band, snapshot save/restore, badge roll-up, '
-            'favorites, locked/status nodes, RTL — all behind live toggles.',
-        badge: 'ALL · shortcuts · codes · recents · snapshot',
+        title: 'Kitchen sink — every feature (3.0)',
+        subtitle: 'One workbench with the full 3.0 surface: adaptive pane layouts, '
+            'screen codes + keyword search, dialog/sheet NavigationSearchView, '
+            'recent navigation, snapshot save/restore, badge roll-up, favorites, '
+            'locked/status nodes and RTL — all behind live toggles.',
+        badge: 'ALL · search view · codes · recents · snapshot',
         preview: const _SidebarThumb(
             mode: _Mode.expanded, activeIndex: 2, badges: true, erp: true),
         screen: const KitchenSinkExample(),
@@ -95,10 +94,10 @@ class LauncherScreen extends StatelessWidget {
       _Demo(
         title: 'Admin dashboard',
         subtitle:
-            '15+ nodes across 4 sections with badge tones and shortcut hints. '
+            '15+ nodes across 4 sections with badge tones, favorites and search. '
             'Deep-link from page content via of(context), and live badge updates '
             'through replaceSections.',
-        badge: 'badges · shortcuts · of(context)',
+        badge: 'badges · favorites · search · of(context)',
         preview: const _SidebarThumb(
             mode: _Mode.expanded, activeIndex: 2, badges: true),
         screen: const AdminDashboardExample(),
@@ -125,30 +124,21 @@ class LauncherScreen extends StatelessWidget {
         screen: const ErpBankingExample(),
       ),
       _Demo(
-        title: 'AppBar integration',
-        subtitle: 'NavigationSidebarAppBar connected to the same controller — '
-            'breadcrumb, global search, collapse toggle, workspace switcher, '
-            'notifications and user avatar. Toggle between drawer and desktop layouts.',
-        badge: 'appbar · breadcrumb · search',
-        preview: const _SidebarThumb(mode: _Mode.expanded, activeIndex: 0),
-        screen: const AppBarIntegrationExample(),
-      ),
-      _Demo(
-        title: 'Integrated NavigationShell',
+        title: 'NavigationSearchView',
         subtitle:
-            'The 2.0 shell composes app bar + pane + content in one widget. '
-            'Live toggles for header layout (spanning · inset), pane behavior '
-            '(push · overlay), Fluent bar indicator, a working back button and '
-            'pinned footer nav items.',
-        badge: 'shell · back · overlay · footer',
-        preview: const _SidebarThumb(mode: _Mode.expanded, activeIndex: 1),
-        screen: const NavigationShellExample(),
+            'The reusable 3.0 search experience shown inline, in a dialog, or '
+            'as a modal bottom sheet. It shares the same controller and typed '
+            'navigation tree used by NavigationSidebar.',
+        badge: 'embedded · dialog · sheet',
+        preview: const _SidebarThumb(
+            mode: _Mode.expanded, activeIndex: 1, badges: true),
+        screen: const NavigationSearchViewExample(),
       ),
       _Demo(
         title: 'Full component workbench',
         subtitle:
             'The original showcase — device simulator, all three modes, live '
-            'Light/Dark, LTR/RTL, command palette, and workspace + user menus.',
+            'Light/Dark, LTR/RTL, sidebar search, and workspace + user menus.',
         badge: 'Original',
         preview: const _SidebarThumb(mode: _Mode.rail, activeIndex: 1),
         screen: const NavigationSidebarDemo(),
@@ -202,8 +192,8 @@ class LauncherScreen extends StatelessWidget {
                             child: Text(
                               'One typed NavNode<T> tree renders as an expanded '
                               'tree, an icon rail with flyouts, or an off-canvas '
-                              'drawer. Badges, shortcut hints, header/footer slots '
-                              'and RTL included. Open any example to try it live.',
+                              'drawer. Search, badges, favorites, header/footer slots and RTL '
+                              'are included. Open any example to try it live.',
                               style: TextStyle(
                                   fontFamily:
                                       NavigationSidebarThemeData.bodyFont,
@@ -300,7 +290,7 @@ class _DemoCardState extends State<_DemoCard> {
           duration: NavigationSidebarThemeData.durFast,
           curve: NavigationSidebarThemeData.curveStandard,
           transform: _h
-              ? (Matrix4.identity()..translate(0.0, -4.0))
+              ? Matrix4.translationValues(0.0, -4.0, 0.0)
               : Matrix4.identity(),
           decoration: BoxDecoration(
             color: s.surface,
@@ -770,7 +760,7 @@ class _VersionPill extends StatelessWidget {
         border: Border.all(
             color: NavigationSidebarThemeData.accent.withValues(alpha: 0.35)),
       ),
-      child: const Text('v2.4.2',
+      child: const Text('v3.0.0',
           style: TextStyle(
               fontFamily: NavigationSidebarThemeData.monoFont,
               fontSize: 10.5,

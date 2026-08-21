@@ -1,4 +1,4 @@
-﻿// ============================================================
+// ============================================================
 // NavigationSidebar — example screen.
 // ------------------------------------------------------------
 // A faithful Flutter reproduction of the GeniusLink web
@@ -39,8 +39,8 @@ const _paperclip = Icons.attach_file;
 const _check = Icons.check;
 const _lock = Icons.lock_outline;
 
-NavNode<String> _leaf(String id, String label, IconData icon, {NavBadge? badge, List<String>? keys}) =>
-    NavNode<String>(id: id, label: label, icon: icon, value: id, badge: badge, shortcut: keys);
+NavNode<String> _leaf(String id, String label, IconData icon, {NavBadge? badge}) =>
+    NavNode<String>(id: id, label: label, icon: icon, value: id, badge: badge);
 
 NavNode<String> _group(String id, String label, List<NavNode<String>> items) =>
     NavNode<String>(id: id, label: label, children: items);
@@ -48,14 +48,14 @@ NavNode<String> _group(String id, String label, List<NavNode<String>> items) =>
 // Full mirror of the web HUB_TABS / NAV_SECTIONS tree.
 final List<NavSection<String>> kNavSections = [
   NavSection(title: 'Overview', items: [
-    _leaf('dashboard', 'Dashboard', _briefcase, keys: ['g', 'd']),
-    _leaf('invDashboard', 'Inventory Dashboard', _scanner, keys: ['g', 'i']),
+    _leaf('dashboard', 'Dashboard', _briefcase),
+    _leaf('invDashboard', 'Inventory Dashboard', _scanner),
   ]),
   NavSection(title: 'Finance', items: [
     NavNode(id: 'accountsHub', label: 'Accounts', icon: _ledger, children: [
       _group('accountsHub:coa', 'Chart of Accounts', [
         _leaf('accounts', 'Chart of Accounts', _ledger),
-        _leaf('accountTree', 'Account Tree', _briefcase, keys: ['g', 't']),
+        _leaf('accountTree', 'Account Tree', _briefcase),
         _leaf('createAccount', 'Create Account', _plus),
       ]),
       _group('accountsHub:groups', 'Account Groups', [
@@ -64,7 +64,7 @@ final List<NavSection<String>> kNavSections = [
     ]),
     NavNode(id: 'ledgerHub', label: 'Ledger', icon: _ledger, children: [
       _group('ledgerHub:je', 'Journal Entries', [
-        _leaf('journals', 'Journal Entries', _ledger, badge: const NavBadge('3'), keys: ['g', 'j']),
+        _leaf('journals', 'Journal Entries', _ledger, badge: const NavBadge('3')),
         _leaf('createJournal', 'Create Journal Entry', _plus),
         _leaf('journal', 'Opening Journal', _ledger),
       ]),
@@ -81,7 +81,7 @@ final List<NavSection<String>> kNavSections = [
     ]),
     NavNode(id: 'reportsHub', label: 'Reports', icon: _doc, children: [
       _group('reportsHub:fin', 'Financial', [
-        _leaf('trialBalance', 'Trial Balance', _ledger, keys: ['g', 'b']),
+        _leaf('trialBalance', 'Trial Balance', _ledger),
         _leaf('incomeStmt', 'Income Statement', _doc),
         _leaf('balanceSheet', 'Balance Sheet', _doc),
       ]),
@@ -96,7 +96,7 @@ final List<NavSection<String>> kNavSections = [
   NavSection(title: 'Operations', items: [
     NavNode(id: 'storesHub', label: 'Inventory & Stores', icon: _store, children: [
       _group('storesHub:catalog', 'Catalog', [
-        _leaf('products', 'Products', _scanner, keys: ['g', 'p']),
+        _leaf('products', 'Products', _scanner),
         _leaf('categories', 'Categories', _briefcase),
         _leaf('uom', 'Units of Measure', _compass),
         _leaf('priceLists', 'Price Lists', _ledger),
@@ -399,7 +399,7 @@ class _NavShell extends StatelessWidget {
                 child: NavigationSidebar<String>(
                   controller: controller,
                   mode: NavSidebarMode.drawer,
-                  allowSearchDialog: true,
+                  allowSearchView: true,
                   searchHint: 'Search tabs & actions…',
                   footer: footer,
                 ),
@@ -421,7 +421,7 @@ class _NavShell extends StatelessWidget {
             NavigationSidebar<String>(
               controller: controller,
               mode: sidebarMode,
-              allowSearchDialog: true,
+              allowSearchView: true,
               searchHint: 'Search tabs & actions…',
               footer: footer,
             ),

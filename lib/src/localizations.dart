@@ -76,16 +76,6 @@ class NavigationSidebarLocalizations {
   /// [NavNode.lockMessage] is `null`.
   final String lockedDefault;
 
-  // ── Shortcut hints ─────────────────────────────────────────
-  /// Text prepended to the shortcut tooltip.
-  ///
-  /// Default: `'Shortcut · '` — produces `'Shortcut · G then D'`.
-  final String shortcutPrefix;
-
-  /// Separator between keys in the shortcut tooltip.
-  ///
-  /// Default: `' then '` — produces `'G then D'`.
-  final String shortcutSeparator;
 
   // ── Semantic / accessibility labels ────────────────────────
   /// Appended to a branch node's semantic label when it is expanded.
@@ -106,8 +96,6 @@ class NavigationSidebarLocalizations {
   /// Semantic label for the hamburger / open-drawer button in drawer mode.
   final String semanticOpenDrawer;
 
-  /// Semantic label for the back button in [NavigationSidebarAppBar].
-  final String semanticBack;
 
   const NavigationSidebarLocalizations({
     this.searchHint = 'Search navigation…',
@@ -119,15 +107,12 @@ class NavigationSidebarLocalizations {
     this.removeFromQuickAccess = 'Remove from Quick Access',
     this.recentsTitle = 'Recent',
     this.lockedDefault = "Locked — you don't have access",
-    this.shortcutPrefix = 'Shortcut · ',
-    this.shortcutSeparator = ' then ',
     this.semanticExpanded = 'expanded',
     this.semanticCollapsed = 'collapsed',
     this.semanticLocked = 'locked',
     this.semanticDisabled = 'disabled',
     this.semanticToggleSidebar = 'Toggle sidebar',
     this.semanticOpenDrawer = 'Open navigation',
-    this.semanticBack = 'Back',
   });
 
   // ── Built-in presets ───────────────────────────────────────
@@ -145,15 +130,12 @@ class NavigationSidebarLocalizations {
         removeFromQuickAccess: 'إزالة من الوصول السريع',
         recentsTitle: 'الأخيرة',
         lockedDefault: 'مقفل — ليس لديك صلاحية الوصول',
-        shortcutPrefix: 'اختصار · ',
-        shortcutSeparator: ' ثم ',
         semanticExpanded: 'مفتوح',
         semanticCollapsed: 'مغلق',
         semanticLocked: 'مقفل',
         semanticDisabled: 'غير متاح',
         semanticToggleSidebar: 'تبديل الشريط الجانبي',
         semanticOpenDrawer: 'فتح القائمة',
-        semanticBack: 'رجوع',
       );
 
   // ── Helpers ────────────────────────────────────────────────
@@ -164,18 +146,6 @@ class NavigationSidebarLocalizations {
   String searchEmptyFor(String query) =>
       searchEmpty.replaceAll('{query}', query);
 
-  /// Builds the full shortcut tooltip string from a key list.
-  ///
-  /// Example: `shortcutTooltip(['g', 'd'])` → `'Shortcut · G then D'`.
-  String shortcutTooltip(List<String> keys) {
-    if (keys.isEmpty) return '';
-    if (NavShortcutOps.isCombo(keys)) {
-      final combo = keys.map(NavShortcutOps.keyLabel).join(' + ');
-      return '$shortcutPrefix$combo';
-    }
-    final pretty = keys.map((k) => k.toUpperCase()).join(shortcutSeparator);
-    return '$shortcutPrefix$pretty';
-  }
 
   @override
   bool operator ==(Object other) =>
@@ -190,15 +160,12 @@ class NavigationSidebarLocalizations {
           other.removeFromQuickAccess == removeFromQuickAccess &&
           other.recentsTitle == recentsTitle &&
           other.lockedDefault == lockedDefault &&
-          other.shortcutPrefix == shortcutPrefix &&
-          other.shortcutSeparator == shortcutSeparator &&
           other.semanticExpanded == semanticExpanded &&
           other.semanticCollapsed == semanticCollapsed &&
           other.semanticLocked == semanticLocked &&
           other.semanticDisabled == semanticDisabled &&
           other.semanticToggleSidebar == semanticToggleSidebar &&
-          other.semanticOpenDrawer == semanticOpenDrawer &&
-          other.semanticBack == semanticBack;
+          other.semanticOpenDrawer == semanticOpenDrawer;
 
   @override
   int get hashCode => Object.hash(
@@ -211,14 +178,11 @@ class NavigationSidebarLocalizations {
     removeFromQuickAccess,
     recentsTitle,
     lockedDefault,
-    shortcutPrefix,
-    shortcutSeparator,
     semanticExpanded,
     semanticCollapsed,
     semanticLocked,
     semanticDisabled,
     semanticToggleSidebar,
     semanticOpenDrawer,
-    semanticBack,
   );
 }

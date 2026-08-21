@@ -1,0 +1,177 @@
+import 'package:flutter/material.dart';
+import 'package:super_navigation_sidebar/super_navigation_sidebar.dart';
+
+class NavigationSearchViewExample extends StatefulWidget {
+  const NavigationSearchViewExample({super.key});
+
+  @override
+  State<NavigationSearchViewExample> createState() =>
+      _NavigationSearchViewExampleState();
+}
+
+class _NavigationSearchViewExampleState
+    extends State<NavigationSearchViewExample> {
+  late final NavigationSidebarController<String> _nav;
+
+  static final _sections = <NavSection<String>>[
+    NavSection<String>(
+      title: 'Workspace',
+      items: [
+        NavNode(
+          id: 'dashboard',
+          label: 'Dashboard',
+          code: 'DB01',
+          keywords: const ['home', 'overview'],
+          icon: Icons.dashboard_outlined,
+          value: 'dashboard',
+        ),
+        NavNode(
+          id: 'finance',
+          label: 'Finance',
+          icon: Icons.account_balance_outlined,
+          children: [
+            NavNode(
+              id: 'ledger',
+              label: 'General ledger',
+              children: [
+                NavNode(
+                  id: 'accounts',
+                  label: 'Chart of accounts',
+                  code: 'COA',
+                  keywords: const ['account tree', 'ledger'],
+                  icon: Icons.account_tree_outlined,
+                  value: 'accounts',
+                ),
+                NavNode(
+                  id: 'journals',
+                  label: 'Journal entries',
+                  code: 'JE01',
+                  keywords: const ['voucher', 'posting', 'قيد'],
+                  icon: Icons.receipt_long_outlined,
+                  badge: const NavBadge('8', tone: NavBadgeTone.warning),
+                  value: 'journals',
+                ),
+              ],
+            ),
+          ],
+        ),
+        NavNode(
+          id: 'inventory',
+          label: 'Inventory',
+          code: 'INV01',
+          keywords: const ['stock', 'products'],
+          icon: Icons.inventory_2_outlined,
+          value: 'inventory',
+        ),
+      ],
+    ),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _nav = NavigationSidebarController<String>(
+      sections: _sections,
+      active: 'dashboard',
+    );
+  }
+
+  @override
+  void dispose() {
+    _nav.dispose();
+    super.dispose();
+  }
+
+  void _pick(NavNodeId id) {
+    if (_nav.navigate(id)) setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = NavigationSidebarThemeData.of(context);
+    return Material(
+      color: theme.bg,
+      child: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final wide = constraints.maxWidth >= 900;
+            return Row(
+              children: [
+                if (wide)
+                  NavigationSidebar<String>(
+                    controller: _nav,
+                    mode: NavSidebarMode.expanded,
+                    allowSearchView: true,
+                    searchViewMode: NavigationSearchViewMode.dialog,
+                    onNavigate: (_) => setState(() {}),
+                  ),
+                Expanded(
+                  child: ListView(
+                    padding: const EdgeInsets.all(24),
+                    children: [
+                      Text(
+                        'NavigationSearchView',
+                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                              color: theme.fg1,
+                              fontWeight: FontWeight.w700,
+                            ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'The same reusable search surface can be embedded, opened as a dialog, or opened as a modal bottom sheet.',
+                        style: TextStyle(color: theme.fg3, height: 1.5),
+                      ),
+                      const SizedBox(height: 20),
+                      Wrap(
+                        spacing: 12,
+                        runSpacing: 12,
+                        children: [
+                          FilledButton.icon(
+                            onPressed: () => showNavigationSearchView<String>(
+                              context,
+                              controller: _nav,
+                              mode: NavigationSearchViewMode.dialog,
+                              onPick: _pick,
+                            ),
+                            icon: const Icon(Icons.open_in_new),
+                            label: const Text('Open dialog'),
+                          ),
+                          OutlinedButton.icon(
+                            onPressed: () => showNavigationSearchView<String>(
+                              context,
+                              controller: _nav,
+                              mode: NavigationSearchViewMode.sheet,
+                              onPick: _pick,
+                            ),
+                            icon: const Icon(Icons.vertical_align_top),
+                            label: const Text('Open sheet'),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      Text(
+                        'Active: ${_nav.node(_nav.active ?? '')?.label ?? 'None'}',
+                        style: TextStyle(color: theme.fg2, fontWeight: FontWeight.w600),
+                      ),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        height: 520,
+                        child: NavigationSearchView<String>(
+                          controller: _nav,
+                          autofocus: false,
+                          closeOnPick: false,
+                          onPick: _pick,
+                          onClose: null,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+}

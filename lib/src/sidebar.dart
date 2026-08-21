@@ -1,4 +1,4 @@
-﻿// ============================================================
+// ============================================================
 // NavigationSidebar — VIEW.
 // ------------------------------------------------------------
 // A thin, customisable render of NavigationSidebarController<T>. Paints the
@@ -39,7 +39,7 @@ import 'package:flutter/services.dart';
 import 'controller.dart';
 import 'localizations.dart';
 import 'models.dart';
-import 'search_dialog.dart';
+import 'navigation_search_view.dart';
 import 'theme.dart';
 
 typedef NavSidebarSlotBuilder =
@@ -75,36 +75,31 @@ class NavigationSidebar<T> extends StatefulWidget {
 
   /// Show a pane-toggle (collapse ↔ expand) button pinned to the top of the
   /// pane — the NavigationView "menu button" placement. Off by default; enable
-  /// it when the pane is used without a [NavigationSidebarAppBar] that already
-  /// carries the toggle (e.g. an inset-header [NavigationShell]).
+  /// it when the host does not provide its own pane toggle.
   final bool showPaneToggle;
 
-  /// How keyboard-shortcut hints appear on expanded-tree rows.
-  ///
-  /// **Note:** [NavNode.shortcut] values are visual hints only. The sidebar
-  /// renders the keycap glyphs and surfaces them in tooltips but does not
-  /// register global key handlers — wiring the actual keystroke is the host
-  /// app's responsibility (via [Shortcuts] / [Actions] or a custom handler).
-  final NavShortcutMode shortcutMode;
 
   /// Show a built-in search field above the tree (expanded / drawer modes).
   final bool searchable;
 
-  /// Placeholder for the [searchable] / [allowSearchDialog] field. Overrides
+  /// Placeholder for the [searchable] / [allowSearchView] field. Overrides
   /// [localizations.searchHint] when set.
   final String? searchHint;
 
-  /// Enable the built-in [NavSearchDialog] command palette.
+  /// Enable the built-in [NavigationSearchView] command palette.
   ///
-  /// This is the single switch that turns on dialog search: the sidebar
+  /// This is the single switch that turns on search view: the sidebar
   /// renders a search trigger inside the pane — a field in expanded / drawer
-  /// modes, an icon button in rail mode — and opens the dialog via the root
-  /// [Overlay] on tap. No `Stack` / `Overlay` wiring is needed in the host app.
+  /// modes, an icon button in rail mode — and opens the configured dialog or
+  /// modal bottom sheet. No host-side modal wiring is required.
   ///
   /// Takes precedence over [searchable] when both are `true`.
-  final bool allowSearchDialog;
+  final bool allowSearchView;
 
-  /// Called when the user picks a result in the [allowSearchDialog] palette.
+  /// Presentation used when [allowSearchView] opens the built-in search view.
+  final NavigationSearchViewMode searchViewMode;
+
+  /// Called when the user picks a result in the [allowSearchView] search view.
   ///
   /// The controller navigates to the picked node first; when this is null the
   /// sidebar falls back to [onNavigate]. Locked / disabled nodes never fire it.
@@ -152,10 +147,10 @@ class NavigationSidebar<T> extends StatefulWidget {
     this.showGuides = true,
     this.railFlyouts = true,
     this.showPaneToggle = false,
-    this.shortcutMode = NavShortcutMode.onHover,
     this.searchable = false,
     this.searchHint,
-    this.allowSearchDialog = false,
+    this.allowSearchView = false,
+    this.searchViewMode = NavigationSearchViewMode.dialog,
     this.onSearchPick,
     this.favoritable = false,
     this.aggregateBadges = false,
@@ -240,17 +235,18 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
     if (navigated) widget.onNavigate?.call(n);
   }
 
-  /// Open the built-in command palette ([NavSearchDialog]) as an overlay.
+  /// Open the built-in [NavigationSearchView].
   ///
-  /// Enabled by [NavigationSidebar.allowSearchDialog]; the sidebar owns the
-  /// entire flow so host apps never build the dialog themselves. On pick the
+  /// Enabled by [NavigationSidebar.allowSearchView]; the sidebar owns the
+  /// entire modal flow so host apps do not need to build the view themselves. On pick the
   /// controller navigates and [NavigationSidebar.onSearchPick] (falling back
   /// to [NavigationSidebar.onNavigate]) fires for the chosen node.
-  void _openSearchDialog() {
+  void _openSearchView() {
     if (widget.mode == NavSidebarMode.drawer) _controller.closeDrawer();
-    showNavSearchDialog<T>(
+    showNavigationSearchView<T>(
       context,
       controller: _controller,
+      mode: widget.searchViewMode,
       hint: _searchHint,
       recentsLabel: _l10n.recentsTitle,
       onPick: (id) {
@@ -273,7 +269,7 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
           cursor: SystemMouseCursors.click,
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
-            onTap: _openSearchDialog,
+            onTap: _openSearchView,
             child: Container(
               width: t.railButton,
               height: t.railButton,
@@ -494,10 +490,10 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
             widget.header!(context, railed),
             const SizedBox(height: 12),
           ],
-          if (widget.allowSearchDialog) ...[
+          if (widget.allowSearchView) ...[
             railed
                 ? _railSearchButton(t)
-                : _SearchTrigger(hint: _searchHint, onTap: _openSearchDialog),
+                : _SearchTrigger(hint: _searchHint, onTap: _openSearchView),
             SizedBox(height: railed ? 6 : 10),
           ] else if (widget.searchable && !railed) ...[
             _SearchField(
@@ -649,7 +645,6 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
             depth: 0,
             role: NavNodeRole.direct,
             active: _controller.isActive(n.id),
-            shortcutMode: NavShortcutMode.hidden,
             query: '',
             favoritable: true,
             favorite: true,
@@ -684,7 +679,6 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
         depth: depth,
         role: role,
         active: _controller.isActive(node.id),
-        shortcutMode: widget.shortcutMode,
         query: _controller.query,
         favoritable: widget.favoritable,
         favorite: _controller.isFavorite(node.id),
@@ -712,8 +706,7 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
           open: open,
           ownsActive: ownsActive,
           aggregateBadges: widget.aggregateBadges,
-          shortcutMode: widget.shortcutMode,
-          query: _controller.query,
+            query: _controller.query,
           localizations: _l10n,
           onTap: () => _controller.toggleNode(node.id),
         ),
@@ -827,7 +820,6 @@ class _NavRow<T> extends StatefulWidget {
   final bool ownsActive;
   final bool aggregateBadges;
   final VoidCallback onTap;
-  final NavShortcutMode shortcutMode;
   final String query;
   final bool favoritable;
   final bool favorite;
@@ -844,7 +836,6 @@ class _NavRow<T> extends StatefulWidget {
     this.active = false,
     this.ownsActive = false,
     this.aggregateBadges = false,
-    this.shortcutMode = NavShortcutMode.onHover,
     this.query = '',
     this.favoritable = false,
     this.favorite = false,
@@ -861,45 +852,6 @@ class _NavRowState<T> extends State<_NavRow<T>> {
   bool _hover = false;
   bool _focused = false;
 
-  bool get _showInline {
-    if (widget.node.shortcut == null) return false;
-    switch (widget.shortcutMode) {
-      case NavShortcutMode.always:
-        return true;
-      case NavShortcutMode.hidden:
-        return false;
-      case NavShortcutMode.onHover:
-        return _hover;
-    }
-  }
-
-  Widget _shortcutInline({required bool onAccent}) {
-    return AnimatedSwitcher(
-      duration: NavigationSidebarThemeData.durFast,
-      switchInCurve: NavigationSidebarThemeData.curveStandard,
-      switchOutCurve: NavigationSidebarThemeData.curveStandard,
-      transitionBuilder: (child, anim) => FadeTransition(
-        opacity: anim,
-        child: SizeTransition(
-          axis: Axis.horizontal,
-          axisAlignment: -1,
-          sizeFactor: anim,
-          child: child,
-        ),
-      ),
-      child: _showInline
-          ? Padding(
-              key: const ValueKey('sc-on'),
-              padding: const EdgeInsetsDirectional.only(start: 6),
-              child: _ShortcutHint(
-                keys: widget.node.shortcut!,
-                onAccent: onAccent,
-                localizations: widget.localizations,
-              ),
-            )
-          : const SizedBox.shrink(key: ValueKey('sc-off')),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -1040,15 +992,7 @@ class _NavRowState<T> extends State<_NavRow<T>> {
         child: child,
       );
     }
-    final keys = widget.node.shortcut;
-    if (keys == null || widget.shortcutMode == NavShortcutMode.always) {
-      return child;
-    }
-    return Tooltip(
-      message: l10n.shortcutTooltip(keys),
-      waitDuration: const Duration(milliseconds: 450),
-      child: child,
-    );
+    return child;
   }
 
   Widget _label(String text, TextStyle style) {
@@ -1174,7 +1118,6 @@ class _NavRowState<T> extends State<_NavRow<T>> {
           const SizedBox(width: 6),
           _NavBadgeChip(badge: widget.node.badge!),
         ],
-        _shortcutInline(onAccent: fillActive),
         if (isDirect) _trailing(t, onAccent: fillActive),
         if (badgeSum > 0) ...[
           const SizedBox(width: 6),
@@ -1268,7 +1211,6 @@ class _NavRowState<T> extends State<_NavRow<T>> {
           const SizedBox(width: 6),
           _NavBadgeChip(badge: widget.node.badge!, small: true),
         ],
-        _shortcutInline(onAccent: false),
         _trailing(t, onAccent: false),
       ],
     );
@@ -1701,13 +1643,6 @@ class _FlyoutRowState<T> extends State<_FlyoutRow<T>> {
                     Icon(Icons.lock_outline, size: 12, color: t.fg3),
                   if (widget.leaf.badge != null)
                     _NavBadgeChip(badge: widget.leaf.badge!, small: true),
-                  if (widget.leaf.shortcut != null) ...[
-                    const SizedBox(width: 6),
-                    _ShortcutHint(
-                      keys: widget.leaf.shortcut!,
-                      localizations: l10n,
-                    ),
-                  ],
                 ],
               ),
             ),
@@ -1827,9 +1762,9 @@ class _SearchField extends StatelessWidget {
 }
 
 // ── Star toggle ────────────────────────────────────────────────────
-// ── Search dialog trigger ──────────────────────────────────
-// A field-styled button that opens NavSearchDialog. Rendered inside the pane
-// when NavigationSidebar.allowSearchDialog is enabled (expanded / drawer).
+// ── Search view trigger ──────────────────────────────────
+// A field-styled button that opens NavigationSearchView. Rendered inside the pane
+// when NavigationSidebar.allowSearchView is enabled (expanded / drawer).
 class _SearchTrigger extends StatefulWidget {
   final String hint;
   final VoidCallback onTap;
@@ -1950,85 +1885,3 @@ class _StarButton extends StatelessWidget {
   }
 }
 
-// ── Shortcut keycap hint ───────────────────────────────────────────
-class _ShortcutHint extends StatelessWidget {
-  final List<String> keys;
-  final bool onAccent;
-  final NavigationSidebarLocalizations localizations;
-
-  const _ShortcutHint({
-    required this.keys,
-    this.onAccent = false,
-    this.localizations = const NavigationSidebarLocalizations(),
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final t = NavigationSidebarThemeData.of(context);
-    final capBg = onAccent ? Colors.white.withValues(alpha: 0.20) : t.surface;
-    final capBorder = onAccent ? Colors.white.withValues(alpha: 0.38) : t.border;
-    final capFg = onAccent ? Colors.white : t.fg3;
-
-    Widget cap(String k) => Container(
-      constraints: const BoxConstraints(minWidth: 17),
-      alignment: Alignment.center,
-      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
-      decoration: BoxDecoration(
-        color: capBg,
-        borderRadius: BorderRadius.circular(t.radiusSm),
-        border: Border.all(color: capBorder),
-        boxShadow: onAccent
-            ? null
-            : [
-                BoxShadow(
-                  color: t.guide.withValues(alpha: 0.55),
-                  offset: const Offset(0, 1),
-                ),
-              ],
-      ),
-      child: Text(
-        NavShortcutOps.keyLabel(k),
-        style: TextStyle(
-          fontFamily: NavigationSidebarThemeData.monoFont,
-          fontSize: 9.5,
-          height: 1.25,
-          fontWeight: FontWeight.w700,
-          color: capFg,
-        ),
-      ),
-    );
-
-    final combo = NavShortcutOps.isCombo(keys);
-    return Tooltip(
-      message: localizations.shortcutTooltip(keys),
-      waitDuration: const Duration(milliseconds: 450),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          for (var i = 0; i < keys.length; i++) ...[
-            if (i > 0)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 2.5),
-                child: combo
-                    ? Text(
-                        '+',
-                        style: TextStyle(
-                          fontFamily: NavigationSidebarThemeData.monoFont,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                          color: capFg.withValues(alpha: 0.65),
-                        ),
-                      )
-                    : Icon(
-                        Icons.chevron_right,
-                        size: 10,
-                        color: capFg.withValues(alpha: 0.65),
-                      ),
-              ),
-            cap(keys[i]),
-          ],
-        ],
-      ),
-    );
-  }
-}

@@ -116,13 +116,6 @@ class NavigationSidebarThemeData
   /// Width **and** height of the square `item` icon container. Default: **28**.
   final double itemBox;
 
-  // ── TOOLBAR (APP BAR) ──────────────────────────────────────
-  /// Width **and** height of the square icon button in
-  /// `NavigationSidebarAppBar` (hamburger, collapse toggle). Default: **36**.
-  final double toolbarButtonSize;
-
-  /// Icon rendered inside a toolbar button. Default: **20**.
-  final double toolbarIconSize;
 
   // ── CORNER RADII ───────────────────────────────────────────
   /// Smallest radius — keycap chips, small controls. Default: **6**.
@@ -154,8 +147,6 @@ class NavigationSidebarThemeData
   /// bottom of its row. Default: **9**.
   final double indicatorInset;
 
-  /// Fixed height of a [NavigationShell] content header band. Default: **52**.
-  final double headerHeight;
 
   // ── constructor ────────────────────────────────────────────
   const NavigationSidebarThemeData({
@@ -184,8 +175,6 @@ class NavigationSidebarThemeData
     this.iconTop = 20,
     this.iconItem = 16,
     this.itemBox = 28,
-    this.toolbarButtonSize = 36,
-    this.toolbarIconSize = 20,
     this.radiusSm = 6,
     this.radiusMd = 8,
     this.radiusLg = 10,
@@ -194,7 +183,6 @@ class NavigationSidebarThemeData
     this.selectionIndicator = NavSelectionIndicator.fill,
     this.indicatorThickness = 3,
     this.indicatorInset = 9,
-    this.headerHeight = 52,
   });
 
   // ── brand + semantic palette (const — never lerped) ────────
@@ -327,8 +315,6 @@ class NavigationSidebarThemeData
       moduleHeight: z.fieldComfortable,
       railButton: z.iconButton,
       railIconSize: z.icon,
-      toolbarButtonSize: z.iconButton,
-      toolbarIconSize: z.icon,
     );
   }
 
@@ -412,8 +398,6 @@ class NavigationSidebarThemeData
     double? iconTop,
     double? iconItem,
     double? itemBox,
-    double? toolbarButtonSize,
-    double? toolbarIconSize,
     double? radiusSm,
     double? radiusMd,
     double? radiusLg,
@@ -422,7 +406,6 @@ class NavigationSidebarThemeData
     NavSelectionIndicator? selectionIndicator,
     double? indicatorThickness,
     double? indicatorInset,
-    double? headerHeight,
   }) => NavigationSidebarThemeData(
     bg: bg ?? this.bg,
     surface: surface ?? this.surface,
@@ -447,8 +430,6 @@ class NavigationSidebarThemeData
     iconTop: iconTop ?? this.iconTop,
     iconItem: iconItem ?? this.iconItem,
     itemBox: itemBox ?? this.itemBox,
-    toolbarButtonSize: toolbarButtonSize ?? this.toolbarButtonSize,
-    toolbarIconSize: toolbarIconSize ?? this.toolbarIconSize,
     radiusSm: radiusSm ?? this.radiusSm,
     radiusMd: radiusMd ?? this.radiusMd,
     radiusLg: radiusLg ?? this.radiusLg,
@@ -457,7 +438,6 @@ class NavigationSidebarThemeData
     selectionIndicator: selectionIndicator ?? this.selectionIndicator,
     indicatorThickness: indicatorThickness ?? this.indicatorThickness,
     indicatorInset: indicatorInset ?? this.indicatorInset,
-    headerHeight: headerHeight ?? this.headerHeight,
   );
 
   @override
@@ -492,12 +472,6 @@ class NavigationSidebarThemeData
       iconTop: lerpDouble(iconTop, other.iconTop, t)!,
       iconItem: lerpDouble(iconItem, other.iconItem, t)!,
       itemBox: lerpDouble(itemBox, other.itemBox, t)!,
-      toolbarButtonSize: lerpDouble(
-        toolbarButtonSize,
-        other.toolbarButtonSize,
-        t,
-      )!,
-      toolbarIconSize: lerpDouble(toolbarIconSize, other.toolbarIconSize, t)!,
       radiusSm: lerpDouble(radiusSm, other.radiusSm, t)!,
       radiusMd: lerpDouble(radiusMd, other.radiusMd, t)!,
       radiusLg: lerpDouble(radiusLg, other.radiusLg, t)!,
@@ -513,7 +487,6 @@ class NavigationSidebarThemeData
         t,
       )!,
       indicatorInset: lerpDouble(indicatorInset, other.indicatorInset, t)!,
-      headerHeight: lerpDouble(headerHeight, other.headerHeight, t)!,
     );
   }
 }

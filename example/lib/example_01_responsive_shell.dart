@@ -1,4 +1,4 @@
-﻿// super_navigation_sidebar · Example 01 — Responsive app shell
+// super_navigation_sidebar · Example 01 — Responsive app shell
 // ─────────────────────────────────────────────────────────────────
 // Goal: demonstrate all three modes live via a device-width simulator.
 //
@@ -22,8 +22,7 @@ import 'package:super_navigation_sidebar/super_navigation_sidebar.dart';
 final _sections = <NavSection<String>>[
   NavSection(title: 'Overview', items: [
     NavNode(id: 'dashboard',    label: 'Dashboard',
-            icon: Icons.dashboard_outlined,  value: 'dashboard',
-            shortcut: ['g', 'd']),
+            icon: Icons.dashboard_outlined,  value: 'dashboard'),
     NavNode(id: 'invDashboard', label: 'Inventory Dashboard',
             icon: Icons.qr_code_scanner,     value: 'invDashboard'),
   ]),
@@ -35,7 +34,7 @@ final _sections = <NavSection<String>>[
                 icon: Icons.menu_book_outlined, value: 'accounts'),
         NavNode(id: 'accountTree', label: 'Account Tree',
                 icon: Icons.account_tree_outlined, value: 'accountTree',
-                badge: NavBadge('3'), shortcut: ['g', 't']),
+                badge: NavBadge('3')),
       ]),
     ]),
     NavNode(id: 'ledgerHub', label: 'Ledger',

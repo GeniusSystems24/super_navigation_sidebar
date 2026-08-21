@@ -70,75 +70,6 @@ class NavBadge {
   const NavBadge(this.text, {this.tone = NavBadgeTone.accent});
 }
 
-/// Controls how a node's keyboard-shortcut hint is shown in the expanded tree.
-///
-/// **Important:** Shortcut declarations in [NavNode.shortcut] are **visual
-/// hints only**. The sidebar renders the keycap glyphs and exposes them in
-/// tooltips, but does **not** register global key handlers. Wiring the actual
-/// keystroke (via [Shortcuts] / [Actions] or a custom [FocusNode]) is the
-/// host app's responsibility.
-///
-/// Regardless of the mode, a node that has a [NavNode.shortcut] always exposes
-/// it through the row's tooltip — so the hint can be hidden from view without
-/// losing discoverability.
-enum NavShortcutMode {
-  /// Reveal the inline hint only while the row is hovered (default).
-  onHover,
-
-  /// Always render the inline hint.
-  always,
-
-  /// Never render the inline hint; it stays available via the row tooltip.
-  hidden,
-}
-
-/// Modifier tokens recognised inside a [NavNode.shortcut] list. When a
-/// shortcut contains one or more of these it is treated as a **simultaneous
-/// combo** (e.g. `['ctrl', 'shift', 'd']` → Ctrl+Shift+D) rather than a
-/// sequential "type g then d" chord.
-const Set<String> kNavShortcutModifiers = {
-  'ctrl',
-  'control',
-  'shift',
-  'alt',
-  'option',
-  'cmd',
-  'meta',
-  'super',
-  'win',
-};
-
-/// Helpers for interpreting a [NavNode.shortcut] key list.
-class NavShortcutOps {
-  NavShortcutOps._();
-
-  /// True when [keys] declares a modifier combo (contains Ctrl/Shift/Alt/Cmd).
-  /// False for a plain sequential chord like `['g', 'd']`.
-  static bool isCombo(List<String> keys) =>
-      keys.any((k) => kNavShortcutModifiers.contains(k.toLowerCase()));
-
-  /// Human label for one key token — `'ctrl'` → `'Ctrl'`, `'d'` → `'D'`.
-  static String keyLabel(String k) {
-    switch (k.toLowerCase()) {
-      case 'ctrl':
-      case 'control':
-        return 'Ctrl';
-      case 'shift':
-        return 'Shift';
-      case 'alt':
-      case 'option':
-        return 'Alt';
-      case 'cmd':
-      case 'meta':
-      case 'super':
-      case 'win':
-        return 'Cmd';
-      default:
-        return k.toUpperCase();
-    }
-  }
-}
-
 /// Informational state of a node — surfaced as a small status dot before the
 /// label. Built for ERP needs like fiscal-period or ledger state (an *open*
 /// period is green, a *closed* one grey, a *locked* one red). Purely
@@ -199,12 +130,9 @@ class NavNode<T> {
   /// structural changes must go through the controller.
   final List<NavNode<T>> children;
 
-  /// Optional trailing badge (count / status / shortcut hint).
+  /// Optional trailing badge (count or status).
   final NavBadge? badge;
 
-  /// Two-key "g d"-style shortcut shown on hover (visual hint only — see
-  /// [NavShortcutMode] for details on host-side keystroke wiring).
-  final List<String>? shortcut;
 
   /// Strongly-typed payload travelling with the node (`null` for structural
   /// nodes).
@@ -237,7 +165,6 @@ class NavNode<T> {
     this.icon,
     List<NavNode<T>>? children,
     this.badge,
-    this.shortcut,
     this.value,
     this.enabled = true,
     this.locked = false,
@@ -257,7 +184,6 @@ class NavNode<T> {
     IconData? icon,
     List<NavNode<T>>? children,
     NavBadge? badge,
-    List<String>? shortcut,
     T? value,
     bool? enabled,
     bool? locked,
@@ -271,7 +197,6 @@ class NavNode<T> {
     icon: icon ?? this.icon,
     children: children ?? List<NavNode<T>>.of(this.children),
     badge: badge ?? this.badge,
-    shortcut: shortcut ?? this.shortcut,
     value: value ?? this.value,
     enabled: enabled ?? this.enabled,
     locked: locked ?? this.locked,
@@ -340,32 +265,6 @@ enum NavSectionPlacement {
 
   /// Pinned to the bottom of the pane, above the free-form `footer` slot.
   footer,
-}
-
-/// Where a [NavigationShell] places its app bar relative to the pane.
-enum NavShellHeaderLayout {
-  /// The app bar spans the full width across the very top; the pane sits below
-  /// it on the leading side. The back button and pane toggle in the bar's
-  /// leading zone line up directly over the pane — the Microsoft
-  /// NavigationView + TitleBar arrangement used by the WinUI Gallery.
-  spanning,
-
-  /// The pane occupies the full height on the leading side; the app bar is
-  /// inset above the content only, to the side of the pane.
-  inset,
-}
-
-/// How an expanded pane affects the content when it opens in a
-/// [NavigationShell].
-enum NavPaneBehavior {
-  /// The pane widens in-flow and pushes the content aside — Microsoft's
-  /// *Left* display mode. Content reflows to the narrower width.
-  push,
-
-  /// A rail is always shown in-flow; opening the pane floats the full-width
-  /// panel over the content with a scrim, leaving the content layout
-  /// untouched — Microsoft's *LeftCompact* / *LeftMinimal* display modes.
-  overlay,
 }
 
 /// Visual treatment of the active-row selection indicator.

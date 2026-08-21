@@ -43,7 +43,6 @@ class NavigationSidebarController<T> extends ChangeNotifier {
     this.maxRecents = 8,
     bool collapsed = false,
     bool drawerOpen = false,
-    bool canGoBack = false,
     bool autoExpandActive = true,
   }) : _sections = List.unmodifiable(sections),
        _active = active,
@@ -52,7 +51,6 @@ class NavigationSidebarController<T> extends ChangeNotifier {
        _recents = [...?recents],
        _collapsed = collapsed,
        _drawerOpen = drawerOpen,
-       _canGoBack = canGoBack,
        _autoExpandActive = autoExpandActive {
     assert(
       _debugAssertNoDuplicates(_sections),
@@ -73,7 +71,6 @@ class NavigationSidebarController<T> extends ChangeNotifier {
   final int maxRecents;
   bool _collapsed;
   bool _drawerOpen;
-  bool _canGoBack;
   final bool _autoExpandActive;
   String _query = '';
 
@@ -240,19 +237,6 @@ class NavigationSidebarController<T> extends ChangeNotifier {
   void closeDrawer() => drawerOpen = false;
   void toggleDrawer() => drawerOpen = !_drawerOpen;
 
-  // ── back navigation ────────────────────────────────────────
-  /// Whether the host's navigation stack can currently pop.
-  ///
-  /// Bind this to your router / Navigator can-pop state. A
-  /// [NavigationSidebarAppBar] (or [NavigationShell]) with
-  /// `showBackButton: true` enables its back button only while this is `true`,
-  /// mirroring NavigationView's `IsBackEnabled`.
-  bool get canGoBack => _canGoBack;
-  set canGoBack(bool v) {
-    if (_canGoBack == v) return;
-    _canGoBack = v;
-    notifyListeners();
-  }
 
   // ── search filter (optional) ───────────────────────────────
   void setQuery(String q) {

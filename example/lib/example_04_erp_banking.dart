@@ -1,4 +1,4 @@
-﻿// super_navigation_sidebar · Example 04 — Banking / accounting ERP
+// super_navigation_sidebar · Example 04 — Banking / accounting ERP
 // ─────────────────────────────────────────────────────────────────
 // Goal: a realistic banking & accounting navigation that exercises the
 // ERP-focused capabilities of the package:
@@ -13,7 +13,7 @@
 //   • NavNode.status     → fiscal-period / ledger state dots
 //                          (open · closed · locked · attention).
 //   • NavBadge tones     → pending approvals (danger), live feeds (success).
-//   • shortcut hints     → two-key chords with the keycap treatment.
+//   • navigation metadata     → screen codes and searchable labels.
 
 import 'package:flutter/material.dart';
 import 'package:super_navigation_sidebar/super_navigation_sidebar.dart';
@@ -21,12 +21,10 @@ import 'package:super_navigation_sidebar/super_navigation_sidebar.dart';
 List<NavSection<String>> _bankingSections({required int approvals}) => [
       NavSection(title: 'Overview', items: [
         NavNode(id: 'dashboard', label: 'Executive Dashboard',
-            icon: Icons.dashboard_outlined, value: 'dashboard',
-            shortcut: ['g', 'd']),
+            icon: Icons.dashboard_outlined, value: 'dashboard'),
         NavNode(id: 'approvals', label: 'My Approvals',
             icon: Icons.fact_check_outlined, value: 'approvals',
-            badge: NavBadge('$approvals', tone: NavBadgeTone.danger),
-            shortcut: ['g', 'a']),
+            badge: NavBadge('$approvals', tone: NavBadgeTone.danger)),
       ]),
       NavSection(title: 'General Ledger', items: [
         NavNode(id: 'glHub', label: 'General Ledger',
@@ -44,8 +42,7 @@ List<NavSection<String>> _bankingSections({required int approvals}) => [
           ]),
           NavNode(id: 'journalsGroup', label: 'Journals', children: [
             NavNode(id: 'journalEntry', label: 'Journal Entry',
-                icon: Icons.edit_note_outlined, value: 'journalEntry',
-                shortcut: ['g', 'j']),
+                icon: Icons.edit_note_outlined, value: 'journalEntry'),
             NavNode(id: 'recurringJe', label: 'Recurring Entries',
                 icon: Icons.repeat, value: 'recurringJe'),
             NavNode(id: 'reconciliation', label: 'Reconciliation',
@@ -55,8 +52,7 @@ List<NavSection<String>> _bankingSections({required int approvals}) => [
           ]),
           NavNode(id: 'coaGroup', label: 'Chart of Accounts', children: [
             NavNode(id: 'accounts', label: 'Account List',
-                icon: Icons.menu_book_outlined, value: 'accounts',
-                shortcut: ['g', 'c']),
+                icon: Icons.menu_book_outlined, value: 'accounts'),
             NavNode(id: 'accountTree', label: 'Account Tree',
                 icon: Icons.account_tree_outlined, value: 'accountTree'),
           ]),
@@ -70,8 +66,7 @@ List<NavSection<String>> _bankingSections({required int approvals}) => [
                 icon: Icons.account_balance_wallet_outlined, value: 'positions',
                 badge: NavBadge('Live', tone: NavBadgeTone.success)),
             NavNode(id: 'transfers', label: 'Fund Transfers',
-                icon: Icons.swap_horiz, value: 'transfers',
-                shortcut: ['g', 't']),
+                icon: Icons.swap_horiz, value: 'transfers'),
           ]),
           NavNode(id: 'paymentsGroup', label: 'Payments', children: [
             NavNode(id: 'outgoing', label: 'Outgoing Payments',
@@ -126,7 +121,7 @@ List<NavSection<String>> _bankingSections({required int approvals}) => [
             icon: Icons.insert_chart_outlined, children: [
           NavNode(id: 'finGroup', label: 'Statements', children: [
             NavNode(id: 'trialBalance', label: 'Trial Balance',
-                icon: Icons.balance, value: 'trialBalance', shortcut: ['g', 'b']),
+                icon: Icons.balance, value: 'trialBalance'),
             NavNode(id: 'incomeStmt', label: 'Income Statement',
                 icon: Icons.trending_up, value: 'incomeStmt'),
             NavNode(id: 'balanceSheet', label: 'Balance Sheet',
@@ -210,7 +205,6 @@ class _ErpBankingExampleState extends State<ErpBankingExample> {
               searchHint: 'Search accounts, journals, reports…',
               favoritable: true,
               quickAccessTitle: 'Quick Access',
-              shortcutMode: NavShortcutMode.onHover,
               header: (ctx, collapsed) => _Brand(collapsed: collapsed),
               onNavigate: (n) => setState(() => _screen = n.value!),
             ),

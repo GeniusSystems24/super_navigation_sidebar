@@ -1,4 +1,4 @@
-﻿// super_navigation_sidebar · Example 03 — Custom theme + RTL + branded colours
+// super_navigation_sidebar · Example 03 — Custom theme + RTL + branded colours
 // ─────────────────────────────────────────────────────────────────────────────
 // Goal: demonstrate the theming API, RTL mirror, and every chrome toggle.
 //
@@ -21,8 +21,7 @@ import 'package:super_navigation_sidebar/super_navigation_sidebar.dart';
 final _sections = <NavSection<String>>[
   NavSection(title: 'Overview', items: [
     NavNode(id: 'dashboard', label: 'Dashboard',
-            icon: Icons.dashboard_outlined, value: 'dashboard',
-            shortcut: ['g', 'd']),
+            icon: Icons.dashboard_outlined, value: 'dashboard'),
     NavNode(id: 'reports',   label: 'Reports',
             icon: Icons.description_outlined, value: 'reports'),
   ]),

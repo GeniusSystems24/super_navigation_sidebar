@@ -1,3 +1,33 @@
+# 3.0.0
+
+## Breaking architecture cleanup
+
+- Removed the package-owned integrated application chrome: the 2.x integrated shell, sidebar-specific app-bar layer, breadcrumb helper, and app-bar search-field helper. Host applications now own `Scaffold`, app bars, routing, back navigation, and responsive page composition.
+- Removed the package shortcut execution/hint stack and shortcut metadata from navigation nodes. Applications that need shortcuts should register them at the host/application-command layer.
+- Removed shell/app-bar-only model, controller, localization, and theme state.
+- Removed the legacy overlay-only navigation search dialog API.
+
+## Navigation search
+
+- Added `NavigationSearchView<T>` as a reusable, presentation-independent navigation search surface.
+- Added `NavigationSearchViewMode.dialog` and `NavigationSearchViewMode.sheet`.
+- Added `showNavigationSearchView<T>(...)` for modal presentation.
+- Replaced `NavigationSidebar.allowSearchDialog` with `allowSearchView`.
+- Added `NavigationSidebar.searchViewMode` so the built-in trigger can use dialog on desktop and a bottom sheet on compact layouts.
+- Search continues to support labels, screen codes, hidden keywords, grouped results, active-state highlighting, and recent destinations.
+- `NavigationSearchView` now uses `SuperTextFormField` / `SuperTextFieldController` from `super_form_field` for the search input and owns the required field localization scope internally.
+- Added `super_form_field >=1.10.0 <2.0.0` as a runtime dependency.
+- Keyboard ↑/↓ navigation now automatically scrolls the highlighted search result into view, including wrap-around between the first and last results.
+
+## Examples and documentation
+
+- Added a dedicated `NavigationSearchView` example covering embedded, dialog, and sheet usage.
+- Reworked examples to use host-owned `Row` / `Stack` / `Scaffold` composition.
+- Updated the kitchen sink, README, and all files under `skill/**` for the 3.0 public surface.
+- Updated package metadata to `3.0.0`.
+
+---
+
 # Changelog
 
 All notable changes to `super_navigation_sidebar` will be documented in this file.
