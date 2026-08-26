@@ -10,6 +10,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:super_core/super_core.dart';
 import 'package:super_form_field/super_form_field.dart';
 
 import 'controller.dart';
