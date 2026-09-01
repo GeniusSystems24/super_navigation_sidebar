@@ -140,6 +140,13 @@ class SuperNavNode<T> {
   /// nodes).
   final T? value;
 
+  /// Optional side effect invoked by sidebar/search widgets after this node is
+  /// successfully activated.
+  ///
+  /// This is intentionally UI-layer only because it requires a [BuildContext].
+  /// [SuperNavigationSidebarController.navigate] remains state-only.
+  final void Function(BuildContext context)? onTap;
+
   /// When false the row is shown but can't be activated.
   final bool enabled;
 
@@ -169,6 +176,7 @@ class SuperNavNode<T> {
     List<SuperNavNode<T>>? children,
     this.badge,
     this.value,
+    this.onTap,
     this.enabled = true,
     this.locked = false,
     this.lockMessage,
@@ -189,6 +197,7 @@ class SuperNavNode<T> {
     List<SuperNavNode<T>>? children,
     SuperNavBadge? badge,
     T? value,
+    void Function(BuildContext context)? onTap,
     bool? enabled,
     bool? locked,
     String? lockMessage,
@@ -203,6 +212,7 @@ class SuperNavNode<T> {
     children: children ?? List<SuperNavNode<T>>.of(this.children),
     badge: badge ?? this.badge,
     value: value ?? this.value,
+    onTap: onTap ?? this.onTap,
     enabled: enabled ?? this.enabled,
     locked: locked ?? this.locked,
     lockMessage: lockMessage ?? this.lockMessage,

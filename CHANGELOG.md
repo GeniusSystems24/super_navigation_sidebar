@@ -1,4 +1,23 @@
-﻿# 3.2.0
+﻿# 3.3.0
+
+## 3.3.0
+
+### Added
+
+- Added `SuperNavNode.onTap`, an optional
+  `void Function(BuildContext context)?` callback invoked by sidebar and search
+  widgets after successful navigation.
+- Added a dedicated node-action example screen showing context-aware node
+  callbacks with `ScaffoldMessenger`.
+
+### Changed
+
+- Raised package metadata to `3.3.0`.
+- Updated README and package skill docs for node-owned actions.
+
+---
+
+# 3.2.0
 
 ## 3.2.0
 

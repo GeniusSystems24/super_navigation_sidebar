@@ -1,4 +1,4 @@
-﻿# super_navigation_sidebar 3.2.0
+﻿# super_navigation_sidebar 3.3.0
 
 Use this package when an application needs a typed, responsive navigation pane
 with expanded, rail, or drawer presentation.
@@ -144,6 +144,8 @@ Use:
 - `locked` + `lockMessage` for permission-gated destinations.
 - `enabled` for temporarily unavailable destinations.
 - `status` for informational state dots.
+- `onTap` for node-local UI actions that require `BuildContext`; it fires after
+  successful sidebar/search navigation and before host callbacks.
 - `SuperNavSectionPlacement.footer` for pinned footer navigation.
 
 ## Favorites and recents

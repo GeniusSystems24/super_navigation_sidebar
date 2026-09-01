@@ -253,7 +253,7 @@ class _Workbench extends StatelessWidget {
                   ),
                 Expanded(
                   child: Text(
-                    '3.2 Kitchen sink · $active',
+                    '3.3 Kitchen sink · $active',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                           color: theme.fg1,
                           fontWeight: FontWeight.w700,

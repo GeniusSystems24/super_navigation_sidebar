@@ -1,4 +1,4 @@
-﻿# Codex examples — super_navigation_sidebar 3.2.0
+﻿# Codex examples — super_navigation_sidebar 3.3.0
 
 ## Adaptive host layout
 
@@ -90,6 +90,22 @@ MaterialApp(
   localizationsDelegates: SuperNavigationLocalization.localizationsDelegates,
   supportedLocales: SuperNavigationLocalization.supportedLocales,
   home: const AppRoot(),
+)
+```
+
+## Node onTap action
+
+```dart
+SuperNavNode<String>(
+  id: 'refresh_balances',
+  label: const Text('Refresh balances'),
+  leadingIcon: const Icon(Icons.sync_outlined),
+  value: 'refresh_balances',
+  onTap: (context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Refresh queued')),
+    );
+  },
 )
 ```
 

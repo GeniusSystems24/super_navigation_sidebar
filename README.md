@@ -2,7 +2,7 @@
 
 A focused, responsive navigation pane for Flutter applications.
 
-Version **3.2.0** keeps the package centered on navigation state and navigation
+Version **3.3.0** keeps the package centered on navigation state and navigation
 UI. The host application owns its `Scaffold`, app bar, routing, and global
 keyboard shortcuts. The package provides the sidebar, controller, models,
 theme/generated-localization support, and the reusable `SuperNavigationSearchView`.
@@ -38,7 +38,7 @@ theme/generated-localization support, and the reusable `SuperNavigationSearchVie
 
 ```yaml
 dependencies:
-  super_navigation_sidebar: ^3.2.0
+  super_navigation_sidebar: ^3.3.0
 ```
 
 ```dart
@@ -93,6 +93,29 @@ Version 3.2 renames the public navigation components with a `Super` prefix:
 `SuperNavigationSidebarThemeData`, and related enums/helpers. The previous
 public type names remain available as compatibility typedefs, and
 `showNavigationSearchView` forwards to `showSuperNavigationSearchView`.
+
+## Node actions
+
+`SuperNavNode.onTap` attaches an optional context-aware action to a destination.
+The sidebar and search surfaces invoke it after `navigate()` succeeds, before
+the host `onNavigate` / `onSearchPick` callback.
+
+```dart
+SuperNavNode(
+  id: 'refresh_balances',
+  label: const Text('Refresh balances'),
+  leadingIcon: const Icon(Icons.sync_outlined),
+  value: 'refresh_balances',
+  onTap: (context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Refresh queued')),
+    );
+  },
+)
+```
+
+Use `onTap` for node-local UI actions that need `BuildContext`. Keep routing
+and page state in the host `onNavigate` callback.
 
 ## Quick start
 

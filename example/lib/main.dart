@@ -14,6 +14,7 @@ import 'example_03_theme_rtl.dart';
 import 'example_04_erp_banking.dart';
 import 'example_05_navigation_search_view.dart';
 import 'example_07_kitchen_sink.dart';
+import 'example_08_node_on_tap.dart';
 import 'navigation_sidebar_demo.dart';
 
 void main() => runApp(const ExampleApp());
@@ -39,7 +40,7 @@ class _ExampleAppState extends State<ExampleApp> {
       primaryTextTheme: typography,
     );
     return MaterialApp(
-      title: 'super_navigation_sidebar 3.2.0 examples',
+      title: 'super_navigation_sidebar 3.3.0 examples',
       debugShowCheckedModeBanner: false,
       localizationsDelegates:
           SuperNavigationLocalization.localizationsDelegates,
@@ -77,9 +78,9 @@ class LauncherScreen extends StatelessWidget {
 
     final demos = <_Demo>[
       _Demo(
-        title: 'Kitchen sink — every feature (3.2)',
+        title: 'Kitchen sink — every feature (3.3)',
         subtitle:
-            'One workbench with the full 3.2 surface: adaptive pane layouts, '
+            'One workbench with the full 3.3 surface: adaptive pane layouts, '
             'screen codes + keyword search, dialog/sheet SuperNavigationSearchView, '
             'recent navigation, snapshot save/restore, badge roll-up, favorites, '
             'locked/status nodes and RTL — all behind live toggles.',
@@ -147,7 +148,7 @@ class LauncherScreen extends StatelessWidget {
       _Demo(
         title: 'SuperNavigationSearchView',
         subtitle:
-            'The reusable 3.2 search experience shown inline, in a dialog, or '
+            'The reusable 3.3 search experience shown inline, in a dialog, or '
             'as a modal bottom sheet. It shares the same controller and typed '
             'navigation tree used by SuperNavigationSidebar.',
         badge: 'embedded · dialog · sheet',
@@ -157,6 +158,19 @@ class LauncherScreen extends StatelessWidget {
           badges: true,
         ),
         screen: const NavigationSearchViewExample(),
+      ),
+      _Demo(
+        title: 'Node onTap actions',
+        subtitle:
+            'Attach a context-aware action directly to SuperNavNode and let '
+            'the sidebar run it after successful navigation.',
+        badge: 'onTap · SnackBar · actions',
+        preview: const _SidebarThumb(
+          mode: _Mode.expanded,
+          activeIndex: 1,
+          badges: true,
+        ),
+        screen: const NodeOnTapExample(),
       ),
       _Demo(
         title: 'Full component workbench',
@@ -886,7 +900,7 @@ class _VersionPill extends StatelessWidget {
         ),
       ),
       child: const Text(
-        'v3.2.0',
+        'v3.3.0',
         style: TextStyle(
           fontFamily: SuperNavigationSidebarThemeData.monoFont,
           fontSize: 10.5,

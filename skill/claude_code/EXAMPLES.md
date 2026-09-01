@@ -1,4 +1,4 @@
-﻿# super_navigation_sidebar 3.2.0 examples
+﻿# super_navigation_sidebar 3.3.0 examples
 
 ## 1. Desktop / tablet pane
 
@@ -139,6 +139,22 @@ MaterialApp(
   localizationsDelegates: SuperNavigationLocalization.localizationsDelegates,
   supportedLocales: SuperNavigationLocalization.supportedLocales,
   home: const AppRoot(),
+)
+```
+
+## 10. Node onTap action
+
+```dart
+SuperNavNode<String>(
+  id: 'refresh_balances',
+  label: const Text('Refresh balances'),
+  leadingIcon: const Icon(Icons.sync_outlined),
+  value: 'refresh_balances',
+  onTap: (context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Refresh queued')),
+    );
+  },
 )
 ```
 

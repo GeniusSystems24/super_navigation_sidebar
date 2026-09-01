@@ -1,4 +1,4 @@
-﻿# Agent guide — super_navigation_sidebar 3.2.0
+﻿# Agent guide — super_navigation_sidebar 3.3.0
 
 ## Scope
 
@@ -70,7 +70,9 @@ English and Arabic inside one demo screen. Do not reintroduce
 ## Node model
 
 Use `code` and `keywords` to improve search. Use `badge`, `status`, `locked`,
-`lockMessage`, and `enabled` for ERP/navigation state. Use footer sections for
+`lockMessage`, and `enabled` for ERP/navigation state. Use `onTap` for
+node-local UI actions that need `BuildContext`; it fires after successful
+sidebar/search navigation and before host callbacks. Use footer sections for
 persistent Settings/Help destinations.
 
 ## Controller rules

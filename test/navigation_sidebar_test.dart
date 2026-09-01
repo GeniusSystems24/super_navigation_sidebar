@@ -253,8 +253,28 @@ void main() {
     testWidgets('picking a result navigates when no callback is supplied', (
       tester,
     ) async {
+      var tapped = false;
       final nav = SuperNavigationSidebarController<String>(
-        sections: _sections(),
+        sections: [
+          SuperNavSection<String>(
+            title: 'Workspace',
+            items: [
+              SuperNavNode(
+                id: 'dashboard',
+                label: const Text('Dashboard'),
+                leadingIcon: const Icon(Icons.dashboard_outlined),
+                value: 'dashboard',
+              ),
+              SuperNavNode(
+                id: 'journals',
+                label: const Text('Journal entries'),
+                leadingIcon: const Icon(Icons.receipt_long_outlined),
+                value: 'journals',
+                onTap: (_) => tapped = true,
+              ),
+            ],
+          ),
+        ],
         active: 'dashboard',
       );
       addTearDown(nav.dispose);
@@ -276,6 +296,7 @@ void main() {
       await tester.tap(find.text('Journal entries'));
       await tester.pump();
       expect(nav.active, 'journals');
+      expect(tapped, isTrue);
     });
 
     testWidgets('dialog and sheet presenters open the same search view', (
@@ -326,9 +347,31 @@ void main() {
   });
 
   group('SuperNavigationSidebar', () {
-    testWidgets('renders current 3.2 API', (tester) async {
+    testWidgets('renders current 3.3 API and invokes node onTap', (
+      tester,
+    ) async {
+      var tapped = false;
       final nav = SuperNavigationSidebarController<String>(
-        sections: _sections(),
+        sections: [
+          SuperNavSection<String>(
+            title: 'Workspace',
+            items: [
+              SuperNavNode(
+                id: 'dashboard',
+                label: const Text('Dashboard'),
+                leadingIcon: const Icon(Icons.dashboard_outlined),
+                value: 'dashboard',
+              ),
+              SuperNavNode(
+                id: 'journals',
+                label: const Text('Journal entries'),
+                leadingIcon: const Icon(Icons.receipt_long_outlined),
+                value: 'journals',
+                onTap: (_) => tapped = true,
+              ),
+            ],
+          ),
+        ],
         active: 'dashboard',
       );
       addTearDown(nav.dispose);
@@ -348,6 +391,11 @@ void main() {
 
       expect(find.text('Dashboard'), findsOneWidget);
       expect(find.byIcon(Icons.search), findsWidgets);
+
+      await tester.tap(find.text('Journal entries'));
+      await tester.pump();
+      expect(nav.active, 'journals');
+      expect(tapped, isTrue);
     });
   });
 }

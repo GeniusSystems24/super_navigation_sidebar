@@ -1,7 +1,7 @@
 // ============================================================
 // SuperNavigationSidebar — NAVIGATION SEARCH VIEW.
 // ------------------------------------------------------------
-// Reusable navigation search surface for package 3.2.0. The view itself is
+// Reusable navigation search surface for package 3.3.0. The view itself is
 // presentation-agnostic and can be embedded directly or opened through the
 // built-in dialog / bottom-sheet presenter.
 // ============================================================
@@ -248,7 +248,9 @@ class _NavigationSearchViewState<T>
     if (widget.onPick != null) {
       widget.onPick!(id);
     } else {
-      widget.controller.navigate(id);
+      if (widget.controller.navigate(id)) {
+        widget.controller.node(id)?.onTap?.call(context);
+      }
     }
     if (widget.closeOnPick) widget.onClose?.call();
   }

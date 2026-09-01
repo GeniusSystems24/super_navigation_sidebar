@@ -253,7 +253,9 @@ class _NavigationSidebarState<T> extends State<SuperNavigationSidebar<T>> {
   void _go(SuperNavNode<T> n) {
     if (!n.enabled || n.locked) return;
     final navigated = _controller.navigate(n.id);
-    if (navigated) widget.onNavigate?.call(n);
+    if (!navigated) return;
+    n.onTap?.call(context);
+    widget.onNavigate?.call(n);
   }
 
   /// Open the built-in [SuperNavigationSearchView].
@@ -273,7 +275,9 @@ class _NavigationSidebarState<T> extends State<SuperNavigationSidebar<T>> {
       onPick: (id) {
         if (!_controller.navigate(id)) return;
         final n = _controller.node(id);
-        if (n != null) (widget.onSearchPick ?? widget.onNavigate)?.call(n);
+        if (n == null) return;
+        n.onTap?.call(context);
+        (widget.onSearchPick ?? widget.onNavigate)?.call(n);
       },
     );
   }
