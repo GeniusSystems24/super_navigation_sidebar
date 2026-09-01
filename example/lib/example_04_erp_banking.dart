@@ -8,107 +8,107 @@
 //   • favoritable: true  → star any destination; a "Quick Access" band is
 //                          synthesized at the top (accountants pin Journal
 //                          Entry, Trial Balance, Approvals…).
-//   • NavNode.locked     → permission-gated screens (segregation of duties):
+//   • SuperNavNode.locked     → permission-gated screens (segregation of duties):
 //                          dimmed, lock glyph, blocked navigation, tooltip.
-//   • NavNode.status     → fiscal-period / ledger state dots
+//   • SuperNavNode.status     → fiscal-period / ledger state dots
 //                          (open · closed · locked · attention).
-//   • NavBadge tones     → pending approvals (danger), live feeds (success).
+//   • SuperNavBadge tones     → pending approvals (danger), live feeds (success).
 //   • navigation metadata     → screen codes and searchable labels.
 
 import 'package:flutter/material.dart';
 import 'package:super_navigation_sidebar/super_navigation_sidebar.dart';
 
-List<NavSection<String>> _bankingSections({required int approvals}) => [
-      NavSection(
+List<SuperNavSection<String>> _bankingSections({required int approvals}) => [
+      SuperNavSection(
         title: 'Overview',
         items: [
-          NavNode(
+          SuperNavNode(
             id: 'dashboard',
             label: Text('Executive Dashboard'),
             leadingIcon: Icon(Icons.dashboard_outlined),
             value: 'dashboard',
           ),
-          NavNode(
+          SuperNavNode(
             id: 'approvals',
             label: Text('My Approvals'),
             leadingIcon: Icon(Icons.fact_check_outlined),
             value: 'approvals',
-            badge: NavBadge('$approvals', tone: NavBadgeTone.danger),
+            badge: SuperNavBadge('$approvals', tone: SuperNavBadgeTone.danger),
           ),
         ],
       ),
-      NavSection(
+      SuperNavSection(
         title: 'General Ledger',
         items: [
-          NavNode(
+          SuperNavNode(
             id: 'glHub',
             label: Text('General Ledger'),
             leadingIcon: Icon(Icons.account_balance_outlined),
             children: [
-              NavNode(
+              SuperNavNode(
                 id: 'periodsGroup',
                 label: Text('Fiscal Periods'),
                 children: [
-                  NavNode(
+                  SuperNavNode(
                     id: 'fy25q3',
                     label: Text('FY2025 · Q3'),
                     leadingIcon: Icon(Icons.event_available_outlined),
                     value: 'fy25q3',
-                    status: NavNodeStatus.open,
+                    status: SuperNavNodeStatus.open,
                   ),
-                  NavNode(
+                  SuperNavNode(
                     id: 'fy25q2',
                     label: Text('FY2025 · Q2'),
                     leadingIcon: Icon(Icons.event_busy_outlined),
                     value: 'fy25q2',
-                    status: NavNodeStatus.closed,
+                    status: SuperNavNodeStatus.closed,
                   ),
-                  NavNode(
+                  SuperNavNode(
                     id: 'fy25q1',
                     label: Text('FY2025 · Q1'),
                     leadingIcon: Icon(Icons.lock_clock_outlined),
                     value: 'fy25q1',
-                    status: NavNodeStatus.locked,
+                    status: SuperNavNodeStatus.locked,
                   ),
                 ],
               ),
-              NavNode(
+              SuperNavNode(
                 id: 'journalsGroup',
                 label: Text('Journals'),
                 children: [
-                  NavNode(
+                  SuperNavNode(
                     id: 'journalEntry',
                     label: Text('Journal Entry'),
                     leadingIcon: Icon(Icons.edit_note_outlined),
                     value: 'journalEntry',
                   ),
-                  NavNode(
+                  SuperNavNode(
                     id: 'recurringJe',
                     label: Text('Recurring Entries'),
                     leadingIcon: Icon(Icons.repeat),
                     value: 'recurringJe',
                   ),
-                  NavNode(
+                  SuperNavNode(
                     id: 'reconciliation',
                     label: Text('Reconciliation'),
                     leadingIcon: Icon(Icons.rule),
                     value: 'reconciliation',
-                    status: NavNodeStatus.attention,
-                    badge: NavBadge('5', tone: NavBadgeTone.warning),
+                    status: SuperNavNodeStatus.attention,
+                    badge: SuperNavBadge('5', tone: SuperNavBadgeTone.warning),
                   ),
                 ],
               ),
-              NavNode(
+              SuperNavNode(
                 id: 'coaGroup',
                 label: Text('Chart of Accounts'),
                 children: [
-                  NavNode(
+                  SuperNavNode(
                     id: 'accounts',
                     label: Text('Account List'),
                     leadingIcon: Icon(Icons.menu_book_outlined),
                     value: 'accounts',
                   ),
-                  NavNode(
+                  SuperNavNode(
                     id: 'accountTree',
                     label: Text('Account Tree'),
                     leadingIcon: Icon(Icons.account_tree_outlined),
@@ -120,26 +120,27 @@ List<NavSection<String>> _bankingSections({required int approvals}) => [
           ),
         ],
       ),
-      NavSection(
+      SuperNavSection(
         title: 'Banking & Cash',
         items: [
-          NavNode(
+          SuperNavNode(
             id: 'treasuryHub',
             label: Text('Treasury'),
             leadingIcon: Icon(Icons.savings_outlined),
             children: [
-              NavNode(
+              SuperNavNode(
                 id: 'cashGroup',
                 label: Text('Cash Management'),
                 children: [
-                  NavNode(
+                  SuperNavNode(
                     id: 'positions',
                     label: Text('Cash Positions'),
                     leadingIcon: Icon(Icons.account_balance_wallet_outlined),
                     value: 'positions',
-                    badge: NavBadge('Live', tone: NavBadgeTone.success),
+                    badge:
+                        SuperNavBadge('Live', tone: SuperNavBadgeTone.success),
                   ),
-                  NavNode(
+                  SuperNavNode(
                     id: 'transfers',
                     label: Text('Fund Transfers'),
                     leadingIcon: Icon(Icons.swap_horiz),
@@ -147,18 +148,18 @@ List<NavSection<String>> _bankingSections({required int approvals}) => [
                   ),
                 ],
               ),
-              NavNode(
+              SuperNavNode(
                 id: 'paymentsGroup',
                 label: Text('Payments'),
                 children: [
-                  NavNode(
+                  SuperNavNode(
                     id: 'outgoing',
                     label: Text('Outgoing Payments'),
                     leadingIcon: Icon(Icons.north_east),
                     value: 'outgoing',
-                    badge: NavBadge('12', tone: NavBadgeTone.muted),
+                    badge: SuperNavBadge('12', tone: SuperNavBadgeTone.muted),
                   ),
-                  NavNode(
+                  SuperNavNode(
                     id: 'wire',
                     label: Text('Wire / SWIFT'),
                     leadingIcon: Icon(Icons.bolt_outlined),
@@ -170,22 +171,22 @@ List<NavSection<String>> _bankingSections({required int approvals}) => [
               ),
             ],
           ),
-          NavNode(
+          SuperNavNode(
             id: 'arap',
             label: Text('Payables & Receivables'),
             leadingIcon: Icon(Icons.receipt_long_outlined),
             children: [
-              NavNode(
+              SuperNavNode(
                 id: 'apGroup',
                 label: Text('Accounts Payable'),
                 children: [
-                  NavNode(
+                  SuperNavNode(
                     id: 'vendorInvoices',
                     label: Text('Vendor Invoices'),
                     leadingIcon: Icon(Icons.description_outlined),
                     value: 'vendorInvoices',
                   ),
-                  NavNode(
+                  SuperNavNode(
                     id: 'payRun',
                     label: Text('Payment Run'),
                     leadingIcon: Icon(Icons.payments_outlined),
@@ -195,22 +196,22 @@ List<NavSection<String>> _bankingSections({required int approvals}) => [
                   ),
                 ],
               ),
-              NavNode(
+              SuperNavNode(
                 id: 'arGroup',
                 label: Text('Accounts Receivable'),
                 children: [
-                  NavNode(
+                  SuperNavNode(
                     id: 'custInvoices',
                     label: Text('Customer Invoices'),
                     leadingIcon: Icon(Icons.request_quote_outlined),
                     value: 'custInvoices',
                   ),
-                  NavNode(
+                  SuperNavNode(
                     id: 'collections',
                     label: Text('Collections'),
                     leadingIcon: Icon(Icons.event_repeat_outlined),
                     value: 'collections',
-                    badge: NavBadge('8', tone: NavBadgeTone.warning),
+                    badge: SuperNavBadge('8', tone: SuperNavBadgeTone.warning),
                   ),
                 ],
               ),
@@ -218,19 +219,19 @@ List<NavSection<String>> _bankingSections({required int approvals}) => [
           ),
         ],
       ),
-      NavSection(
+      SuperNavSection(
         title: 'Risk & Compliance',
         items: [
-          NavNode(
+          SuperNavNode(
             id: 'complianceHub',
             label: Text('Compliance'),
             leadingIcon: Icon(Icons.verified_user_outlined),
             children: [
-              NavNode(
+              SuperNavNode(
                 id: 'amlGroup',
                 label: Text('AML / KYC'),
                 children: [
-                  NavNode(
+                  SuperNavNode(
                     id: 'sanctions',
                     label: Text('Sanctions Screening'),
                     leadingIcon: Icon(Icons.gpp_maybe_outlined),
@@ -238,7 +239,7 @@ List<NavSection<String>> _bankingSections({required int approvals}) => [
                     locked: true,
                     lockMessage: 'Restricted — Compliance Officer only',
                   ),
-                  NavNode(
+                  SuperNavNode(
                     id: 'sar',
                     label: Text('Suspicious Activity (SAR)'),
                     leadingIcon: Icon(Icons.flag_outlined),
@@ -248,16 +249,16 @@ List<NavSection<String>> _bankingSections({required int approvals}) => [
                   ),
                 ],
               ),
-              NavNode(
+              SuperNavNode(
                 id: 'auditGroup',
                 label: Text('Audit'),
                 children: [
-                  NavNode(
+                  SuperNavNode(
                     id: 'auditLog',
                     label: Text('Audit Trail'),
                     leadingIcon: Icon(Icons.history_toggle_off),
                     value: 'auditLog',
-                    status: NavNodeStatus.locked,
+                    status: SuperNavNodeStatus.locked,
                   ),
                 ],
               ),
@@ -265,31 +266,31 @@ List<NavSection<String>> _bankingSections({required int approvals}) => [
           ),
         ],
       ),
-      NavSection(
+      SuperNavSection(
         title: 'Reports',
         items: [
-          NavNode(
+          SuperNavNode(
             id: 'reportsHub',
             label: Text('Financial Reports'),
             leadingIcon: Icon(Icons.insert_chart_outlined),
             children: [
-              NavNode(
+              SuperNavNode(
                 id: 'finGroup',
                 label: Text('Statements'),
                 children: [
-                  NavNode(
+                  SuperNavNode(
                     id: 'trialBalance',
                     label: Text('Trial Balance'),
                     leadingIcon: Icon(Icons.balance),
                     value: 'trialBalance',
                   ),
-                  NavNode(
+                  SuperNavNode(
                     id: 'incomeStmt',
                     label: Text('Income Statement'),
                     leadingIcon: Icon(Icons.trending_up),
                     value: 'incomeStmt',
                   ),
-                  NavNode(
+                  SuperNavNode(
                     id: 'balanceSheet',
                     label: Text('Balance Sheet'),
                     leadingIcon: Icon(Icons.table_chart_outlined),
@@ -313,8 +314,8 @@ class _ErpBankingExampleState extends State<ErpBankingExample> {
   int _approvals = 7;
   String _screen = 'dashboard';
 
-  late final NavigationSidebarController<String> _nav =
-      NavigationSidebarController<String>(
+  late final SuperNavigationSidebarController<String> _nav =
+      SuperNavigationSidebarController<String>(
     sections: _bankingSections(approvals: _approvals),
     active: 'dashboard',
     // Seed the Quick Access band with the accountant's daily screens.
@@ -329,7 +330,7 @@ class _ErpBankingExampleState extends State<ErpBankingExample> {
 
   @override
   Widget build(BuildContext context) {
-    final s = NavigationSidebarThemeData.of(context);
+    final s = SuperNavigationSidebarThemeData.of(context);
     return Scaffold(
       backgroundColor: s.bg,
       body: Column(
@@ -352,7 +353,7 @@ class _ErpBankingExampleState extends State<ErpBankingExample> {
                 Text(
                   '04 · Banking / accounting ERP',
                   style: TextStyle(
-                    fontFamily: NavigationSidebarThemeData.displayFont,
+                    fontFamily: SuperNavigationSidebarThemeData.displayFont,
                     fontWeight: FontWeight.w700,
                     fontSize: 16,
                     color: s.fg1,
@@ -377,9 +378,9 @@ class _ErpBankingExampleState extends State<ErpBankingExample> {
           Expanded(
             child: Row(
               children: [
-                NavigationSidebar<String>(
+                SuperNavigationSidebar<String>(
                   controller: _nav,
-                  mode: NavSidebarMode.expanded,
+                  mode: SuperNavSidebarMode.expanded,
                   showGuides: true,
                   // ── the ERP capabilities, switched on ──
                   searchable: true,
@@ -407,7 +408,7 @@ class _Brand extends StatelessWidget {
   const _Brand({required this.collapsed});
   @override
   Widget build(BuildContext context) {
-    final s = NavigationSidebarThemeData.of(context);
+    final s = SuperNavigationSidebarThemeData.of(context);
     return SizedBox(
       height: 36,
       child: Row(
@@ -417,7 +418,7 @@ class _Brand extends StatelessWidget {
             height: 28,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: NavigationSidebarThemeData.accent,
+              color: SuperNavigationSidebarThemeData.accent,
               borderRadius: BorderRadius.circular(8),
             ),
             child: const Icon(
@@ -431,7 +432,7 @@ class _Brand extends StatelessWidget {
             Text(
               'Meridian Bank',
               style: TextStyle(
-                fontFamily: NavigationSidebarThemeData.displayFont,
+                fontFamily: SuperNavigationSidebarThemeData.displayFont,
                 fontWeight: FontWeight.w800,
                 fontSize: 15,
                 color: s.fg1,
@@ -446,16 +447,16 @@ class _Brand extends StatelessWidget {
 
 // ── Active page — breadcrumb + capability legend ──────────────────
 class _Page extends StatelessWidget {
-  final NavigationSidebarController<String> nav;
+  final SuperNavigationSidebarController<String> nav;
   final String screen;
   const _Page({required this.nav, required this.screen});
 
   @override
   Widget build(BuildContext context) {
-    final s = NavigationSidebarThemeData.of(context);
+    final s = SuperNavigationSidebarThemeData.of(context);
     final node = nav.node(screen);
     final crumb = [
-      ...NavOps.ancestorsOf<String>(
+      ...SuperNavOps.ancestorsOf<String>(
         nav.sections,
         screen,
       ).map((id) => _plainExampleLabel(nav.node(id), fallback: id)),
@@ -470,7 +471,7 @@ class _Page extends StatelessWidget {
           Text(
             crumb.toUpperCase(),
             style: TextStyle(
-              fontFamily: NavigationSidebarThemeData.monoFont,
+              fontFamily: SuperNavigationSidebarThemeData.monoFont,
               fontSize: 10.5,
               letterSpacing: 1.4,
               color: s.fg4,
@@ -480,7 +481,7 @@ class _Page extends StatelessWidget {
           Text(
             _plainExampleLabel(node, fallback: 'Workspace'),
             style: TextStyle(
-              fontFamily: NavigationSidebarThemeData.displayFont,
+              fontFamily: SuperNavigationSidebarThemeData.displayFont,
               fontSize: 26,
               fontWeight: FontWeight.w700,
               color: s.fg1,
@@ -500,7 +501,7 @@ class _Page extends StatelessWidget {
                 Text(
                   'Try the ERP capabilities',
                   style: TextStyle(
-                    fontFamily: NavigationSidebarThemeData.bodyFont,
+                    fontFamily: SuperNavigationSidebarThemeData.bodyFont,
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
                     color: s.fg1,
@@ -540,7 +541,7 @@ class _Page extends StatelessWidget {
   }
 
   Widget _legend(
-    NavigationSidebarThemeData s,
+    SuperNavigationSidebarThemeData s,
     IconData icon,
     String title,
     String body,
@@ -555,13 +556,14 @@ class _Page extends StatelessWidget {
             height: 30,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: NavigationSidebarThemeData.accent.withValues(alpha: 0.12),
+              color: SuperNavigationSidebarThemeData.accent
+                  .withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
               icon,
               size: 15,
-              color: NavigationSidebarThemeData.accent,
+              color: SuperNavigationSidebarThemeData.accent,
             ),
           ),
           const SizedBox(width: 12),
@@ -572,7 +574,7 @@ class _Page extends StatelessWidget {
                 Text(
                   title,
                   style: TextStyle(
-                    fontFamily: NavigationSidebarThemeData.bodyFont,
+                    fontFamily: SuperNavigationSidebarThemeData.bodyFont,
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
                     color: s.fg1,
@@ -582,7 +584,7 @@ class _Page extends StatelessWidget {
                 Text(
                   body,
                   style: TextStyle(
-                    fontFamily: NavigationSidebarThemeData.bodyFont,
+                    fontFamily: SuperNavigationSidebarThemeData.bodyFont,
                     fontSize: 12.5,
                     height: 1.5,
                     color: s.fg3,
@@ -597,7 +599,8 @@ class _Page extends StatelessWidget {
   }
 }
 
-String _plainExampleLabel<T>(NavNode<T>? node, {required String fallback}) {
+String _plainExampleLabel<T>(SuperNavNode<T>? node,
+    {required String fallback}) {
   if (node == null) return fallback;
   final label = node.label;
   if (label is Text)

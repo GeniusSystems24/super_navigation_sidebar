@@ -1,4 +1,4 @@
-# Agent guide — super_navigation_sidebar 3.0.0
+﻿# Agent guide — super_navigation_sidebar 3.2.0
 
 ## Scope
 
@@ -8,34 +8,34 @@ and global shortcut handling.
 
 ## Preferred implementation pattern
 
-1. Create one `NavigationSidebarController<T>` from the typed section tree.
-2. Resolve `NavSidebarMode` with `NavSidebarBreakpoints` in `LayoutBuilder`.
-3. For expanded/rail mode, compose `NavigationSidebar` beside content in a
+1. Create one `SuperNavigationSidebarController<T>` from the typed section tree.
+2. Resolve `SuperNavSidebarMode` with `SuperNavSidebarBreakpoints` in `LayoutBuilder`.
+3. For expanded/rail mode, compose `SuperNavigationSidebar` beside content in a
    `Row`.
-4. For drawer mode, compose content and `NavigationSidebar` in a `Stack`, and
+4. For drawer mode, compose content and `SuperNavigationSidebar` in a `Stack`, and
    call `controller.openDrawer()` from the host menu button.
 5. Use `allowSearchView` for the package-owned search trigger.
-> 3.0 search-field invariant: `NavigationSearchView` uses `SuperTextFormField` / `SuperTextFieldController` from `super_form_field`; do not replace it with a raw Material `TextField`.
-6. Prefer `NavigationSearchViewMode.dialog` on wide layouts and `.sheet` on
+> 3.0 search-field invariant: `SuperNavigationSearchView` uses `SuperTextFormField` / `SuperTextFieldController` from `super_form_field`; do not replace it with a raw Material `TextField`.
+6. Prefer `SuperNavigationSearchViewMode.dialog` on wide layouts and `.sheet` on
    compact layouts.
 
 ## Search API
 
 ```dart
-showNavigationSearchView<T>(
+showSuperNavigationSearchView<T>(
   context,
   controller: controller,
-  mode: NavigationSearchViewMode.dialog,
+  mode: SuperNavigationSearchViewMode.dialog,
 );
 ```
 
-`NavigationSearchView<T>` can also be embedded directly. `NavSearchOps` and
-`NavSearchHit` are available when custom search presentation is required.
+`SuperNavigationSearchView<T>` can also be embedded directly. `SuperNavSearchOps` and
+`SuperNavSearchHit` are available when custom search presentation is required.
 
 ## Sidebar API highlights
 
 ```dart
-NavigationSidebar<T>(
+SuperNavigationSidebar<T>(
   controller: controller,
   mode: mode,
   showGuides: true,
@@ -43,12 +43,29 @@ NavigationSidebar<T>(
   showPaneToggle: true,
   searchable: false,
   allowSearchView: true,
-  searchViewMode: NavigationSearchViewMode.dialog,
+  searchViewMode: SuperNavigationSearchViewMode.dialog,
   favoritable: true,
   aggregateBadges: true,
   onNavigate: (node) {},
 )
 ```
+
+## Localization
+
+Use the generated localization API exported by the package barrel:
+
+```dart
+MaterialApp(
+  localizationsDelegates: SuperNavigationLocalization.localizationsDelegates,
+  supportedLocales: SuperNavigationLocalization.supportedLocales,
+  home: const AppRoot(),
+)
+```
+
+`SuperNavigationSidebar` reads `SuperNavigationLocalization` from context and has an
+English fallback. Use `Localizations.override` for examples that switch between
+English and Arabic inside one demo screen. Do not reintroduce
+`NavigationSidebarLocalizations` or `lib/src/localizations.dart`.
 
 ## Node model
 
@@ -70,16 +87,16 @@ persistent Settings/Help destinations.
 ## Avoid
 
 - Building drawer mode inline beside content.
-- Reimplementing package search when `NavigationSearchView` is sufficient.
+- Reimplementing package search when `SuperNavigationSearchView` is sufficient.
 - Storing application-level keyboard commands in navigation data.
 - Coupling the navigation controller to page-scaffold/back-button state.
 
-## NavNode widget API
+## SuperNavNode widget API
 
 When creating navigation nodes, use widgets directly:
 
 ```dart
-NavNode(
+SuperNavNode(
   label: const Text('Dashboard'),
   leadingIcon: const Icon(Icons.dashboard_outlined),
   trailingIcon: const Icon(Icons.chevron_right),
@@ -97,15 +114,15 @@ Rules:
 
 ## Version 3.1.0 navigation content rules
 
-When working with `NavNode` or navigation search results, follow these rules:
+When working with `SuperNavNode` or navigation search results, follow these rules:
 
-- `NavNode.label` is a `Widget`, not a `String`.
-- `NavNode.leadingIcon` is `Widget?`.
-- `NavNode.trailingIcon` is `Widget?`.
-- `NavNode.keywords` is `List<String>` and defaults to an empty list.
-- `NavSearchHit.label` is a `Widget`.
-- `NavSearchHit.leadingIcon` and `NavSearchHit.trailingIcon` are Widgets.
-- `NavSearchHit.keywords` is a non-nullable `List<String>`.
+- `SuperNavNode.label` is a `Widget`, not a `String`.
+- `SuperNavNode.leadingIcon` is `Widget?`.
+- `SuperNavNode.trailingIcon` is `Widget?`.
+- `SuperNavNode.keywords` is `List<String>` and defaults to an empty list.
+- `SuperNavSearchHit.label` is a `Widget`.
+- `SuperNavSearchHit.leadingIcon` and `SuperNavSearchHit.trailingIcon` are Widgets.
+- `SuperNavSearchHit.keywords` is a non-nullable `List<String>`.
 - Render label and icon Widgets directly.
 - Never assume the label is `Text`.
 - Never call `toString()` on a label for search or display behavior.
@@ -120,7 +137,7 @@ When working with `NavNode` or navigation search results, follow these rules:
 For a plain text label:
 
 ```dart
-NavNode(
+SuperNavNode(
   label: const Text('Settings'),
   leadingIcon: const Icon(Icons.settings_outlined),
   keywords: const ['settings', 'preferences'],
@@ -130,7 +147,7 @@ NavNode(
 For a custom label:
 
 ```dart
-NavNode(
+SuperNavNode(
   label: Row(
     mainAxisSize: MainAxisSize.min,
     children: const [
@@ -149,7 +166,7 @@ NavNode(
 Old:
 
 ```dart
-NavNode(
+SuperNavNode(
   label: 'Settings',
   icon: Icons.settings,
 )
@@ -158,7 +175,7 @@ NavNode(
 New:
 
 ```dart
-NavNode(
+SuperNavNode(
   label: const Text('Settings'),
   leadingIcon: const Icon(Icons.settings),
 )

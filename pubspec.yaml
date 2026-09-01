@@ -5,7 +5,7 @@ description: >
   persistence, localization, RTL support, and a reusable NavigationSearchView
   that opens as a dialog or modal bottom sheet.
 
-version: 3.1.0
+version: 3.2.0
 
 homepage: https://github.com/GeniusSystems24/super_navigation_sidebar
 repository: https://github.com/GeniusSystems24/super_navigation_sidebar
@@ -18,6 +18,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
   # Shared GeniusLink design-system foundation — provides SuperMaterialThemeData
   # / SuperThemeData so the sidebar derives palette-, brightness- and
   # device-mode-aware tokens automatically via
@@ -25,6 +27,7 @@ dependencies:
   super_core: ">=3.6.0 <4.0.0"
   # Shared GeniusLink form-field foundation used by NavigationSearchView.
   super_form_field: ">=1.11.1 <2.0.0"
+  intl: ">=0.20.0 <0.30.0"
 
 dev_dependencies:
   flutter_test:
@@ -33,3 +36,7 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  # The following section is specific to Flutter.
+  generate: true # Add this line
+
+

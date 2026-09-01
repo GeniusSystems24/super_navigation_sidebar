@@ -1,5 +1,5 @@
 // ============================================================
-// NavigationSidebar — THEME.
+// SuperNavigationSidebar — THEME.
 // ------------------------------------------------------------
 // The component's own ThemeExtension. All visual tokens live here:
 //
@@ -12,10 +12,10 @@
 //
 // USAGE
 //   // Apply preset:
-//   ThemeData(extensions: const [NavigationSidebarThemeData.light]);
+//   ThemeData(extensions: const [SuperNavigationSidebarThemeData.light]);
 //
 //   // Customise colors AND sizes:
-//   NavigationSidebarThemeData.light.copyWith(
+//   SuperNavigationSidebarThemeData.light.copyWith(
 //     surface: const Color(0xFFFAF8F5),
 //     directHeight: 46,
 //     railButton: 48,
@@ -24,7 +24,7 @@
 //   )
 //
 //   // Read in widgets:
-//   final t = NavigationSidebarThemeData.of(context);
+//   final t = SuperNavigationSidebarThemeData.of(context);
 //   t.directHeight   // 42 (or host override)
 //   t.rowHeight(role) // convenience dispatch over the four role heights
 //   t.contentInset(depth)
@@ -39,8 +39,8 @@ import 'package:super_core/super_core.dart';
 import 'models.dart';
 
 @immutable
-class NavigationSidebarThemeData
-    extends ThemeExtension<NavigationSidebarThemeData> {
+class SuperNavigationSidebarThemeData
+    extends ThemeExtension<SuperNavigationSidebarThemeData> {
   // ── swappable surfaces (dark ↔ light) ──────────────────────
   /// Page backdrop the rail/drawer floats over.
   final Color bg;
@@ -136,18 +136,18 @@ class NavigationSidebarThemeData
 
   // ── SELECTION INDICATOR & HEADER ───────────────────────────
   /// How the active leaf row is highlighted.
-  /// Default: [NavSelectionIndicator.fill] (unchanged original look).
-  final NavSelectionIndicator selectionIndicator;
+  /// Default: [SuperNavSelectionIndicator.fill] (unchanged original look).
+  final SuperNavSelectionIndicator selectionIndicator;
 
-  /// Thickness of the [NavSelectionIndicator.bar] pill. Default: **3**.
+  /// Thickness of the [SuperNavSelectionIndicator.bar] pill. Default: **3**.
   final double indicatorThickness;
 
-  /// Vertical inset of the [NavSelectionIndicator.bar] pill from the top and
+  /// Vertical inset of the [SuperNavSelectionIndicator.bar] pill from the top and
   /// bottom of its row. Default: **9**.
   final double indicatorInset;
 
   // ── constructor ────────────────────────────────────────────
-  const NavigationSidebarThemeData({
+  const SuperNavigationSidebarThemeData({
     // ── colors (required) ────────────────────────────────────
     required this.bg,
     required this.surface,
@@ -178,7 +178,7 @@ class NavigationSidebarThemeData
     this.radiusLg = 10,
     this.radiusXl = 12,
     this.gutter = 19,
-    this.selectionIndicator = NavSelectionIndicator.fill,
+    this.selectionIndicator = SuperNavSelectionIndicator.fill,
     this.indicatorThickness = 3,
     this.indicatorInset = 9,
   });
@@ -211,7 +211,8 @@ class NavigationSidebarThemeData
   ];
 
   // ── default breakpoints ────────────────────────────────────
-  static const NavSidebarBreakpoints breakpoints = NavSidebarBreakpoints();
+  static const SuperNavSidebarBreakpoints breakpoints =
+      SuperNavSidebarBreakpoints();
 
   // ── derived geometry (instance — depend on [gutter]) ───────
   /// Horizontal stub length of the ├ / └ elbow connector.
@@ -224,65 +225,67 @@ class NavigationSidebarThemeData
   double lineInset(int depth) => contentInset(depth) + 10;
 
   /// Row height for [role] — convenience for the view layer.
-  double rowHeight(NavNodeRole role) {
+  double rowHeight(SuperNavNodeRole role) {
     switch (role) {
-      case NavNodeRole.direct:
+      case SuperNavNodeRole.direct:
         return directHeight;
-      case NavNodeRole.module:
+      case SuperNavNodeRole.module:
         return moduleHeight;
-      case NavNodeRole.group:
+      case SuperNavNodeRole.group:
         return groupHeight;
-      case NavNodeRole.item:
+      case SuperNavNodeRole.item:
         return itemHeight;
     }
   }
 
   // ── presets ────────────────────────────────────────────────
-  static const NavigationSidebarThemeData dark = NavigationSidebarThemeData(
-    bg: Color(0xFF111318),
-    surface: Color(0xFF1E2025),
-    inputBg: Color(0xFF33353A),
-    hover: Color(0xFF2F3540),
-    border: Color(0x66434654),
-    borderStrong: Color(0xFF434654),
-    guide: Color(0xFF434654),
-    fg1: Color(0xFFE2E2E9),
-    fg2: Color(0xFFC3C6D7),
-    fg3: Color(0xFF8D90A0),
-    fg4: Color(0xFF44474E),
-    // sizes use their defaults
-  );
+  static const SuperNavigationSidebarThemeData dark =
+      SuperNavigationSidebarThemeData(
+        bg: Color(0xFF111318),
+        surface: Color(0xFF1E2025),
+        inputBg: Color(0xFF33353A),
+        hover: Color(0xFF2F3540),
+        border: Color(0x66434654),
+        borderStrong: Color(0xFF434654),
+        guide: Color(0xFF434654),
+        fg1: Color(0xFFE2E2E9),
+        fg2: Color(0xFFC3C6D7),
+        fg3: Color(0xFF8D90A0),
+        fg4: Color(0xFF44474E),
+        // sizes use their defaults
+      );
 
-  static const NavigationSidebarThemeData light = NavigationSidebarThemeData(
-    bg: Color(0xFFF7F8FA),
-    surface: Color(0xFFFFFFFF),
-    inputBg: Color(0xFFF1F3F8),
-    hover: Color(0xFFEEF1F7),
-    border: Color(0xFFE2E8F0),
-    borderStrong: Color(0xFFC2C6D6),
-    guide: Color(0xFFC2C6D6),
-    fg1: Color(0xFF0F172A),
-    fg2: Color(0xFF424754),
-    fg3: Color(0xFF64748B),
-    fg4: Color(0xFFC2C6D6),
-    // sizes use their defaults
-  );
+  static const SuperNavigationSidebarThemeData light =
+      SuperNavigationSidebarThemeData(
+        bg: Color(0xFFF7F8FA),
+        surface: Color(0xFFFFFFFF),
+        inputBg: Color(0xFFF1F3F8),
+        hover: Color(0xFFEEF1F7),
+        border: Color(0xFFE2E8F0),
+        borderStrong: Color(0xFFC2C6D6),
+        guide: Color(0xFFC2C6D6),
+        fg1: Color(0xFF0F172A),
+        fg2: Color(0xFF424754),
+        fg3: Color(0xFF64748B),
+        fg4: Color(0xFFC2C6D6),
+        // sizes use their defaults
+      );
 
   // ── helpers ────────────────────────────────────────────────
   /// Reads the registered extension; when absent, derives from the ambient
   /// [SuperMaterialThemeData] (palette / brightness / device-mode aware); falls
   /// back to [dark] only when no Super/Material theme is available.
-  static NavigationSidebarThemeData of(BuildContext context) {
-    final ext = Theme.of(context).extension<NavigationSidebarThemeData>();
+  static SuperNavigationSidebarThemeData of(BuildContext context) {
+    final ext = Theme.of(context).extension<SuperNavigationSidebarThemeData>();
     if (ext != null) return ext;
     final superTheme = SuperMaterialThemeData.maybeOf(context);
     if (superTheme != null) {
-      return NavigationSidebarThemeData.fromMaterialTheme(superTheme);
+      return SuperNavigationSidebarThemeData.fromMaterialTheme(superTheme);
     }
     return dark;
   }
 
-  /// Derives a [NavigationSidebarThemeData] from a [SuperMaterialThemeData],
+  /// Derives a [SuperNavigationSidebarThemeData] from a [SuperMaterialThemeData],
   /// reading palette-, brightness- and device-mode-aware tokens from
   /// `theme.superTheme` instead of duplicating hard-coded light/dark hex. Row
   /// and control sizes follow the active [SuperDeviceMode] via the resolved
@@ -292,12 +295,12 @@ class NavigationSidebarThemeData
   /// [SuperMaterialThemeData.textTheme], not [SuperThemeData]. Do not read
   /// `theme.superTheme.textTheme` here; sidebar token derivation only needs the
   /// color and sizing data exposed by [SuperThemeData].
-  factory NavigationSidebarThemeData.fromMaterialTheme(
+  factory SuperNavigationSidebarThemeData.fromMaterialTheme(
     SuperMaterialThemeData theme,
   ) {
     final s = theme.superTheme;
     final z = s.sizing;
-    return NavigationSidebarThemeData(
+    return SuperNavigationSidebarThemeData(
       bg: s.bg,
       surface: s.surface,
       inputBg: s.inputBg,
@@ -320,57 +323,57 @@ class NavigationSidebarThemeData
   Color accentFill([double pct = 0.12]) =>
       Color.alphaBlend(accent.withValues(alpha: pct), surface);
 
-  /// Resolves a [NavBadgeTone] to its (background, foreground, border) trio.
-  ({Color bg, Color fg, Color border}) badgeColors(NavBadgeTone tone) {
+  /// Resolves a [SuperNavBadgeTone] to its (background, foreground, border) trio.
+  ({Color bg, Color fg, Color border}) badgeColors(SuperNavBadgeTone tone) {
     switch (tone) {
-      case NavBadgeTone.accent:
+      case SuperNavBadgeTone.accent:
         return (
           bg: accent.withValues(alpha: 0.16),
           fg: accent,
           border: accent.withValues(alpha: 0.34),
         );
-      case NavBadgeTone.success:
+      case SuperNavBadgeTone.success:
         return (
           bg: success.withValues(alpha: 0.16),
           fg: const Color(0xFF2BBE7C),
           border: success.withValues(alpha: 0.34),
         );
-      case NavBadgeTone.warning:
+      case SuperNavBadgeTone.warning:
         return (
           bg: warning.withValues(alpha: 0.16),
           fg: const Color(0xFFE0A23B),
           border: warning.withValues(alpha: 0.34),
         );
-      case NavBadgeTone.danger:
+      case SuperNavBadgeTone.danger:
         return (
           bg: danger.withValues(alpha: 0.16),
           fg: const Color(0xFFF26464),
           border: danger.withValues(alpha: 0.34),
         );
-      case NavBadgeTone.muted:
+      case SuperNavBadgeTone.muted:
         return (bg: inputBg, fg: fg3, border: border);
     }
   }
 
-  /// Resolves a [NavNodeStatus] to its status-dot colour (null = no dot).
-  Color? statusColor(NavNodeStatus status) {
+  /// Resolves a [SuperNavNodeStatus] to its status-dot colour (null = no dot).
+  Color? statusColor(SuperNavNodeStatus status) {
     switch (status) {
-      case NavNodeStatus.none:
+      case SuperNavNodeStatus.none:
         return null;
-      case NavNodeStatus.open:
+      case SuperNavNodeStatus.open:
         return success;
-      case NavNodeStatus.closed:
+      case SuperNavNodeStatus.closed:
         return fg4;
-      case NavNodeStatus.locked:
+      case SuperNavNodeStatus.locked:
         return danger;
-      case NavNodeStatus.attention:
+      case SuperNavNodeStatus.attention:
         return warning;
     }
   }
 
   // ── ThemeExtension overrides ───────────────────────────────
   @override
-  NavigationSidebarThemeData copyWith({
+  SuperNavigationSidebarThemeData copyWith({
     // colors
     Color? bg,
     Color? surface,
@@ -401,10 +404,10 @@ class NavigationSidebarThemeData
     double? radiusLg,
     double? radiusXl,
     double? gutter,
-    NavSelectionIndicator? selectionIndicator,
+    SuperNavSelectionIndicator? selectionIndicator,
     double? indicatorThickness,
     double? indicatorInset,
-  }) => NavigationSidebarThemeData(
+  }) => SuperNavigationSidebarThemeData(
     bg: bg ?? this.bg,
     surface: surface ?? this.surface,
     inputBg: inputBg ?? this.inputBg,
@@ -439,12 +442,12 @@ class NavigationSidebarThemeData
   );
 
   @override
-  NavigationSidebarThemeData lerp(
-    ThemeExtension<NavigationSidebarThemeData>? other,
+  SuperNavigationSidebarThemeData lerp(
+    ThemeExtension<SuperNavigationSidebarThemeData>? other,
     double t,
   ) {
-    if (other is! NavigationSidebarThemeData) return this;
-    return NavigationSidebarThemeData(
+    if (other is! SuperNavigationSidebarThemeData) return this;
+    return SuperNavigationSidebarThemeData(
       // colors — smooth interpolation
       bg: Color.lerp(bg, other.bg, t)!,
       surface: Color.lerp(surface, other.surface, t)!,
@@ -488,3 +491,5 @@ class NavigationSidebarThemeData
     );
   }
 }
+
+typedef NavigationSidebarThemeData = SuperNavigationSidebarThemeData;

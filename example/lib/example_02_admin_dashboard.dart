@@ -10,51 +10,52 @@ class AdminDashboardExample extends StatefulWidget {
 
 class _AdminDashboardExampleState extends State<AdminDashboardExample> {
   int _pending = 9;
-  late final NavigationSidebarController<String> _nav;
+  late final SuperNavigationSidebarController<String> _nav;
 
-  List<NavSection<String>> _sections() => [
-        NavSection<String>(
+  List<SuperNavSection<String>> _sections() => [
+        SuperNavSection<String>(
           title: 'Overview',
           items: [
-            NavNode(
+            SuperNavNode(
               id: 'dashboard',
               label: Text('Dashboard'),
               code: 'DB01',
               leadingIcon: Icon(Icons.dashboard_outlined),
               value: 'dashboard',
             ),
-            NavNode(
+            SuperNavNode(
               id: 'approvals',
               label: Text('Approvals'),
               code: 'AP01',
               leadingIcon: Icon(Icons.approval_outlined),
-              badge: NavBadge('$_pending', tone: NavBadgeTone.danger),
+              badge: SuperNavBadge('$_pending', tone: SuperNavBadgeTone.danger),
               value: 'approvals',
             ),
           ],
         ),
-        NavSection<String>(
+        SuperNavSection<String>(
           title: 'Finance',
           items: [
-            NavNode(
+            SuperNavNode(
               id: 'accounting',
               label: Text('Accounting'),
               leadingIcon: Icon(Icons.account_balance_outlined),
               children: [
-                NavNode(
+                SuperNavNode(
                   id: 'ledger_group',
                   label: Text('General ledger'),
                   children: [
-                    NavNode(
+                    SuperNavNode(
                       id: 'chart',
                       label: Text('Chart of accounts'),
                       code: 'COA',
                       keywords: const ['accounts tree', 'ledger'],
                       leadingIcon: Icon(Icons.account_tree_outlined),
-                      badge: const NavBadge('Live', tone: NavBadgeTone.success),
+                      badge: const SuperNavBadge('Live',
+                          tone: SuperNavBadgeTone.success),
                       value: 'chart',
                     ),
-                    NavNode(
+                    SuperNavNode(
                       id: 'journals',
                       label: Text('Journal entries'),
                       code: 'JE01',
@@ -68,11 +69,11 @@ class _AdminDashboardExampleState extends State<AdminDashboardExample> {
             ),
           ],
         ),
-        NavSection<String>(
+        SuperNavSection<String>(
           title: 'System',
-          placement: NavSectionPlacement.footer,
+          placement: SuperNavSectionPlacement.footer,
           items: [
-            NavNode(
+            SuperNavNode(
               id: 'settings',
               label: Text('Settings'),
               leadingIcon: Icon(Icons.settings_outlined),
@@ -85,7 +86,7 @@ class _AdminDashboardExampleState extends State<AdminDashboardExample> {
   @override
   void initState() {
     super.initState();
-    _nav = NavigationSidebarController<String>(
+    _nav = SuperNavigationSidebarController<String>(
       sections: _sections(),
       active: 'dashboard',
     );
@@ -106,7 +107,7 @@ class _AdminDashboardExampleState extends State<AdminDashboardExample> {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final mode = const NavSidebarBreakpoints().modeFor(
+        final mode = const SuperNavSidebarBreakpoints().modeFor(
           constraints.maxWidth,
         );
         final content = _DashboardContent(
@@ -114,19 +115,19 @@ class _AdminDashboardExampleState extends State<AdminDashboardExample> {
           pending: _pending,
           onCompleteApproval: _completeApproval,
           onOpenDrawer: _nav.openDrawer,
-          showMenu: mode == NavSidebarMode.drawer,
+          showMenu: mode == SuperNavSidebarMode.drawer,
         );
 
-        if (mode == NavSidebarMode.drawer) {
+        if (mode == SuperNavSidebarMode.drawer) {
           return Stack(
             children: [
               Positioned.fill(child: content),
               Positioned.fill(
-                child: NavigationSidebar<String>(
+                child: SuperNavigationSidebar<String>(
                   controller: _nav,
                   mode: mode,
                   allowSearchView: true,
-                  searchViewMode: NavigationSearchViewMode.sheet,
+                  searchViewMode: SuperNavigationSearchViewMode.sheet,
                   favoritable: true,
                   onNavigate: (_) => setState(() {}),
                 ),
@@ -137,11 +138,11 @@ class _AdminDashboardExampleState extends State<AdminDashboardExample> {
 
         return Row(
           children: [
-            NavigationSidebar<String>(
+            SuperNavigationSidebar<String>(
               controller: _nav,
               mode: mode,
               allowSearchView: true,
-              searchViewMode: NavigationSearchViewMode.dialog,
+              searchViewMode: SuperNavigationSearchViewMode.dialog,
               favoritable: true,
               showPaneToggle: true,
               onNavigate: (_) => setState(() {}),
@@ -155,7 +156,7 @@ class _AdminDashboardExampleState extends State<AdminDashboardExample> {
 }
 
 class _DashboardContent extends StatelessWidget {
-  final NavigationSidebarController<String> controller;
+  final SuperNavigationSidebarController<String> controller;
   final int pending;
   final VoidCallback onCompleteApproval;
   final VoidCallback onOpenDrawer;
@@ -171,7 +172,7 @@ class _DashboardContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = NavigationSidebarThemeData.of(context);
+    final theme = SuperNavigationSidebarThemeData.of(context);
     final activeNode = controller.node(controller.active ?? '');
     final active =
         activeNode == null ? 'Dashboard' : _plainExampleLabel(activeNode);
@@ -234,7 +235,7 @@ class _DashboardContent extends StatelessWidget {
   }
 }
 
-String _plainExampleLabel<T>(NavNode<T> node) {
+String _plainExampleLabel<T>(SuperNavNode<T> node) {
   final label = node.label;
   if (label is Text)
     return label.data ?? label.textSpan?.toPlainText() ?? node.id;
@@ -248,7 +249,7 @@ class _Metric extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = NavigationSidebarThemeData.of(context);
+    final theme = SuperNavigationSidebarThemeData.of(context);
     return Container(
       width: 190,
       padding: const EdgeInsets.all(16),

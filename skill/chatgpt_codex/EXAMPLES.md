@@ -1,23 +1,23 @@
-# Codex examples — super_navigation_sidebar 3.0.0
+﻿# Codex examples — super_navigation_sidebar 3.2.0
 
 ## Adaptive host layout
 
 ```dart
 LayoutBuilder(
   builder: (context, constraints) {
-    final mode = const NavSidebarBreakpoints().modeFor(constraints.maxWidth);
-    final sidebar = NavigationSidebar<String>(
+    final mode = const SuperNavSidebarBreakpoints().modeFor(constraints.maxWidth);
+    final sidebar = SuperNavigationSidebar<String>(
       controller: nav,
       mode: mode,
       allowSearchView: true,
-> 3.0 search-field invariant: `NavigationSearchView` uses `SuperTextFormField` / `SuperTextFieldController` from `super_form_field`; do not replace it with a raw Material `TextField`.
-      searchViewMode: mode == NavSidebarMode.drawer
-          ? NavigationSearchViewMode.sheet
-          : NavigationSearchViewMode.dialog,
+> 3.0 search-field invariant: `SuperNavigationSearchView` uses `SuperTextFormField` / `SuperTextFieldController` from `super_form_field`; do not replace it with a raw Material `TextField`.
+      searchViewMode: mode == SuperNavSidebarMode.drawer
+          ? SuperNavigationSearchViewMode.sheet
+          : SuperNavigationSearchViewMode.dialog,
       onNavigate: (node) => setState(() => active = node.value!),
     );
 
-    if (mode == NavSidebarMode.drawer) {
+    if (mode == SuperNavSidebarMode.drawer) {
       return Stack(
         children: [
           Positioned.fill(child: page),
@@ -34,27 +34,27 @@ LayoutBuilder(
 ## Dialog search
 
 ```dart
-showNavigationSearchView<String>(
+showSuperNavigationSearchView<String>(
   context,
   controller: nav,
-  mode: NavigationSearchViewMode.dialog,
+  mode: SuperNavigationSearchViewMode.dialog,
 );
 ```
 
 ## Sheet search
 
 ```dart
-showNavigationSearchView<String>(
+showSuperNavigationSearchView<String>(
   context,
   controller: nav,
-  mode: NavigationSearchViewMode.sheet,
+  mode: SuperNavigationSearchViewMode.sheet,
 );
 ```
 
 ## Embedded search
 
 ```dart
-NavigationSearchView<String>(
+SuperNavigationSearchView<String>(
   controller: nav,
   autofocus: false,
   closeOnPick: false,
@@ -65,12 +65,12 @@ NavigationSearchView<String>(
 ## Searchable destination
 
 ```dart
-NavNode<String>(
+SuperNavNode<String>(
   id: 'journal_entries',
-  label: 'Journal entries',
+  label: const Text('Journal entries'),
   code: 'JE01',
   keywords: const ['voucher', 'posting', 'قيد'],
-  icon: Icons.receipt_long_outlined,
+  leadingIcon: const Icon(Icons.receipt_long_outlined),
   value: 'journal_entries',
 )
 ```
@@ -83,17 +83,27 @@ if (nav.navigate(id)) {
 }
 ```
 
+## Generated localization setup
+
+```dart
+MaterialApp(
+  localizationsDelegates: SuperNavigationLocalization.localizationsDelegates,
+  supportedLocales: SuperNavigationLocalization.supportedLocales,
+  home: const AppRoot(),
+)
+```
+
 ## Version 3.1.0 navigation content rules
 
-When working with `NavNode` or navigation search results, follow these rules:
+When working with `SuperNavNode` or navigation search results, follow these rules:
 
-- `NavNode.label` is a `Widget`, not a `String`.
-- `NavNode.leadingIcon` is `Widget?`.
-- `NavNode.trailingIcon` is `Widget?`.
-- `NavNode.keywords` is `List<String>` and defaults to an empty list.
-- `NavSearchHit.label` is a `Widget`.
-- `NavSearchHit.leadingIcon` and `NavSearchHit.trailingIcon` are Widgets.
-- `NavSearchHit.keywords` is a non-nullable `List<String>`.
+- `SuperNavNode.label` is a `Widget`, not a `String`.
+- `SuperNavNode.leadingIcon` is `Widget?`.
+- `SuperNavNode.trailingIcon` is `Widget?`.
+- `SuperNavNode.keywords` is `List<String>` and defaults to an empty list.
+- `SuperNavSearchHit.label` is a `Widget`.
+- `SuperNavSearchHit.leadingIcon` and `SuperNavSearchHit.trailingIcon` are Widgets.
+- `SuperNavSearchHit.keywords` is a non-nullable `List<String>`.
 - Render label and icon Widgets directly.
 - Never assume the label is `Text`.
 - Never call `toString()` on a label for search or display behavior.
@@ -108,7 +118,7 @@ When working with `NavNode` or navigation search results, follow these rules:
 For a plain text label:
 
 ```dart
-NavNode(
+SuperNavNode(
   label: const Text('Settings'),
   leadingIcon: const Icon(Icons.settings_outlined),
   keywords: const ['settings', 'preferences'],
@@ -118,7 +128,7 @@ NavNode(
 For a custom label:
 
 ```dart
-NavNode(
+SuperNavNode(
   label: Row(
     mainAxisSize: MainAxisSize.min,
     children: const [
@@ -137,7 +147,7 @@ NavNode(
 Old:
 
 ```dart
-NavNode(
+SuperNavNode(
   label: 'Settings',
   icon: Icons.settings,
 )
@@ -146,7 +156,7 @@ NavNode(
 New:
 
 ```dart
-NavNode(
+SuperNavNode(
   label: const Text('Settings'),
   leadingIcon: const Icon(Icons.settings),
 )

@@ -1,0 +1,69 @@
+{
+  "@@locale": "ar",
+  "searchHint": "البحث في القائمة…",
+  "@searchHint": {
+    "description": "Placeholder shown inside the navigation search field when empty."
+  },
+  "searchEmpty": "لا توجد نتائج لـ \"{query}\"",
+  "@searchEmpty": {
+    "description": "Message shown when a search query returns no hits.",
+    "placeholders": {
+      "query": {
+        "type": "String",
+        "example": "journals"
+      }
+    }
+  },
+  "drawerTitle": "القائمة",
+  "@drawerTitle": {
+    "description": "Eyebrow label above the close button in the navigation drawer."
+  },
+  "drawerCloseLabel": "إغلاق القائمة",
+  "@drawerCloseLabel": {
+    "description": "Accessible tooltip and semantic label for the drawer close icon button."
+  },
+  "quickAccessTitle": "الوصول السريع",
+  "@quickAccessTitle": {
+    "description": "Section eyebrow above the synthesized Quick Access favorites band."
+  },
+  "addToQuickAccess": "إضافة للوصول السريع",
+  "@addToQuickAccess": {
+    "description": "Tooltip on the star icon when the node is not yet a favorite."
+  },
+  "removeFromQuickAccess": "إزالة من الوصول السريع",
+  "@removeFromQuickAccess": {
+    "description": "Tooltip on the star icon when the node is already a favorite."
+  },
+  "recentsTitle": "الأخيرة",
+  "@recentsTitle": {
+    "description": "Header of the recent-destinations band in the command palette."
+  },
+  "lockedDefault": "مقفل — ليس لديك صلاحية الوصول",
+  "@lockedDefault": {
+    "description": "Fallback tooltip when a navigation node is locked and has no explicit lock message."
+  },
+  "semanticExpanded": "مفتوح",
+  "@semanticExpanded": {
+    "description": "Appended to a branch node semantic label when it is expanded."
+  },
+  "semanticCollapsed": "مغلق",
+  "@semanticCollapsed": {
+    "description": "Appended to a branch node semantic label when it is collapsed."
+  },
+  "semanticLocked": "مقفل",
+  "@semanticLocked": {
+    "description": "Appended to a node semantic label when it is locked."
+  },
+  "semanticDisabled": "غير متاح",
+  "@semanticDisabled": {
+    "description": "Appended to a node semantic label when it is disabled."
+  },
+  "semanticToggleSidebar": "تبديل الشريط الجانبي",
+  "@semanticToggleSidebar": {
+    "description": "Semantic label for the rail collapse and expand toggle button."
+  },
+  "semanticOpenDrawer": "فتح القائمة",
+  "@semanticOpenDrawer": {
+    "description": "Semantic label for the hamburger or open-drawer button in drawer mode."
+  }
+}

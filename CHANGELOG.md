@@ -1,17 +1,49 @@
+﻿# 3.2.0
+
+## 3.2.0
+
+### Changed
+
+- Raised package metadata to `3.2.0`.
+- Moved sidebar user-facing strings into Flutter ARB files:
+  `lib/localizations/intl_en.arb` and `lib/localizations/intl_ar.arb`.
+- Exported and consumed the generated `SuperNavigationLocalization` API from
+  `lib/localizations/generated` instead of the private
+  `lib/src/localizations.dart` value object.
+- Updated `SuperNavigationSidebar.localizations` to accept an optional generated
+  localization instance while defaulting to context-resolved localization with
+  an English fallback.
+- Renamed public navigation/sidebar/search/theme components to `Super*`
+  symbols, including `SuperNavigationSidebar`,
+  `SuperNavigationSidebarController`, `SuperNavNode`, `SuperNavSection`,
+  `SuperNavigationSearchView`, and `SuperNavigationSidebarThemeData`.
+- Added old-name compatibility typedefs for the renamed public types, plus a
+  forwarding `showNavigationSearchView` wrapper for the renamed
+  `showSuperNavigationSearchView`.
+- Updated example app localization delegates and the kitchen-sink RTL example
+  to use generated localization lookup.
+
+### Removed
+
+- Removed `lib/src/localizations.dart` and the legacy
+  `NavigationSidebarLocalizations` API.
+
+---
+
 # 3.0.0
 
 ## 3.1.0
 
 ### Breaking changes
 
-- Changed `NavNode.label` from `String` to `Widget`.
-- Replaced `NavNode.icon` (`IconData?`) with `NavNode.leadingIcon` (`Widget?`).
-- Added `NavNode.trailingIcon` (`Widget?`).
-- Changed `NavNode.keywords` from `List<String>?` to `List<String>`.
+- Changed `SuperNavNode.label` from `String` to `Widget`.
+- Replaced `SuperNavNode.icon` (`IconData?`) with `SuperNavNode.leadingIcon` (`Widget?`).
+- Added `SuperNavNode.trailingIcon` (`Widget?`).
+- Changed `SuperNavNode.keywords` from `List<String>?` to `List<String>`.
 - Updated navigation search results to use Widget-based labels and icons.
-- Updated `NavSearchHit.label` to `Widget`.
-- Replaced the old `NavSearchHit.icon` model with `leadingIcon` and added `trailingIcon`.
-- Changed `NavSearchHit.keywords` to a non-nullable `List<String>`.
+- Updated `SuperNavSearchHit.label` to `Widget`.
+- Replaced the old `SuperNavSearchHit.icon` model with `leadingIcon` and added `trailingIcon`.
+- Changed `SuperNavSearchHit.keywords` to a non-nullable `List<String>`.
 
 ### Search behavior
 
@@ -34,19 +66,19 @@
 
 ## Navigation search
 
-- Added `NavigationSearchView<T>` as a reusable, presentation-independent navigation search surface.
-- Added `NavigationSearchViewMode.dialog` and `NavigationSearchViewMode.sheet`.
-- Added `showNavigationSearchView<T>(...)` for modal presentation.
-- Replaced `NavigationSidebar.allowSearchDialog` with `allowSearchView`.
-- Added `NavigationSidebar.searchViewMode` so the built-in trigger can use dialog on desktop and a bottom sheet on compact layouts.
+- Added `SuperNavigationSearchView<T>` as a reusable, presentation-independent navigation search surface.
+- Added `SuperNavigationSearchViewMode.dialog` and `SuperNavigationSearchViewMode.sheet`.
+- Added `showSuperNavigationSearchView<T>(...)` for modal presentation.
+- Replaced `SuperNavigationSidebar.allowSearchDialog` with `allowSearchView`.
+- Added `SuperNavigationSidebar.searchViewMode` so the built-in trigger can use dialog on desktop and a bottom sheet on compact layouts.
 - Search continues to support labels, screen codes, hidden keywords, grouped results, active-state highlighting, and recent destinations.
-- `NavigationSearchView` now uses `SuperTextFormField` / `SuperTextFieldController` from `super_form_field` for the search input and owns the required field localization scope internally.
+- `SuperNavigationSearchView` now uses `SuperTextFormField` / `SuperTextFieldController` from `super_form_field` for the search input and owns the required field localization scope internally.
 - Added `super_form_field >=1.10.0 <2.0.0` as a runtime dependency.
 - Keyboard ↑/↓ navigation now automatically scrolls the highlighted search result into view, including wrap-around between the first and last results.
 
 ## Examples and documentation
 
-- Added a dedicated `NavigationSearchView` example covering embedded, dialog, and sheet usage.
+- Added a dedicated `SuperNavigationSearchView` example covering embedded, dialog, and sheet usage.
 - Reworked examples to use host-owned `Row` / `Stack` / `Scaffold` composition.
 - Updated the kitchen sink, README, and all files under `skill/**` for the 3.0 public surface.
 - Updated package metadata to `3.0.0`.
@@ -72,7 +104,7 @@ versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Documented that typography no longer comes from `SuperThemeData`; consumers
   must use `SuperMaterialThemeData.textTheme` / `context.superTextTheme` instead
   of `context.superTheme.textTheme`.
-- Added regression coverage for deriving `NavigationSidebarThemeData` from a
+- Added regression coverage for deriving `SuperNavigationSidebarThemeData` from a
   `SuperMaterialThemeData` built with the 3.3.0 API.
 
 ---
@@ -91,11 +123,11 @@ versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Added
 
 - Now depends on **super_core** (previously zero third-party dependencies).
-- **`NavigationSidebarThemeData.fromMaterialTheme(SuperMaterialThemeData)`** —
+- **`SuperNavigationSidebarThemeData.fromMaterialTheme(SuperMaterialThemeData)`** —
   derives the sidebar theme from a `SuperMaterialThemeData`, reading palette-,
   brightness- and device-mode-aware surfaces and control/row sizes from its
   `SuperThemeData` / `SuperMetrics` instead of hard-coded hex.
-- `NavigationSidebarThemeData.of(context)` now prefers an explicitly registered
+- `SuperNavigationSidebarThemeData.of(context)` now prefers an explicitly registered
   extension, then the ambient `SuperMaterialThemeData`, then the `dark` preset.
 
 ### Changed
@@ -115,14 +147,14 @@ sequential chords) — plus three real fixes.
 
 ### Added — screen codes & keyword search
 
-- **`NavNode.code`** — optional short screen code (SAP-style transaction
+- **`SuperNavNode.code`** — optional short screen code (SAP-style transaction
   code, e.g. `'JE01'`). Rendered as a mono chip in the command palette and
   matched by both the inline tree filter and the palette.
-- **`NavNode.keywords`** — hidden search aliases (synonyms, legacy names,
+- **`SuperNavNode.keywords`** — hidden search aliases (synonyms, legacy names,
   bilingual terms). Matched, never rendered. Unmodifiable after construction.
-- `NavigationSidebarController.matchSet()` and `NavSearchOps.filter` now
+- `SuperNavigationSidebarController.matchSet()` and `SuperNavSearchOps.filter` now
   match label + code + keywords (+ group/module in the palette).
-  `NavSearchHit` gains `code`, `keywords` and a `haystack` getter.
+  `SuperNavSearchHit` gains `code`, `keywords` and a `haystack` getter.
 
 ### Added — recent destinations
 
@@ -137,7 +169,7 @@ sequential chords) — plus three real fixes.
 
 ### Added — sidebar state persistence
 
-- **`NavSidebarStateSnapshot`** — immutable, JSON-serializable capture of
+- **`SuperNavSidebarStateSnapshot`** — immutable, JSON-serializable capture of
   the user-owned state (active, expanded, favorites, recents, collapsed)
   with `toJson` / `fromJson`.
 - **`controller.snapshot()`** / **`controller.restore(snapshot)`** — restore
@@ -147,15 +179,15 @@ sequential chords) — plus three real fixes.
 
 ### Added — badge count roll-up
 
-- **`NavigationSidebar.aggregateBadges`** — a closed module whose descendants
+- **`SuperNavigationSidebar.aggregateBadges`** — a closed module whose descendants
   carry numeric badges shows the **summed count chip** instead of the plain
   accent dot ("12 documents need you inside Finance"). Non-numeric badges
-  keep the dot. **`NavOps.subtreeBadgeSum`** exposed for hosts.
+  keep the dot. **`SuperNavOps.subtreeBadgeSum`** exposed for hosts.
 
 ### Added — working keyboard shortcuts
 
 - **`NavShortcutBinder<T>`** — wraps the shell and turns every leaf's
-  `NavNode.shortcut` into a working keystroke. Two styles, chosen per node
+  `SuperNavNode.shortcut` into a working keystroke. Two styles, chosen per node
   from its key list:
   - **Modifier combo** — `['ctrl', 'shift', 'd']` fires on Ctrl+Shift+D
     pressed together (any of ctrl/shift/alt/cmd + one main key), matched on
@@ -185,7 +217,7 @@ sequential chords) — plus three real fixes.
 
 Built-in command-palette search dialog. **Additive — no breaking changes.**
 
-### Added — `NavigationSidebar.allowSearchDialog`
+### Added — `SuperNavigationSidebar.allowSearchDialog`
 
 The command palette is now built into the sidebar and enabled by a single
 switch — the recommended (and only) way to turn on dialog search.
@@ -195,7 +227,7 @@ switch — the recommended (and only) way to turn on dialog search.
   that opens `NavSearchDialog` via the root `Overlay` on tap. No `Stack` /
   `Overlay` wiring is required in the host app. Takes precedence over
   `searchable` when both are set.
-- **`onSearchPick`** — `ValueChanged<NavNode<T>>` fired after the controller
+- **`onSearchPick`** — `ValueChanged<SuperNavNode<T>>` fired after the controller
   navigates to the picked result; falls back to `onNavigate` when null.
 
 ### Added — dialog primitives
@@ -211,18 +243,18 @@ custom entry points (a button, a keyboard shortcut):
   `NavSearchDialog` via the `Overlay` without a `Stack` parent. Theme and
   `Directionality` are captured from the calling context and re-applied inside
   the overlay.
-- **`NavSearchHit`** — public immutable model: `id`, `label`, `icon`,
+- **`SuperNavSearchHit`** — public immutable model: `id`, `label`, `icon`,
   `module` (group header), `group` (sub-group), `badge`, `shortcut`.
-- **`NavSearchOps`** — static helpers:
+- **`SuperNavSearchOps`** — static helpers:
   - `buildIndex<T>(sections)` — flattens the section forest to a
-    `List<NavSearchHit>` (leaves only; non-navigable modules/groups excluded).
+    `List<SuperNavSearchHit>` (leaves only; non-navigable modules/groups excluded).
   - `filter(index, query)` — tokenised multi-word filter; returns the full
     index when the query is blank.
 
 ### Unchanged — `NavigationSidebarSearchField`
 
 Remains the inline `controller.setQuery` filter field (pair with `searchable`);
-it does **not** open the dialog. Use `NavigationSidebar.allowSearchDialog` for
+it does **not** open the dialog. Use `SuperNavigationSidebar.allowSearchDialog` for
 the command palette.
 
 ### Example — simplified
@@ -231,7 +263,7 @@ the command palette.
 implementation in favour of:
 
 ```dart
-NavigationSidebar<String>(
+SuperNavigationSidebar<String>(
   controller: controller,
   allowSearchDialog: true,
   searchHint: 'Search tabs & actions…',
@@ -263,14 +295,14 @@ the correct NavigationView arrangement, so hosts no longer hand-wire
   pane widens (Left mode); `overlay` keeps a rail in-flow and floats the full
   pane over the content with an animated scrim (LeftCompact / LeftMinimal).
 - **Adaptive by width** — resolves `expanded` / `rail` / `drawer` from
-  `NavSidebarBreakpoints`, or force a fixed `mode`. Content gets NavigationView's
+  `SuperNavSidebarBreakpoints`, or force a fixed `mode`. Content gets NavigationView's
   recommended margins (24 px desktop, 12 px in drawer) via `contentPadding`.
 - `appBarBuilder` / `sidebarBuilder` receive the resolved mode; `body` is the
   page. Drawer mode wires the hamburger and off-canvas overlay automatically.
 
 ### Added — Back button
 
-- **`NavigationSidebarController.canGoBack`** — bind to your router's can-pop
+- **`SuperNavigationSidebarController.canGoBack`** — bind to your router's can-pop
   state (the analogue of NavigationView's `IsBackEnabled`).
 - **`NavigationSidebarAppBar.showBackButton`** + **`onBack`** — renders a back
   button in the leading-most position (top-left corner). It is enabled only
@@ -279,7 +311,7 @@ the correct NavigationView arrangement, so hosts no longer hand-wire
 
 ### Added — Footer navigation items
 
-- **`NavSection.placement`** (`NavSectionPlacement.body` | `footer`) — footer
+- **`SuperNavSection.placement`** (`SuperNavSectionPlacement.body` | `footer`) — footer
   sections pin to the bottom of the pane (e.g. *Settings*, *Help*) while body
   sections scroll, in both expanded and rail modes. Footer items share the one
   selection model: they highlight when active and take part in breadcrumbs,
@@ -288,8 +320,8 @@ the correct NavigationView arrangement, so hosts no longer hand-wire
 
 ### Added — Fluent selection indicator
 
-- **`NavigationSidebarThemeData.selectionIndicator`**
-  (`NavSelectionIndicator.fill` | `bar`). `fill` is the original look
+- **`SuperNavigationSidebarThemeData.selectionIndicator`**
+  (`SuperNavSelectionIndicator.fill` | `bar`). `fill` is the original look
   (unchanged default). `bar` draws a vertical accent pill on the leading edge
   of the active leaf over a tinted background — the Fluent NavigationView
   indicator — in the tree **and** on the rail. Tunable via `indicatorThickness`
@@ -297,17 +329,17 @@ the correct NavigationView arrangement, so hosts no longer hand-wire
 
 ### Added — Top-of-pane menu button
 
-- **`NavigationSidebar.showPaneToggle`** — renders a collapse ↔ expand button
+- **`SuperNavigationSidebar.showPaneToggle`** — renders a collapse ↔ expand button
   pinned to the top of the pane (the NavigationView "menu button" placement),
   for panes used without an app bar that already carries the toggle (e.g. an
   inset-header shell).
 
 ### Added — Misc
 
-- **`NavigationSidebarThemeData.headerHeight`** (52) — fixed content-header band
+- **`SuperNavigationSidebarThemeData.headerHeight`** (52) — fixed content-header band
   height token for shells.
-- New enums exported: `NavSectionPlacement`, `NavShellHeaderLayout`,
-  `NavPaneBehavior`, `NavSelectionIndicator`, and the `NavShellSlotBuilder`
+- New enums exported: `SuperNavSectionPlacement`, `NavShellHeaderLayout`,
+  `NavPaneBehavior`, `SuperNavSelectionIndicator`, and the `NavShellSlotBuilder`
   typedef.
 - Example **06 · Integrated NavigationShell**
   (`example_06_navigation_shell.dart`) — live toggles for header layout, pane
@@ -318,9 +350,9 @@ the correct NavigationView arrangement, so hosts no longer hand-wire
 
 Nothing required. Every addition is opt-in and existing call sites compile
 unchanged. To adopt the Fluent look set
-`selectionIndicator: NavSelectionIndicator.bar` on your theme extension; to
+`selectionIndicator: SuperNavSelectionIndicator.bar` on your theme extension; to
 adopt the integrated layout, wrap your existing `NavigationSidebarAppBar` +
-`NavigationSidebar` in a `NavigationShell`.
+`SuperNavigationSidebar` in a `NavigationShell`.
 
 ---
 
@@ -329,7 +361,7 @@ adopt the integrated layout, wrap your existing `NavigationSidebarAppBar` +
 ### Added — Theme size customisation
 
 All geometry constants that were previously `static const` on
-`NavigationSidebarThemeData` are now **instance fields** with the same
+`SuperNavigationSidebarThemeData` are now **instance fields** with the same
 defaults, so hosts can tune them via `copyWith` without touching the view layer.
 Every size field is also linearly interpolated in `lerp`, enabling smooth
 animated theme switches.
@@ -358,7 +390,7 @@ New fields (all optional — existing presets are unchanged):
 | `radiusXl` | 12 | Extra-large corner radius (flyout panel) |
 | `gutter` | 19 | Horizontal indent per nesting level |
 
-`rowHeight(NavNodeRole)`, `contentInset(depth)`, `lineInset(depth)`, and
+`rowHeight(SuperNavNodeRole)`, `contentInset(depth)`, `lineInset(depth)`, and
 `elbow` are now **instance methods / getters** (previously static) that
 derive from the above fields — no call-site changes needed since the view
 already reads them through the theme instance.
@@ -366,7 +398,7 @@ already reads them through the theme instance.
 ### Migration
 
 Remove any direct references to the old static constants
-(`NavigationSidebarThemeData.railButton`, `.radiusMd`, etc.) and read
+(`SuperNavigationSidebarThemeData.railButton`, `.radiusMd`, etc.) and read
 them from the theme instance instead (`t.railButton`, `t.radiusMd`).
 The view layer has already been updated.
 
@@ -377,7 +409,7 @@ The view layer has already been updated.
 
 - **Localization support** (`NavigationSidebarLocalizations`) — every
   user-facing string is now in one immutable data class. Pass a custom instance
-  to `NavigationSidebar.localizations`; a ready-made Arabic preset is included
+  to `SuperNavigationSidebar.localizations`; a ready-made Arabic preset is included
   (`NavigationSidebarLocalizations.arabic`). Strings covered: search field
   placeholder & empty state, drawer title & close label, Quick Access eyebrow &
   star tooltips, locked-node fallback message, shortcut prefix & separator, and
@@ -385,7 +417,7 @@ The view layer has already been updated.
 
 - **AppBar integration** (`NavigationSidebarAppBar`) — a
   `PreferredSizeWidget` that connects directly to a
-  `NavigationSidebarController`. Adapts leading controls to the current mode:
+  `SuperNavigationSidebarController`. Adapts leading controls to the current mode:
   drawer mode inserts a hamburger that calls `controller.openDrawer`; expanded /
   rail modes show a collapse ↔ expand toggle (`showCollapseToggle`). Content
   slots: `title`, `pageTitle`, `actions`, `globalSearch`, `middle`, custom
@@ -400,13 +432,13 @@ The view layer has already been updated.
   drives `controller.setQuery`; designed for use in
   `NavigationSidebarAppBar.globalSearch`.
 
-- **Deep immutability** — `NavNode.children` and `NavSection.items` are now
+- **Deep immutability** — `SuperNavNode.children` and `SuperNavSection.items` are now
   wrapped in `List.unmodifiable()` at construction time. External mutation of
   the list is prevented; all structural changes must go through the controller.
 
-- **Duplicate ID validation** — `NavigationSidebarController` detects duplicate
-  `NavNode.id` values in debug builds (`assert`) and fires a clear error message
-  listing the offending IDs. `NavOps.findDuplicateIds<T>(sections)` provides a
+- **Duplicate ID validation** — `SuperNavigationSidebarController` detects duplicate
+  `SuperNavNode.id` values in debug builds (`assert`) and fires a clear error message
+  listing the offending IDs. `SuperNavOps.findDuplicateIds<T>(sections)` provides a
   programmatic check for use in tests and host-side validation.
 
 - **Accessibility** — every interactive row is wrapped in `Semantics` (button
@@ -416,7 +448,7 @@ The view layer has already been updated.
   proper Tooltip semantics. Locked and disabled rows expose a `forbidden` mouse
   cursor.
 
-- **`NavOps.findDuplicateIds<T>`** static helper — returns the list of
+- **`SuperNavOps.findDuplicateIds<T>`** static helper — returns the list of
   duplicate IDs in a section forest; empty list means the tree is valid.
 
 - Example **05 · AppBar integration** (`example_05_appbar_integration.dart`) —
@@ -426,13 +458,13 @@ The view layer has already been updated.
 
 ### Changed
 
-- **Navigation safety** — `NavigationSidebarController.navigate()` now returns
+- **Navigation safety** — `SuperNavigationSidebarController.navigate()` now returns
   `bool` (`true` = navigation applied, `false` = refused because the node is
-  locked, disabled, or not found). `NavigationSidebar.onNavigate` is only
+  locked, disabled, or not found). `SuperNavigationSidebar.onNavigate` is only
   fired when `navigate()` returns `true`, so locked/disabled nodes can never
   trigger host navigation in any mode (expanded, rail, drawer, flyout).
 
-- **`NavigationSidebar.drawerTitle`**, **`searchHint`**, **`quickAccessTitle`**
+- **`SuperNavigationSidebar.drawerTitle`**, **`searchHint`**, **`quickAccessTitle`**
   are now nullable (`String?`). When null they fall back to the corresponding
   field in `localizations`. Explicit string values still take precedence —
   existing code that passes a string literal continues to work unchanged.
@@ -444,9 +476,9 @@ The view layer has already been updated.
 
 ### Breaking changes
 
-- **`NavNode` and `NavSection` constructors are no longer `const`.** The
+- **`SuperNavNode` and `SuperNavSection` constructors are no longer `const`.** The
   `List.unmodifiable()` wrapping requires non-const constructors. Remove the
-  `const` keyword from any `const NavNode(…)` or `const NavSection(…)` call
+  `const` keyword from any `const SuperNavNode(…)` or `const SuperNavSection(…)` call
   sites. The `@immutable` annotation is retained.
 
 - **`navigate()` returns `bool`** instead of `void`. Code that calls
@@ -465,19 +497,19 @@ The view layer has already been updated.
 
 ### Added — ERP / banking capabilities
 
-- **Built-in search & filter** — `NavigationSidebar.searchable` (+ `searchHint`)
+- **Built-in search & filter** — `SuperNavigationSidebar.searchable` (+ `searchHint`)
   renders a filter field above the tree; matches filter the tree to hits +
   ancestors, auto-expand, and highlight the matched run. `No matches` empty
   state. Drives `controller.setQuery` / `matchSet()`.
-- **Quick Access favorites** — `NavigationSidebar.favoritable` (+
+- **Quick Access favorites** — `SuperNavigationSidebar.favoritable` (+
   `quickAccessTitle`) adds per-row star toggles and a synthesized favorites
   band at the top. Controller: `favorites` · `favoriteNodes` · `isFavorite` ·
   `toggleFavorite` · `setFavorites`; constructor `favorites:` seed.
-- **Permission-gated nodes** — `NavNode.locked` + `NavNode.lockMessage`: dimmed
+- **Permission-gated nodes** — `SuperNavNode.locked` + `SuperNavNode.lockMessage`: dimmed
   row, lock glyph, blocked navigation (`controller.navigate` refuses locked),
   reason tooltip. Segregation-of-duties.
-- **Status dots** — `NavNode.status` + `NavNodeStatus` enum (`none` · `open` ·
-  `closed` · `locked` · `attention`); `NavigationSidebarThemeData.statusColor`.
+- **Status dots** — `SuperNavNode.status` + `SuperNavNodeStatus` enum (`none` · `open` ·
+  `closed` · `locked` · `attention`); `SuperNavigationSidebarThemeData.statusColor`.
 - Banking/accounting example app (`example_04_erp_banking.dart`).
 
 ---
@@ -486,20 +518,20 @@ The view layer has already been updated.
 
 ### Added
 
-- **`NavigationSidebar<T>`** widget — responsive sidebar; three modes:
-  - `NavSidebarMode.expanded` — 248 px full labelled tree with `│ ├ └`
+- **`SuperNavigationSidebar<T>`** widget — responsive sidebar; three modes:
+  - `SuperNavSidebarMode.expanded` — 248 px full labelled tree with `│ ├ └`
     connectors, disclosure chevrons, badges and shortcut hints.
-  - `NavSidebarMode.rail` — 76 px icon-only column; hovering a module opens
+  - `SuperNavSidebarMode.rail` — 76 px icon-only column; hovering a module opens
     a grouped flyout overlay. Badge dot on icon when any descendant has a badge.
-  - `NavSidebarMode.drawer` — 280 px off-canvas panel with animated scrim.
+  - `SuperNavSidebarMode.drawer` — 280 px off-canvas panel with animated scrim.
     Tapping a destination navigates and dismisses.
   - `showGuides` · `railFlyouts` · `drawerTitle` chrome toggles.
   - `shortcutMode` (`onHover` / `always` / `hidden`).
   - `header` / `footer` slot builders.
   - `onNavigate` callback.
-- **`NavigationSidebarController<T>`** — ChangeNotifier, single source of truth.
-- **`NavSection<T>`** · **`NavNode<T>`** · **`NavBadge`** · **`NavNodeRole`** data model.
-- **`NavSidebarBreakpoints`** · **`NavOps`** utilities.
-- **`NavigationSidebarThemeData`** — ThemeExtension; `.light` and `.dark` presets.
+- **`SuperNavigationSidebarController<T>`** — ChangeNotifier, single source of truth.
+- **`SuperNavSection<T>`** · **`SuperNavNode<T>`** · **`SuperNavBadge`** · **`SuperNavNodeRole`** data model.
+- **`SuperNavSidebarBreakpoints`** · **`SuperNavOps`** utilities.
+- **`SuperNavigationSidebarThemeData`** — ThemeExtension; `.light` and `.dark` presets.
 - **RTL** via `Directionality`.
 - **Zero third-party dependencies**.

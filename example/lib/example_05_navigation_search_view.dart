@@ -11,13 +11,13 @@ class NavigationSearchViewExample extends StatefulWidget {
 
 class _NavigationSearchViewExampleState
     extends State<NavigationSearchViewExample> {
-  late final NavigationSidebarController<String> _nav;
+  late final SuperNavigationSidebarController<String> _nav;
 
-  static final _sections = <NavSection<String>>[
-    NavSection<String>(
+  static final _sections = <SuperNavSection<String>>[
+    SuperNavSection<String>(
       title: 'Workspace',
       items: [
-        NavNode(
+        SuperNavNode(
           id: 'dashboard',
           label: Text('Dashboard'),
           code: 'DB01',
@@ -25,16 +25,16 @@ class _NavigationSearchViewExampleState
           leadingIcon: Icon(Icons.dashboard_outlined),
           value: 'dashboard',
         ),
-        NavNode(
+        SuperNavNode(
           id: 'finance',
           label: Text('Finance'),
           leadingIcon: Icon(Icons.account_balance_outlined),
           children: [
-            NavNode(
+            SuperNavNode(
               id: 'ledger',
               label: Text('General ledger'),
               children: [
-                NavNode(
+                SuperNavNode(
                   id: 'accounts',
                   label: Text('Chart of accounts'),
                   code: 'COA',
@@ -42,20 +42,21 @@ class _NavigationSearchViewExampleState
                   leadingIcon: Icon(Icons.account_tree_outlined),
                   value: 'accounts',
                 ),
-                NavNode(
+                SuperNavNode(
                   id: 'journals',
                   label: Text('Journal entries'),
                   code: 'JE01',
                   keywords: const ['voucher', 'posting', 'قيد'],
                   leadingIcon: Icon(Icons.receipt_long_outlined),
-                  badge: const NavBadge('8', tone: NavBadgeTone.warning),
+                  badge:
+                      const SuperNavBadge('8', tone: SuperNavBadgeTone.warning),
                   value: 'journals',
                 ),
               ],
             ),
           ],
         ),
-        NavNode(
+        SuperNavNode(
           id: 'inventory',
           label: Text('Inventory'),
           code: 'INV01',
@@ -70,7 +71,7 @@ class _NavigationSearchViewExampleState
   @override
   void initState() {
     super.initState();
-    _nav = NavigationSidebarController<String>(
+    _nav = SuperNavigationSidebarController<String>(
       sections: _sections,
       active: 'dashboard',
     );
@@ -82,13 +83,13 @@ class _NavigationSearchViewExampleState
     super.dispose();
   }
 
-  void _pick(NavNodeId id) {
+  void _pick(SuperNavNodeId id) {
     if (_nav.navigate(id)) setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = NavigationSidebarThemeData.of(context);
+    final theme = SuperNavigationSidebarThemeData.of(context);
     return Material(
       color: theme.bg,
       child: SafeArea(
@@ -98,11 +99,11 @@ class _NavigationSearchViewExampleState
             return Row(
               children: [
                 if (wide)
-                  NavigationSidebar<String>(
+                  SuperNavigationSidebar<String>(
                     controller: _nav,
-                    mode: NavSidebarMode.expanded,
+                    mode: SuperNavSidebarMode.expanded,
                     allowSearchView: true,
-                    searchViewMode: NavigationSearchViewMode.dialog,
+                    searchViewMode: SuperNavigationSearchViewMode.dialog,
                     onNavigate: (_) => setState(() {}),
                   ),
                 Expanded(
@@ -110,7 +111,7 @@ class _NavigationSearchViewExampleState
                     padding: const EdgeInsets.all(24),
                     children: [
                       Text(
-                        'NavigationSearchView',
+                        'SuperNavigationSearchView',
                         style: Theme.of(context)
                             .textTheme
                             .headlineMedium
@@ -130,20 +131,22 @@ class _NavigationSearchViewExampleState
                         runSpacing: 12,
                         children: [
                           FilledButton.icon(
-                            onPressed: () => showNavigationSearchView<String>(
+                            onPressed: () =>
+                                showSuperNavigationSearchView<String>(
                               context,
                               controller: _nav,
-                              mode: NavigationSearchViewMode.dialog,
+                              mode: SuperNavigationSearchViewMode.dialog,
                               onPick: _pick,
                             ),
                             icon: const Icon(Icons.open_in_new),
                             label: const Text('Open dialog'),
                           ),
                           OutlinedButton.icon(
-                            onPressed: () => showNavigationSearchView<String>(
+                            onPressed: () =>
+                                showSuperNavigationSearchView<String>(
                               context,
                               controller: _nav,
-                              mode: NavigationSearchViewMode.sheet,
+                              mode: SuperNavigationSearchViewMode.sheet,
                               onPick: _pick,
                             ),
                             icon: const Icon(Icons.vertical_align_top),
@@ -162,7 +165,7 @@ class _NavigationSearchViewExampleState
                       const SizedBox(height: 12),
                       SizedBox(
                         height: 520,
-                        child: NavigationSearchView<String>(
+                        child: SuperNavigationSearchView<String>(
                           controller: _nav,
                           autofocus: false,
                           closeOnPick: false,
@@ -182,7 +185,8 @@ class _NavigationSearchViewExampleState
   }
 }
 
-String _plainExampleLabel<T>(NavNode<T>? node, {required String fallback}) {
+String _plainExampleLabel<T>(SuperNavNode<T>? node,
+    {required String fallback}) {
   if (node == null) return fallback;
   final label = node.label;
   if (label is Text) {

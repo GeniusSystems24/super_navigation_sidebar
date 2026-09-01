@@ -1,18 +1,18 @@
-# super_navigation_sidebar 3.0.0 examples
+﻿# super_navigation_sidebar 3.2.0 examples
 
 ## 1. Desktop / tablet pane
 
 ```dart
 Row(
   children: [
-    NavigationSidebar<String>(
+    SuperNavigationSidebar<String>(
       controller: nav,
-      mode: NavSidebarMode.expanded,
+      mode: SuperNavSidebarMode.expanded,
       showPaneToggle: true,
       favoritable: true,
       allowSearchView: true,
-> 3.0 search-field invariant: `NavigationSearchView` uses `SuperTextFormField` / `SuperTextFieldController` from `super_form_field`; do not replace it with a raw Material `TextField`.
-      searchViewMode: NavigationSearchViewMode.dialog,
+> 3.0 search-field invariant: `SuperNavigationSearchView` uses `SuperTextFormField` / `SuperTextFieldController` from `super_form_field`; do not replace it with a raw Material `TextField`.
+      searchViewMode: SuperNavigationSearchViewMode.dialog,
       onNavigate: (node) => router.go('/${node.value}'),
     ),
     Expanded(child: page),
@@ -37,11 +37,11 @@ Stack(
       ),
     ),
     Positioned.fill(
-      child: NavigationSidebar<String>(
+      child: SuperNavigationSidebar<String>(
         controller: nav,
-        mode: NavSidebarMode.drawer,
+        mode: SuperNavSidebarMode.drawer,
         allowSearchView: true,
-        searchViewMode: NavigationSearchViewMode.sheet,
+        searchViewMode: SuperNavigationSearchViewMode.sheet,
       ),
     ),
   ],
@@ -51,10 +51,10 @@ Stack(
 ## 3. Search dialog
 
 ```dart
-await showNavigationSearchView<String>(
+await showSuperNavigationSearchView<String>(
   context,
   controller: nav,
-  mode: NavigationSearchViewMode.dialog,
+  mode: SuperNavigationSearchViewMode.dialog,
   onPick: (id) {
     if (nav.navigate(id)) {
       router.go('/${nav.node(id)?.value}');
@@ -66,10 +66,10 @@ await showNavigationSearchView<String>(
 ## 4. Search sheet
 
 ```dart
-await showNavigationSearchView<String>(
+await showSuperNavigationSearchView<String>(
   context,
   controller: nav,
-  mode: NavigationSearchViewMode.sheet,
+  mode: SuperNavigationSearchViewMode.sheet,
 );
 ```
 
@@ -78,7 +78,7 @@ await showNavigationSearchView<String>(
 ```dart
 SizedBox(
   height: 520,
-  child: NavigationSearchView<String>(
+  child: SuperNavigationSearchView<String>(
     controller: nav,
     autofocus: false,
     closeOnPick: false,
@@ -90,14 +90,14 @@ SizedBox(
 ## 6. Rich navigation metadata
 
 ```dart
-NavNode<String>(
+SuperNavNode<String>(
   id: 'journals',
-  label: 'Journal entries',
+  label: const Text('Journal entries'),
   code: 'JE01',
   keywords: const ['voucher', 'posting', 'قيد يومية'],
-  icon: Icons.receipt_long_outlined,
-  badge: const NavBadge('9', tone: NavBadgeTone.warning),
-  status: NavNodeStatus.open,
+  leadingIcon: const Icon(Icons.receipt_long_outlined),
+  badge: const SuperNavBadge('9', tone: SuperNavBadgeTone.warning),
+  status: SuperNavNodeStatus.open,
   value: 'journals',
 )
 ```
@@ -105,10 +105,10 @@ NavNode<String>(
 ## 7. Locked destination
 
 ```dart
-NavNode<String>(
+SuperNavNode<String>(
   id: 'year_end',
-  label: 'Year-end close',
-  icon: Icons.lock_outline,
+  label: const Text('Year-end close'),
+  leadingIcon: const Icon(Icons.lock_outline),
   locked: true,
   lockMessage: 'Requires Controller role',
   value: 'year_end',
@@ -118,11 +118,11 @@ NavNode<String>(
 ## 8. Footer navigation
 
 ```dart
-NavSection<String>(
+SuperNavSection<String>(
   title: 'System',
-  placement: NavSectionPlacement.footer,
+  placement: SuperNavSectionPlacement.footer,
   items: [
-    NavNode(
+    SuperNavNode(
       id: 'settings',
       label: Text('Settings'),
       leadingIcon: Icon(Icons.settings_outlined),
@@ -132,17 +132,27 @@ NavSection<String>(
 )
 ```
 
+## 9. Generated localization setup
+
+```dart
+MaterialApp(
+  localizationsDelegates: SuperNavigationLocalization.localizationsDelegates,
+  supportedLocales: SuperNavigationLocalization.supportedLocales,
+  home: const AppRoot(),
+)
+```
+
 ## Version 3.1.0 navigation content rules
 
-When working with `NavNode` or navigation search results, follow these rules:
+When working with `SuperNavNode` or navigation search results, follow these rules:
 
-- `NavNode.label` is a `Widget`, not a `String`.
-- `NavNode.leadingIcon` is `Widget?`.
-- `NavNode.trailingIcon` is `Widget?`.
-- `NavNode.keywords` is `List<String>` and defaults to an empty list.
-- `NavSearchHit.label` is a `Widget`.
-- `NavSearchHit.leadingIcon` and `NavSearchHit.trailingIcon` are Widgets.
-- `NavSearchHit.keywords` is a non-nullable `List<String>`.
+- `SuperNavNode.label` is a `Widget`, not a `String`.
+- `SuperNavNode.leadingIcon` is `Widget?`.
+- `SuperNavNode.trailingIcon` is `Widget?`.
+- `SuperNavNode.keywords` is `List<String>` and defaults to an empty list.
+- `SuperNavSearchHit.label` is a `Widget`.
+- `SuperNavSearchHit.leadingIcon` and `SuperNavSearchHit.trailingIcon` are Widgets.
+- `SuperNavSearchHit.keywords` is a non-nullable `List<String>`.
 - Render label and icon Widgets directly.
 - Never assume the label is `Text`.
 - Never call `toString()` on a label for search or display behavior.
@@ -157,7 +167,7 @@ When working with `NavNode` or navigation search results, follow these rules:
 For a plain text label:
 
 ```dart
-NavNode(
+SuperNavNode(
   label: const Text('Settings'),
   leadingIcon: const Icon(Icons.settings_outlined),
   keywords: const ['settings', 'preferences'],
@@ -167,7 +177,7 @@ NavNode(
 For a custom label:
 
 ```dart
-NavNode(
+SuperNavNode(
   label: Row(
     mainAxisSize: MainAxisSize.min,
     children: const [
@@ -186,7 +196,7 @@ NavNode(
 Old:
 
 ```dart
-NavNode(
+SuperNavNode(
   label: 'Settings',
   icon: Icons.settings,
 )
@@ -195,7 +205,7 @@ NavNode(
 New:
 
 ```dart
-NavNode(
+SuperNavNode(
   label: const Text('Settings'),
   leadingIcon: const Icon(Icons.settings),
 )

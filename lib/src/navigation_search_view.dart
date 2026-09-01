@@ -1,7 +1,7 @@
 // ============================================================
-// NavigationSidebar — NAVIGATION SEARCH VIEW.
+// SuperNavigationSidebar — NAVIGATION SEARCH VIEW.
 // ------------------------------------------------------------
-// Reusable navigation search surface for package 3.0.0. The view itself is
+// Reusable navigation search surface for package 3.2.0. The view itself is
 // presentation-agnostic and can be embedded directly or opened through the
 // built-in dialog / bottom-sheet presenter.
 // ============================================================
@@ -17,8 +17,8 @@ import 'controller.dart';
 import 'models.dart';
 import 'theme.dart';
 
-/// How [showNavigationSearchView] presents [NavigationSearchView].
-enum NavigationSearchViewMode {
+/// How [showSuperNavigationSearchView] presents [SuperNavigationSearchView].
+enum SuperNavigationSearchViewMode {
   /// Centered modal dialog, intended for desktop/tablet layouts.
   dialog,
 
@@ -28,8 +28,8 @@ enum NavigationSearchViewMode {
 
 /// A flattened searchable destination extracted from the navigation tree.
 @immutable
-class NavSearchHit {
-  final NavNodeId id;
+class SuperNavSearchHit {
+  final SuperNavNodeId id;
   final Widget label;
   final Widget? leadingIcon;
   final Widget? trailingIcon;
@@ -37,9 +37,9 @@ class NavSearchHit {
   final List<String> keywords;
   final String module;
   final String group;
-  final NavBadge? badge;
+  final SuperNavBadge? badge;
 
-  const NavSearchHit({
+  const SuperNavSearchHit({
     required this.id,
     required this.label,
     this.leadingIcon,
@@ -65,16 +65,18 @@ String _plainLabelFromWidget(Widget label, {required String fallback}) {
 }
 
 /// Helpers for building and querying the navigation search index.
-class NavSearchOps {
-  NavSearchOps._();
+class SuperNavSearchOps {
+  SuperNavSearchOps._();
 
-  static List<NavSearchHit> buildIndex<T>(List<NavSection<T>> sections) {
-    final out = <NavSearchHit>[];
+  static List<SuperNavSearchHit> buildIndex<T>(
+    List<SuperNavSection<T>> sections,
+  ) {
+    final out = <SuperNavSearchHit>[];
     for (final section in sections) {
       for (final top in section.items) {
         if (top.isLeaf) {
           out.add(
-            NavSearchHit(
+            SuperNavSearchHit(
               id: top.id,
               label: top.label,
               code: top.code,
@@ -92,11 +94,11 @@ class NavSearchOps {
         for (final group in top.children) {
           final leaves = group.hasChildren
               ? group.children
-              : <NavNode<T>>[group];
+              : <SuperNavNode<T>>[group];
           for (final leaf in leaves) {
             if (!leaf.isLeaf) continue;
             out.add(
-              NavSearchHit(
+              SuperNavSearchHit(
                 id: leaf.id,
                 label: leaf.label,
                 code: leaf.code,
@@ -117,7 +119,10 @@ class NavSearchOps {
     return out;
   }
 
-  static List<NavSearchHit> filter(List<NavSearchHit> index, String query) {
+  static List<SuperNavSearchHit> filter(
+    List<SuperNavSearchHit> index,
+    String query,
+  ) {
     final normalized = query.trim().toLowerCase();
     if (normalized.isEmpty) return index;
     final tokens = normalized.split(RegExp(r'\s+'));
@@ -127,14 +132,14 @@ class NavSearchOps {
   }
 }
 
-/// Search UI for navigating to any leaf in a [NavigationSidebarController].
+/// Search UI for navigating to any leaf in a [SuperNavigationSidebarController].
 ///
 /// The widget does not assume a modal presentation. Embed it directly, or use
-/// [showNavigationSearchView] with [NavigationSearchViewMode.dialog] or
-/// [NavigationSearchViewMode.sheet].
-class NavigationSearchView<T> extends StatefulWidget {
-  final NavigationSidebarController<T> controller;
-  final ValueChanged<NavNodeId>? onPick;
+/// [showSuperNavigationSearchView] with [SuperNavigationSearchViewMode.dialog] or
+/// [SuperNavigationSearchViewMode.sheet].
+class SuperNavigationSearchView<T> extends StatefulWidget {
+  final SuperNavigationSidebarController<T> controller;
+  final ValueChanged<SuperNavNodeId>? onPick;
   final VoidCallback? onClose;
   final String hint;
   final String recentsLabel;
@@ -142,7 +147,7 @@ class NavigationSearchView<T> extends StatefulWidget {
   final bool closeOnPick;
   final bool showKeyboardHints;
 
-  const NavigationSearchView({
+  const SuperNavigationSearchView({
     super.key,
     required this.controller,
     this.onPick,
@@ -155,12 +160,13 @@ class NavigationSearchView<T> extends StatefulWidget {
   });
 
   @override
-  State<NavigationSearchView<T>> createState() =>
+  State<SuperNavigationSearchView<T>> createState() =>
       _NavigationSearchViewState<T>();
 }
 
-class _NavigationSearchViewState<T> extends State<NavigationSearchView<T>> {
-  late List<NavSearchHit> _index;
+class _NavigationSearchViewState<T>
+    extends State<SuperNavigationSearchView<T>> {
+  late List<SuperNavSearchHit> _index;
   late final FocusNode _searchFocusNode = FocusNode(
     onKeyEvent: _onSearchFieldKey,
   );
@@ -179,7 +185,7 @@ class _NavigationSearchViewState<T> extends State<NavigationSearchView<T>> {
   }
 
   @override
-  void didUpdateWidget(covariant NavigationSearchView<T> oldWidget) {
+  void didUpdateWidget(covariant SuperNavigationSearchView<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.controller != widget.controller) {
       oldWidget.controller.removeListener(_controllerChanged);
@@ -198,34 +204,39 @@ class _NavigationSearchViewState<T> extends State<NavigationSearchView<T>> {
   }
 
   void _rebuildIndex() {
-    _index = NavSearchOps.buildIndex<T>(widget.controller.sections);
+    _index = SuperNavSearchOps.buildIndex<T>(widget.controller.sections);
   }
 
   void _controllerChanged() {
     if (!mounted) return;
-    final next = NavSearchOps.buildIndex<T>(widget.controller.sections);
+    final next = SuperNavSearchOps.buildIndex<T>(widget.controller.sections);
     setState(() => _index = next);
   }
 
-  List<NavSearchHit> get _results => NavSearchOps.filter(_index, _query);
+  List<SuperNavSearchHit> get _results =>
+      SuperNavSearchOps.filter(_index, _query);
 
-  List<NavSearchHit> get _recentHits {
-    final byId = <NavNodeId, NavSearchHit>{for (final h in _index) h.id: h};
-    return <NavSearchHit>[
+  List<SuperNavSearchHit> get _recentHits {
+    final byId = <SuperNavNodeId, SuperNavSearchHit>{
+      for (final h in _index) h.id: h,
+    };
+    return <SuperNavSearchHit>[
       for (final id in widget.controller.recents)
         if (byId[id] != null) byId[id]!,
     ];
   }
 
-  List<(String, List<NavSearchHit>)> _bands(List<NavSearchHit> results) {
-    final bands = <(String, List<NavSearchHit>)>[];
+  List<(String, List<SuperNavSearchHit>)> _bands(
+    List<SuperNavSearchHit> results,
+  ) {
+    final bands = <(String, List<SuperNavSearchHit>)>[];
     if (_query.trim().isEmpty && _recentHits.isNotEmpty) {
       bands.add((widget.recentsLabel, _recentHits));
     }
 
-    final grouped = <String, List<NavSearchHit>>{};
+    final grouped = <String, List<SuperNavSearchHit>>{};
     for (final hit in results) {
-      grouped.putIfAbsent(hit.module, () => <NavSearchHit>[]).add(hit);
+      grouped.putIfAbsent(hit.module, () => <SuperNavSearchHit>[]).add(hit);
     }
     for (final entry in grouped.entries) {
       bands.add((entry.key, entry.value));
@@ -233,7 +244,7 @@ class _NavigationSearchViewState<T> extends State<NavigationSearchView<T>> {
     return bands;
   }
 
-  void _pick(NavNodeId id) {
+  void _pick(SuperNavNodeId id) {
     if (widget.onPick != null) {
       widget.onPick!(id);
     } else {
@@ -338,7 +349,7 @@ class _NavigationSearchViewState<T> extends State<NavigationSearchView<T>> {
   KeyEventResult _onKey(
     FocusNode node,
     KeyEvent event,
-    List<NavSearchHit> flat,
+    List<SuperNavSearchHit> flat,
   ) {
     if (event is KeyUpEvent) return KeyEventResult.ignored;
     switch (event.logicalKey) {
@@ -361,8 +372,8 @@ class _NavigationSearchViewState<T> extends State<NavigationSearchView<T>> {
     return KeyEventResult.ignored;
   }
 
-  List<NavSearchHit> _currentFlatResults() {
-    return <NavSearchHit>[for (final band in _bands(_results)) ...band.$2];
+  List<SuperNavSearchHit> _currentFlatResults() {
+    return <SuperNavSearchHit>[for (final band in _bands(_results)) ...band.$2];
   }
 
   KeyEventResult _onSearchFieldKey(FocusNode node, KeyEvent event) {
@@ -371,10 +382,10 @@ class _NavigationSearchViewState<T> extends State<NavigationSearchView<T>> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = NavigationSidebarThemeData.of(context);
+    final theme = SuperNavigationSidebarThemeData.of(context);
     final results = _results;
     final bands = _bands(results);
-    final flat = <NavSearchHit>[for (final band in bands) ...band.$2];
+    final flat = <SuperNavSearchHit>[for (final band in bands) ...band.$2];
     _resultKeys.removeWhere((index, _) => index >= flat.length);
     if (_selected >= flat.length) {
       _selected = flat.isEmpty ? 0 : flat.length - 1;
@@ -439,7 +450,7 @@ class _NavigationSearchViewState<T> extends State<NavigationSearchView<T>> {
     );
   }
 
-  Widget _buildInput(NavigationSidebarThemeData theme) {
+  Widget _buildInput(SuperNavigationSidebarThemeData theme) {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 14, 10, 14),
       decoration: BoxDecoration(
@@ -467,7 +478,7 @@ class _NavigationSearchViewState<T> extends State<NavigationSearchView<T>> {
                 style: TextStyle(
                   color: theme.fg1,
                   fontSize: 15,
-                  fontFamily: NavigationSidebarThemeData.bodyFont,
+                  fontFamily: SuperNavigationSidebarThemeData.bodyFont,
                 ),
                 onChanged: (value) {
                   setState(() {
@@ -492,10 +503,10 @@ class _NavigationSearchViewState<T> extends State<NavigationSearchView<T>> {
   }
 
   Widget _buildResults(
-    NavigationSidebarThemeData theme,
-    List<NavSearchHit> results,
-    List<(String, List<NavSearchHit>)> bands,
-    List<NavSearchHit> flat,
+    SuperNavigationSidebarThemeData theme,
+    List<SuperNavSearchHit> results,
+    List<(String, List<SuperNavSearchHit>)> bands,
+    List<SuperNavSearchHit> flat,
   ) {
     if (results.isEmpty && _query.trim().isNotEmpty) {
       return Center(
@@ -529,7 +540,7 @@ class _NavigationSearchViewState<T> extends State<NavigationSearchView<T>> {
                 ? 'ALL DESTINATIONS · ${_index.length}'
                 : '${results.length} RESULT${results.length == 1 ? '' : 'S'}',
             style: TextStyle(
-              fontFamily: NavigationSidebarThemeData.monoFont,
+              fontFamily: SuperNavigationSidebarThemeData.monoFont,
               fontSize: 10,
               letterSpacing: 1.1,
               color: theme.fg4,
@@ -562,7 +573,7 @@ class _NavigationSearchViewState<T> extends State<NavigationSearchView<T>> {
     );
   }
 
-  Widget _buildFooter(NavigationSidebarThemeData theme) {
+  Widget _buildFooter(SuperNavigationSidebarThemeData theme) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
@@ -582,7 +593,7 @@ class _NavigationSearchViewState<T> extends State<NavigationSearchView<T>> {
 }
 
 class _NavigationSearchResultRow extends StatefulWidget {
-  final NavSearchHit hit;
+  final SuperNavSearchHit hit;
   final bool active;
   final bool highlighted;
   final VoidCallback onTap;
@@ -606,7 +617,7 @@ class _NavigationSearchResultRowState
 
   @override
   Widget build(BuildContext context) {
-    final theme = NavigationSidebarThemeData.of(context);
+    final theme = SuperNavigationSidebarThemeData.of(context);
     final highlighted = widget.highlighted || widget.active;
     return MouseRegion(
       cursor: SystemMouseCursors.click,
@@ -625,7 +636,9 @@ class _NavigationSearchResultRowState
             borderRadius: BorderRadius.circular(theme.radiusMd),
             border: Border.all(
               color: widget.highlighted
-                  ? NavigationSidebarThemeData.accent.withValues(alpha: 0.45)
+                  ? SuperNavigationSidebarThemeData.accent.withValues(
+                      alpha: 0.45,
+                    )
                   : Colors.transparent,
             ),
           ),
@@ -643,7 +656,7 @@ class _NavigationSearchResultRowState
                   data: IconThemeData(
                     size: 16,
                     color: widget.active
-                        ? NavigationSidebarThemeData.accent
+                        ? SuperNavigationSidebarThemeData.accent
                         : theme.fg3,
                   ),
                   child:
@@ -675,7 +688,7 @@ class _NavigationSearchResultRowState
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: 11,
-                        fontFamily: NavigationSidebarThemeData.monoFont,
+                        fontFamily: SuperNavigationSidebarThemeData.monoFont,
                         color: theme.fg3,
                       ),
                     ),
@@ -697,7 +710,7 @@ class _NavigationSearchResultRowState
                   child: Text(
                     widget.hit.code!.toUpperCase(),
                     style: TextStyle(
-                      fontFamily: NavigationSidebarThemeData.monoFont,
+                      fontFamily: SuperNavigationSidebarThemeData.monoFont,
                       fontSize: 9,
                       fontWeight: FontWeight.w700,
                       color: theme.fg3,
@@ -716,13 +729,13 @@ class _NavigationSearchResultRowState
 }
 
 class _NavigationSearchBadge extends StatelessWidget {
-  final NavBadge badge;
+  final SuperNavBadge badge;
 
   const _NavigationSearchBadge({required this.badge});
 
   @override
   Widget build(BuildContext context) {
-    final theme = NavigationSidebarThemeData.of(context);
+    final theme = SuperNavigationSidebarThemeData.of(context);
     final colors = theme.badgeColors(badge.tone);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
@@ -734,7 +747,7 @@ class _NavigationSearchBadge extends StatelessWidget {
       child: Text(
         badge.text,
         style: TextStyle(
-          fontFamily: NavigationSidebarThemeData.monoFont,
+          fontFamily: SuperNavigationSidebarThemeData.monoFont,
           fontSize: 9,
           fontWeight: FontWeight.w700,
           color: colors.fg,
@@ -747,7 +760,7 @@ class _NavigationSearchBadge extends StatelessWidget {
 class _NavigationSearchKeyHint extends StatelessWidget {
   final String kbd;
   final String label;
-  final NavigationSidebarThemeData theme;
+  final SuperNavigationSidebarThemeData theme;
 
   const _NavigationSearchKeyHint({
     required this.kbd,
@@ -769,7 +782,7 @@ class _NavigationSearchKeyHint extends StatelessWidget {
           child: Text(
             kbd,
             style: TextStyle(
-              fontFamily: NavigationSidebarThemeData.monoFont,
+              fontFamily: SuperNavigationSidebarThemeData.monoFont,
               fontSize: 10.5,
               color: theme.fg3,
             ),
@@ -779,7 +792,7 @@ class _NavigationSearchKeyHint extends StatelessWidget {
         Text(
           label,
           style: TextStyle(
-            fontFamily: NavigationSidebarThemeData.monoFont,
+            fontFamily: SuperNavigationSidebarThemeData.monoFont,
             fontSize: 10.5,
             color: theme.fg4,
           ),
@@ -789,17 +802,17 @@ class _NavigationSearchKeyHint extends StatelessWidget {
   }
 }
 
-/// Presents [NavigationSearchView] as either a dialog or modal bottom sheet.
-Future<void> showNavigationSearchView<T>(
+/// Presents [SuperNavigationSearchView] as either a dialog or modal bottom sheet.
+Future<void> showSuperNavigationSearchView<T>(
   BuildContext context, {
-  required NavigationSidebarController<T> controller,
-  NavigationSearchViewMode mode = NavigationSearchViewMode.dialog,
-  ValueChanged<NavNodeId>? onPick,
+  required SuperNavigationSidebarController<T> controller,
+  SuperNavigationSearchViewMode mode = SuperNavigationSearchViewMode.dialog,
+  ValueChanged<SuperNavNodeId>? onPick,
   String hint = 'Search navigation…',
   String recentsLabel = 'Recent',
 }) async {
   switch (mode) {
-    case NavigationSearchViewMode.dialog:
+    case SuperNavigationSearchViewMode.dialog:
       await showDialog<void>(
         context: context,
         builder: (dialogContext) {
@@ -813,7 +826,7 @@ Future<void> showNavigationSearchView<T>(
             child: SizedBox(
               width: math.min(620.0, screen.width - 48),
               height: math.min(620.0, screen.height - 80),
-              child: NavigationSearchView<T>(
+              child: SuperNavigationSearchView<T>(
                 controller: controller,
                 hint: hint,
                 recentsLabel: recentsLabel,
@@ -825,7 +838,7 @@ Future<void> showNavigationSearchView<T>(
         },
       );
       return;
-    case NavigationSearchViewMode.sheet:
+    case SuperNavigationSearchViewMode.sheet:
       await showModalBottomSheet<void>(
         context: context,
         isScrollControlled: true,
@@ -838,7 +851,7 @@ Future<void> showNavigationSearchView<T>(
             padding: EdgeInsets.only(bottom: media.viewInsets.bottom),
             child: SizedBox(
               height: height,
-              child: NavigationSearchView<T>(
+              child: SuperNavigationSearchView<T>(
                 controller: controller,
                 hint: hint,
                 recentsLabel: recentsLabel,
@@ -853,3 +866,26 @@ Future<void> showNavigationSearchView<T>(
       return;
   }
 }
+
+Future<void> showNavigationSearchView<T>(
+  BuildContext context, {
+  required SuperNavigationSidebarController<T> controller,
+  SuperNavigationSearchViewMode mode = SuperNavigationSearchViewMode.dialog,
+  ValueChanged<SuperNavNodeId>? onPick,
+  String hint = 'Search navigation…',
+  String recentsLabel = 'Recent',
+}) {
+  return showSuperNavigationSearchView<T>(
+    context,
+    controller: controller,
+    mode: mode,
+    onPick: onPick,
+    hint: hint,
+    recentsLabel: recentsLabel,
+  );
+}
+
+typedef NavigationSearchViewMode = SuperNavigationSearchViewMode;
+typedef NavSearchHit = SuperNavSearchHit;
+typedef NavSearchOps = SuperNavSearchOps;
+typedef NavigationSearchView<T> = SuperNavigationSearchView<T>;

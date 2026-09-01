@@ -1,12 +1,12 @@
 // ============================================================
-// NavigationSidebar — CONTROLLER.
+// SuperNavigationSidebar — CONTROLLER.
 // ------------------------------------------------------------
 // The single source of truth for the sidebar, as a ChangeNotifier. The view
-// (NavigationSidebar) is a thin render of this state and forwards every gesture
+// (SuperNavigationSidebar) is a thin render of this state and forwards every gesture
 // to it. The controller is also published to descendants via an
 // InheritedNotifier scope, so page content can drive the nav:
 //
-//   final nav = NavigationSidebarController.of<String>(context);
+//   final nav = SuperNavigationSidebarController.of<String>(context);
 //   nav?.navigate('settingsHub');
 //
 // Holds: the immutable section forest, the active node id, the expanded-module
@@ -22,9 +22,9 @@
 //
 // DUPLICATE ID VALIDATION
 // -----------------------
-// In debug builds the controller asserts that every NavNode.id is unique
+// In debug builds the controller asserts that every SuperNavNode.id is unique
 // across the entire tree. A duplicate triggers an assertion failure with a
-// clear message listing the offending ids. Call NavOps.findDuplicateIds() for
+// clear message listing the offending ids. Call SuperNavOps.findDuplicateIds() for
 // a programmatic check in tests or host-side validation.
 //
 //   File: lib/src/controller.dart
@@ -33,7 +33,7 @@
 import 'package:flutter/widgets.dart';
 import 'models.dart';
 
-String _plainNodeLabel<T>(NavNode<T> node) {
+String _plainNodeLabel<T>(SuperNavNode<T> node) {
   final label = node.label;
   if (label is Text) {
     return label.data ?? label.textSpan?.toPlainText() ?? node.id;
@@ -41,13 +41,13 @@ String _plainNodeLabel<T>(NavNode<T> node) {
   return node.keywords.isNotEmpty ? node.keywords.first : node.id;
 }
 
-class NavigationSidebarController<T> extends ChangeNotifier {
-  NavigationSidebarController({
-    required List<NavSection<T>> sections,
-    NavNodeId? active,
-    Set<NavNodeId>? expanded,
-    Set<NavNodeId>? favorites,
-    List<NavNodeId>? recents,
+class SuperNavigationSidebarController<T> extends ChangeNotifier {
+  SuperNavigationSidebarController({
+    required List<SuperNavSection<T>> sections,
+    SuperNavNodeId? active,
+    Set<SuperNavNodeId>? expanded,
+    Set<SuperNavNodeId>? favorites,
+    List<SuperNavNodeId>? recents,
     this.maxRecents = 8,
     bool collapsed = false,
     bool drawerOpen = false,
@@ -65,15 +65,15 @@ class NavigationSidebarController<T> extends ChangeNotifier {
       // Message is produced inside _debugAssertNoDuplicates via assert().
     );
     if (_autoExpandActive && active != null) {
-      _expanded.addAll(NavOps.ancestorsOf<T>(_sections, active));
+      _expanded.addAll(SuperNavOps.ancestorsOf<T>(_sections, active));
     }
   }
 
-  List<NavSection<T>> _sections;
-  NavNodeId? _active;
-  final Set<NavNodeId> _expanded;
-  final Set<NavNodeId> _favorites;
-  final List<NavNodeId> _recents;
+  List<SuperNavSection<T>> _sections;
+  SuperNavNodeId? _active;
+  final Set<SuperNavNodeId> _expanded;
+  final Set<SuperNavNodeId> _favorites;
+  final List<SuperNavNodeId> _recents;
 
   /// Maximum entries kept in [recents] (most-recently-used first).
   final int maxRecents;
@@ -83,48 +83,49 @@ class NavigationSidebarController<T> extends ChangeNotifier {
   String _query = '';
 
   // ── reads ──────────────────────────────────────────────────
-  List<NavSection<T>> get sections => _sections;
-  NavNodeId? get active => _active;
+  List<SuperNavSection<T>> get sections => _sections;
+  SuperNavNodeId? get active => _active;
   bool get collapsed => _collapsed;
   bool get drawerOpen => _drawerOpen;
   String get query => _query;
   bool get filtering => _query.trim().isNotEmpty;
 
-  bool isExpanded(NavNodeId id) => _expanded.contains(id);
-  bool isActive(NavNodeId id) => _active == id;
+  bool isExpanded(SuperNavNodeId id) => _expanded.contains(id);
+  bool isActive(SuperNavNodeId id) => _active == id;
 
   /// Whether [id] is on the path to the active node (used to accent-tint an
   /// ancestor module/group even while the leaf itself is the active row).
-  bool ownsActive(NavNodeId id) =>
+  bool ownsActive(SuperNavNodeId id) =>
       _active != null &&
-      NavOps.ancestorsOf<T>(_sections, _active!).contains(id);
+      SuperNavOps.ancestorsOf<T>(_sections, _active!).contains(id);
 
-  NavNode<T>? node(NavNodeId id) => NavOps.find<T>(_sections, id);
+  SuperNavNode<T>? node(SuperNavNodeId id) =>
+      SuperNavOps.find<T>(_sections, id);
 
   /// The strongly-typed value behind the active node, or null.
   T? get activeValue => _active == null ? null : node(_active!)?.value;
 
   // ── favorites / quick access ───────────────────────────────
   /// Ids the user has starred for the synthesized "Quick Access" band.
-  Set<NavNodeId> get favorites => Set.unmodifiable(_favorites);
+  Set<SuperNavNodeId> get favorites => Set.unmodifiable(_favorites);
 
-  bool isFavorite(NavNodeId id) => _favorites.contains(id);
+  bool isFavorite(SuperNavNodeId id) => _favorites.contains(id);
 
   /// Favorited nodes, in the order they appear in the tree (skips missing ids).
-  List<NavNode<T>> get favoriteNodes {
-    final out = <NavNode<T>>[];
-    NavOps.walk<T>(_sections, (n, _) {
+  List<SuperNavNode<T>> get favoriteNodes {
+    final out = <SuperNavNode<T>>[];
+    SuperNavOps.walk<T>(_sections, (n, _) {
       if (_favorites.contains(n.id)) out.add(n);
     });
     return out;
   }
 
-  void toggleFavorite(NavNodeId id) {
+  void toggleFavorite(SuperNavNodeId id) {
     _favorites.contains(id) ? _favorites.remove(id) : _favorites.add(id);
     notifyListeners();
   }
 
-  void setFavorites(Iterable<NavNodeId> ids) {
+  void setFavorites(Iterable<SuperNavNodeId> ids) {
     _favorites
       ..clear()
       ..addAll(ids);
@@ -137,10 +138,10 @@ class NavigationSidebarController<T> extends ChangeNotifier {
   /// Updated automatically on every successful [navigate]. Surfaced by the
   /// command palette as a "Recent" band when the query is empty — the fastest
   /// path back to the handful of screens an ERP user lives in.
-  List<NavNodeId> get recents => List.unmodifiable(_recents);
+  List<SuperNavNodeId> get recents => List.unmodifiable(_recents);
 
   /// [recents] resolved to their nodes (missing ids are skipped).
-  List<NavNode<T>> get recentNodes => [
+  List<SuperNavNode<T>> get recentNodes => [
     for (final id in _recents)
       if (node(id) != null) node(id)!,
   ];
@@ -151,7 +152,7 @@ class NavigationSidebarController<T> extends ChangeNotifier {
     notifyListeners();
   }
 
-  void _pushRecent(NavNodeId id) {
+  void _pushRecent(SuperNavNodeId id) {
     _recents
       ..remove(id)
       ..insert(0, id);
@@ -165,14 +166,14 @@ class NavigationSidebarController<T> extends ChangeNotifier {
   ///
   /// Returns `false` without changing state when:
   /// - [id] does not exist in the tree.
-  /// - The node has [NavNode.enabled] == `false`.
-  /// - The node has [NavNode.locked] == `true` (permission-gated).
+  /// - The node has [SuperNavNode.enabled] == `false`.
+  /// - The node has [SuperNavNode.locked] == `true` (permission-gated).
   ///
   /// Auto-opens ancestor modules and closes the mobile drawer on success.
   ///
-  /// [NavigationSidebar.onNavigate] is only called when this returns `true`,
+  /// [SuperNavigationSidebar.onNavigate] is only called when this returns `true`,
   /// ensuring locked and disabled nodes can never trigger host navigation.
-  bool navigate(NavNodeId id) {
+  bool navigate(SuperNavNodeId id) {
     final n = node(id);
     if (n == null || !n.enabled || n.locked) return false;
     var changed = false;
@@ -186,7 +187,7 @@ class NavigationSidebarController<T> extends ChangeNotifier {
       if (!wasFirst) changed = true;
     }
     if (_autoExpandActive) {
-      for (final a in NavOps.ancestorsOf<T>(_sections, id)) {
+      for (final a in SuperNavOps.ancestorsOf<T>(_sections, id)) {
         changed |= _expanded.add(a);
       }
     }
@@ -199,21 +200,21 @@ class NavigationSidebarController<T> extends ChangeNotifier {
   }
 
   // ── expansion ──────────────────────────────────────────────
-  void expand(NavNodeId id) {
+  void expand(SuperNavNodeId id) {
     if (_expanded.add(id)) notifyListeners();
   }
 
-  void collapse(NavNodeId id) {
+  void collapse(SuperNavNodeId id) {
     if (_expanded.remove(id)) notifyListeners();
   }
 
-  void toggleNode(NavNodeId id) {
+  void toggleNode(SuperNavNodeId id) {
     _expanded.contains(id) ? _expanded.remove(id) : _expanded.add(id);
     notifyListeners();
   }
 
   void expandAll() {
-    NavOps.walk<T>(_sections, (n, _) {
+    SuperNavOps.walk<T>(_sections, (n, _) {
       if (n.hasChildren) _expanded.add(n.id);
     });
     notifyListeners();
@@ -253,14 +254,14 @@ class NavigationSidebarController<T> extends ChangeNotifier {
   }
 
   /// Ids that match the current query, plus their ancestors (so the matches
-  /// are reachable). Empty when not filtering. Matches [NavNode.label],
-  /// [NavNode.code] and [NavNode.keywords].
-  Set<NavNodeId> matchSet() {
+  /// are reachable). Empty when not filtering. Matches [SuperNavNode.label],
+  /// [SuperNavNode.code] and [SuperNavNode.keywords].
+  Set<SuperNavNodeId> matchSet() {
     final q = _query.trim().toLowerCase();
     if (q.isEmpty) return const {};
-    final matched = <NavNodeId>{};
-    final onPath = <NavNodeId>{};
-    bool hit(NavNode<T> n) {
+    final matched = <SuperNavNodeId>{};
+    final onPath = <SuperNavNodeId>{};
+    bool hit(SuperNavNode<T> n) {
       if (_plainNodeLabel(n).toLowerCase().contains(q)) return true;
       if (n.code != null && n.code!.toLowerCase().contains(q)) return true;
       final kw = n.keywords;
@@ -270,7 +271,7 @@ class NavigationSidebarController<T> extends ChangeNotifier {
       return false;
     }
 
-    void rec(List<NavNode<T>> nodes, List<NavNodeId> path) {
+    void rec(List<SuperNavNode<T>> nodes, List<SuperNavNodeId> path) {
       for (final n in nodes) {
         if (hit(n)) {
           matched.add(n.id);
@@ -291,7 +292,7 @@ class NavigationSidebarController<T> extends ChangeNotifier {
   ///
   /// Validates for duplicate ids in debug builds. Clears [active] if the
   /// previously active node no longer exists in the new tree.
-  void replaceSections(List<NavSection<T>> sections) {
+  void replaceSections(List<SuperNavSection<T>> sections) {
     assert(_debugAssertNoDuplicates(sections));
     _sections = List.unmodifiable(sections);
     if (_active != null && node(_active!) == null) _active = null;
@@ -309,9 +310,9 @@ class NavigationSidebarController<T> extends ChangeNotifier {
   /// // On change:
   /// nav.addListener(() => prefs.setString('nav', jsonEncode(nav.snapshot().toJson())));
   /// // On launch:
-  /// nav.restore(NavSidebarStateSnapshot.fromJson(jsonDecode(raw)));
+  /// nav.restore(SuperNavSidebarStateSnapshot.fromJson(jsonDecode(raw)));
   /// ```
-  NavSidebarStateSnapshot snapshot() => NavSidebarStateSnapshot(
+  SuperNavSidebarStateSnapshot snapshot() => SuperNavSidebarStateSnapshot(
     active: _active,
     expanded: Set.unmodifiable(_expanded),
     favorites: Set.unmodifiable(_favorites),
@@ -322,7 +323,7 @@ class NavigationSidebarController<T> extends ChangeNotifier {
   /// Apply a previously captured [snapshot]. Ids that no longer exist in the
   /// current tree are dropped silently (permissions / modules may have
   /// changed since the snapshot was taken). Notifies once.
-  void restore(NavSidebarStateSnapshot s) {
+  void restore(SuperNavSidebarStateSnapshot s) {
     _expanded
       ..clear()
       ..addAll(s.expanded.where((id) => node(id) != null));
@@ -340,26 +341,26 @@ class NavigationSidebarController<T> extends ChangeNotifier {
     if (a != null && node(a) != null) {
       _active = a;
       if (_autoExpandActive) {
-        _expanded.addAll(NavOps.ancestorsOf<T>(_sections, a));
+        _expanded.addAll(SuperNavOps.ancestorsOf<T>(_sections, a));
       }
     }
     notifyListeners();
   }
 
   // ── duplicate-id debug validation ─────────────────────────
-  /// Asserts that [sections] contains no duplicate [NavNodeId]s.
+  /// Asserts that [sections] contains no duplicate [SuperNavNodeId]s.
   ///
   /// Called automatically in the constructor and [replaceSections] in debug
   /// builds. The assert short-circuits in release builds (zero cost).
   ///
-  /// Use [NavOps.findDuplicateIds] for a programmatic check in tests.
-  static bool _debugAssertNoDuplicates<T>(List<NavSection<T>> sections) {
+  /// Use [SuperNavOps.findDuplicateIds] for a programmatic check in tests.
+  static bool _debugAssertNoDuplicates<T>(List<SuperNavSection<T>> sections) {
     assert(() {
-      final dups = NavOps.findDuplicateIds<T>(sections);
+      final dups = SuperNavOps.findDuplicateIds<T>(sections);
       assert(
         dups.isEmpty,
-        'NavigationSidebarController: duplicate NavNode IDs detected: '
-        '[${dups.join(', ')}]. Every NavNode.id must be unique across the '
+        'SuperNavigationSidebarController: duplicate SuperNavNode IDs detected: '
+        '[${dups.join(', ')}]. Every SuperNavNode.id must be unique across the '
         'entire navigation tree. Duplicate IDs cause undefined navigation '
         'behaviour — the controller cannot reliably resolve expansion, '
         'active state or ancestor paths when multiple nodes share an id.',
@@ -370,29 +371,29 @@ class NavigationSidebarController<T> extends ChangeNotifier {
   }
 
   // ── InheritedNotifier access ───────────────────────────────
-  static NavigationSidebarController<T>? of<T>(BuildContext context) {
+  static SuperNavigationSidebarController<T>? of<T>(BuildContext context) {
     final scope = context
-        .dependOnInheritedWidgetOfExactType<NavigationSidebarScope<T>>();
+        .dependOnInheritedWidgetOfExactType<SuperNavigationSidebarScope<T>>();
     return scope?.controller;
   }
 }
 
 /// An immutable, JSON-serializable capture of the user-owned sidebar state.
 ///
-/// Produced by [NavigationSidebarController.snapshot], consumed by
-/// [NavigationSidebarController.restore]. Node ids are plain strings, so a
+/// Produced by [SuperNavigationSidebarController.snapshot], consumed by
+/// [SuperNavigationSidebarController.restore]. Node ids are plain strings, so a
 /// snapshot survives app restarts and can be stored per-user on a backend —
 /// an ERP user's pinned screens, open modules and recent history follow them
 /// to any workstation.
 @immutable
-class NavSidebarStateSnapshot {
-  final NavNodeId? active;
-  final Set<NavNodeId> expanded;
-  final Set<NavNodeId> favorites;
-  final List<NavNodeId> recents;
+class SuperNavSidebarStateSnapshot {
+  final SuperNavNodeId? active;
+  final Set<SuperNavNodeId> expanded;
+  final Set<SuperNavNodeId> favorites;
+  final List<SuperNavNodeId> recents;
   final bool collapsed;
 
-  const NavSidebarStateSnapshot({
+  const SuperNavSidebarStateSnapshot({
     this.active,
     this.expanded = const {},
     this.favorites = const {},
@@ -408,10 +409,10 @@ class NavSidebarStateSnapshot {
     'collapsed': collapsed,
   };
 
-  factory NavSidebarStateSnapshot.fromJson(Map<String, Object?> json) {
+  factory SuperNavSidebarStateSnapshot.fromJson(Map<String, Object?> json) {
     List<String> strs(Object? v) =>
         v is List ? v.whereType<String>().toList() : const [];
-    return NavSidebarStateSnapshot(
+    return SuperNavSidebarStateSnapshot(
       active: json['active'] as String?,
       expanded: strs(json['expanded']).toSet(),
       favorites: strs(json['favorites']).toSet(),
@@ -421,16 +422,20 @@ class NavSidebarStateSnapshot {
   }
 }
 
-/// Exposes a [NavigationSidebarController] to the subtree so any descendant
+/// Exposes a [SuperNavigationSidebarController] to the subtree so any descendant
 /// (a page, a custom header/footer) can read/drive the sidebar and rebuild
 /// when it changes.
-class NavigationSidebarScope<T>
-    extends InheritedNotifier<NavigationSidebarController<T>> {
-  const NavigationSidebarScope({
+class SuperNavigationSidebarScope<T>
+    extends InheritedNotifier<SuperNavigationSidebarController<T>> {
+  const SuperNavigationSidebarScope({
     super.key,
-    required NavigationSidebarController<T> controller,
+    required SuperNavigationSidebarController<T> controller,
     required super.child,
   }) : super(notifier: controller);
 
-  NavigationSidebarController<T> get controller => notifier!;
+  SuperNavigationSidebarController<T> get controller => notifier!;
 }
+
+typedef NavigationSidebarController<T> = SuperNavigationSidebarController<T>;
+typedef NavSidebarStateSnapshot = SuperNavSidebarStateSnapshot;
+typedef NavigationSidebarScope<T> = SuperNavigationSidebarScope<T>;

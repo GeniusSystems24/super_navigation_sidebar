@@ -1,5 +1,5 @@
 // ============================================================
-// NavigationSidebar — MODEL.
+// SuperNavigationSidebar — MODEL.
 // ------------------------------------------------------------
 // Pure data: the immutable schema a host builds to describe its navigation —
 // a list of titled sections, each holding a tree of nodes (direct leaf · or a
@@ -9,20 +9,20 @@
 //
 // DEEP IMMUTABILITY
 // -----------------
-// NavNode.children and NavSection.items are wrapped in List.unmodifiable() at
+// SuperNavNode.children and SuperNavSection.items are wrapped in List.unmodifiable() at
 // construction time — external callers cannot mutate the list. All structural
 // changes must go through the controller (replaceSections / navigate / etc.)
 // which notifies listeners correctly.
 //
-// NOTE: The NavNode and NavSection constructors are intentionally non-const so
+// NOTE: The SuperNavNode and SuperNavSection constructors are intentionally non-const so
 // the List.unmodifiable() wrap can run at construction time. Users who
-// previously used `const NavNode(...)` should remove the `const` keyword.
+// previously used `const SuperNavNode(...)` should remove the `const` keyword.
 //
 // The tree mirrors the GeniusLink web sidebar's four roles:
 //   Section  →  Module     →  Group        →  Item
 //   Section  →  Direct leaf
 // Role is *derived* from depth + whether the node has children — see
-// [NavNodeRole.of]. The same recursion paints any depth.
+// [SuperNavNodeRole.of]. The same recursion paints any depth.
 //
 //   File: lib/src/models.dart
 // ============================================================
@@ -30,10 +30,10 @@
 import 'package:flutter/widgets.dart';
 
 /// Stable identity of a nav node (the host's own screen/route key).
-typedef NavNodeId = String;
+typedef SuperNavNodeId = String;
 
 /// The four visual roles a node can take, derived from its position.
-enum NavNodeRole {
+enum SuperNavNodeRole {
   /// Depth-0 leaf — a flat top-level destination (e.g. *Dashboard*). Renders
   /// as a pill row that fills with the accent when active.
   direct,
@@ -51,30 +51,32 @@ enum NavNodeRole {
   item;
 
   /// Resolve a node's role from its [depth] and whether it [hasChildren].
-  static NavNodeRole of({required int depth, required bool hasChildren}) {
-    if (hasChildren) return depth == 0 ? NavNodeRole.module : NavNodeRole.group;
-    return depth == 0 ? NavNodeRole.direct : NavNodeRole.item;
+  static SuperNavNodeRole of({required int depth, required bool hasChildren}) {
+    if (hasChildren) {
+      return depth == 0 ? SuperNavNodeRole.module : SuperNavNodeRole.group;
+    }
+    return depth == 0 ? SuperNavNodeRole.direct : SuperNavNodeRole.item;
   }
 }
 
-/// Semantic colour of a [NavBadge].
-enum NavBadgeTone { accent, success, warning, danger, muted }
+/// Semantic colour of a [SuperNavBadge].
+enum SuperNavBadgeTone { accent, success, warning, danger, muted }
 
 /// A small trailing pill on a nav row — a count (`'3'`), a status (`'New'`,
 /// `'Live'`) or any short token. In the collapsed rail it collapses to a dot.
 @immutable
-class NavBadge {
+class SuperNavBadge {
   final String text;
-  final NavBadgeTone tone;
-  const NavBadge(this.text, {this.tone = NavBadgeTone.accent});
+  final SuperNavBadgeTone tone;
+  const SuperNavBadge(this.text, {this.tone = SuperNavBadgeTone.accent});
 }
 
 /// Informational state of a node — surfaced as a small status dot before the
 /// label. Built for ERP needs like fiscal-period or ledger state (an *open*
 /// period is green, a *closed* one grey, a *locked* one red). Purely
-/// presentational; it does not block navigation (use [NavNode.locked] for
+/// presentational; it does not block navigation (use [SuperNavNode.locked] for
 /// permission gating).
-enum NavNodeStatus {
+enum SuperNavNodeStatus {
   /// No status dot.
   none,
 
@@ -97,14 +99,14 @@ enum NavNodeStatus {
 /// construction time. Use [copyWith] to derive modified copies.
 ///
 /// **Breaking change from 1.1:** The constructor is no longer `const`. Remove
-/// the `const` keyword from any `const NavNode(…)` call sites.
+/// the `const` keyword from any `const SuperNavNode(…)` call sites.
 @immutable
-class NavNode<T> {
+class SuperNavNode<T> {
   /// Unique, stable id across the whole sidebar (the host's screen key).
   ///
-  /// [NavigationSidebarController] validates that every id in the tree is
+  /// [SuperNavigationSidebarController] validates that every id in the tree is
   /// unique in debug builds. Duplicate ids cause an assertion failure.
-  final NavNodeId id;
+  final SuperNavNodeId id;
 
   /// Display label.
   final Widget label;
@@ -119,7 +121,7 @@ class NavNode<T> {
   /// palette. Wrapped in [List.unmodifiable] at construction.
   final List<String> keywords;
 
-  /// Leading leadingIcon. Optional for [NavNodeRole.group] headers (they show a
+  /// Leading leadingIcon. Optional for [SuperNavNodeRole.group] headers (they show a
   /// bullet), required-in-spirit for everything else.
   final Widget? leadingIcon;
 
@@ -129,10 +131,10 @@ class NavNode<T> {
   ///
   /// Always an unmodifiable view — external mutation is prevented. All
   /// structural changes must go through the controller.
-  final List<NavNode<T>> children;
+  final List<SuperNavNode<T>> children;
 
   /// Optional trailing badge (count or status).
-  final NavBadge? badge;
+  final SuperNavBadge? badge;
 
   /// Strongly-typed payload travelling with the node (`null` for structural
   /// nodes).
@@ -143,7 +145,7 @@ class NavNode<T> {
 
   /// When true the row is permission-gated: rendered with a lock glyph, dimmed,
   /// not activatable (the controller refuses to navigate to it and
-  /// [NavigationSidebar.onNavigate] is never fired), and its [lockMessage] is
+  /// [SuperNavigationSidebar.onNavigate] is never fired), and its [lockMessage] is
   /// surfaced as a tooltip. Use for segregation-of-duties / role-gated screens.
   final bool locked;
 
@@ -151,54 +153,54 @@ class NavNode<T> {
   final String? lockMessage;
 
   /// Informational state dot before the label (fiscal-period / ledger state).
-  final NavNodeStatus status;
+  final SuperNavNodeStatus status;
 
   /// Creates a deeply-immutable nav node.
   ///
   /// [children] is wrapped in [List.unmodifiable]; passing a list and then
   /// mutating it externally has no effect on this node.
-  NavNode({
+  SuperNavNode({
     required this.id,
     required this.label,
     this.code,
     List<String> keywords = const [],
     this.leadingIcon,
     this.trailingIcon,
-    List<NavNode<T>>? children,
+    List<SuperNavNode<T>>? children,
     this.badge,
     this.value,
     this.enabled = true,
     this.locked = false,
     this.lockMessage,
-    this.status = NavNodeStatus.none,
+    this.status = SuperNavNodeStatus.none,
   }) : keywords = List.unmodifiable(keywords),
        children = children == null ? const [] : List.unmodifiable(children);
 
   bool get hasChildren => children.isNotEmpty;
   bool get isLeaf => children.isEmpty;
 
-  NavNode<T> copyWith({
-    NavNodeId? id,
+  SuperNavNode<T> copyWith({
+    SuperNavNodeId? id,
     Widget? label,
     String? code,
     List<String>? keywords,
     Widget? leadingIcon,
     Widget? trailingIcon,
-    List<NavNode<T>>? children,
-    NavBadge? badge,
+    List<SuperNavNode<T>>? children,
+    SuperNavBadge? badge,
     T? value,
     bool? enabled,
     bool? locked,
     String? lockMessage,
-    NavNodeStatus? status,
-  }) => NavNode<T>(
+    SuperNavNodeStatus? status,
+  }) => SuperNavNode<T>(
     id: id ?? this.id,
     label: label ?? this.label,
     code: code ?? this.code,
     keywords: keywords ?? this.keywords,
     leadingIcon: leadingIcon ?? this.leadingIcon,
     trailingIcon: trailingIcon ?? this.trailingIcon,
-    children: children ?? List<NavNode<T>>.of(this.children),
+    children: children ?? List<SuperNavNode<T>>.of(this.children),
     badge: badge ?? this.badge,
     value: value ?? this.value,
     enabled: enabled ?? this.enabled,
@@ -208,7 +210,7 @@ class NavNode<T> {
   );
 
   @override
-  bool operator ==(Object other) => other is NavNode<T> && other.id == id;
+  bool operator ==(Object other) => other is SuperNavNode<T> && other.id == id;
 
   @override
   int get hashCode => id.hashCode;
@@ -220,31 +222,31 @@ class NavNode<T> {
 /// [items] is wrapped in [List.unmodifiable] at construction time.
 ///
 /// **Breaking change from 1.1:** The constructor is no longer `const`. Remove
-/// the `const` keyword from any `const NavSection(…)` call sites.
+/// the `const` keyword from any `const SuperNavSection(…)` call sites.
 @immutable
-class NavSection<T> {
+class SuperNavSection<T> {
   final String title;
 
   /// Top-level nodes in this section. Always an unmodifiable list.
-  final List<NavNode<T>> items;
+  final List<SuperNavNode<T>> items;
 
   /// Whether this band flows in the pane body or is pinned to the footer.
   ///
   /// Footer sections (e.g. *Settings*, *Help*) stay pinned to the bottom of
   /// the pane while body sections scroll. Both share one selection model.
-  final NavSectionPlacement placement;
+  final SuperNavSectionPlacement placement;
 
   /// Creates a nav section whose [items] list is deeply immutable.
-  NavSection({
+  SuperNavSection({
     required this.title,
-    required List<NavNode<T>> items,
-    this.placement = NavSectionPlacement.body,
+    required List<SuperNavNode<T>> items,
+    this.placement = SuperNavSectionPlacement.body,
   }) : items = List.unmodifiable(items);
 }
 
 /// How the sidebar is currently presented. The view can derive this from the
-/// available width (see [NavSidebarBreakpoints]) or a host can force it.
-enum NavSidebarMode {
+/// available width (see [SuperNavSidebarBreakpoints]) or a host can force it.
+enum SuperNavSidebarMode {
   /// Full-width labelled tree.
   expanded,
 
@@ -255,14 +257,14 @@ enum NavSidebarMode {
   drawer,
 }
 
-/// Where a [NavSection] is laid out within the pane.
+/// Where a [SuperNavSection] is laid out within the pane.
 ///
 /// Mirrors Microsoft NavigationView's split between `MenuItems` (top of pane)
 /// and `FooterMenuItems` (pinned to the bottom — e.g. *Settings*, *Account*,
 /// *Help*). Footer sections share the same selection model as body sections:
 /// a footer destination highlights when active and participates in
 /// breadcrumbs, search and `navigate()` exactly like any other node.
-enum NavSectionPlacement {
+enum SuperNavSectionPlacement {
   /// Default — flows in the scrollable body of the pane, top-down.
   body,
 
@@ -271,7 +273,7 @@ enum NavSectionPlacement {
 }
 
 /// Visual treatment of the active-row selection indicator.
-enum NavSelectionIndicator {
+enum SuperNavSelectionIndicator {
   /// The whole leaf row fills with the accent colour (the original look).
   fill,
 
@@ -280,36 +282,36 @@ enum NavSelectionIndicator {
   bar,
 }
 
-/// Width thresholds that map an available width to a [NavSidebarMode] — the
+/// Width thresholds that map an available width to a [SuperNavSidebarMode] — the
 /// Flutter analogue of the web `getNavMode(w)`. Tune per app.
 @immutable
-class NavSidebarBreakpoints {
-  /// At/above this the sidebar is [NavSidebarMode.expanded].
+class SuperNavSidebarBreakpoints {
+  /// At/above this the sidebar is [SuperNavSidebarMode.expanded].
   final double expanded;
 
-  /// At/above this (but below [expanded]) it's a [NavSidebarMode.rail];
-  /// below it the sidebar becomes a [NavSidebarMode.drawer].
+  /// At/above this (but below [expanded]) it's a [SuperNavSidebarMode.rail];
+  /// below it the sidebar becomes a [SuperNavSidebarMode.drawer].
   final double rail;
 
-  const NavSidebarBreakpoints({this.expanded = 1200, this.rail = 768});
+  const SuperNavSidebarBreakpoints({this.expanded = 1200, this.rail = 768});
 
-  NavSidebarMode modeFor(double width) {
-    if (width >= expanded) return NavSidebarMode.expanded;
-    if (width >= rail) return NavSidebarMode.rail;
-    return NavSidebarMode.drawer;
+  SuperNavSidebarMode modeFor(double width) {
+    if (width >= expanded) return SuperNavSidebarMode.expanded;
+    if (width >= rail) return SuperNavSidebarMode.rail;
+    return SuperNavSidebarMode.drawer;
   }
 }
 
 /// Static helpers shared by the controller and the view.
-class NavOps {
-  NavOps._();
+class SuperNavOps {
+  SuperNavOps._();
 
   /// Depth-first walk over every node in [sections], with its ancestor path.
   static void walk<T>(
-    List<NavSection<T>> sections,
-    void Function(NavNode<T> node, List<NavNode<T>> ancestors) visit,
+    List<SuperNavSection<T>> sections,
+    void Function(SuperNavNode<T> node, List<SuperNavNode<T>> ancestors) visit,
   ) {
-    void rec(List<NavNode<T>> nodes, List<NavNode<T>> path) {
+    void rec(List<SuperNavNode<T>> nodes, List<SuperNavNode<T>> path) {
       for (final n in nodes) {
         visit(n, path);
         if (n.hasChildren) rec(n.children, [...path, n]);
@@ -322,8 +324,11 @@ class NavOps {
   }
 
   /// Find a node by id across all sections, or null.
-  static NavNode<T>? find<T>(List<NavSection<T>> sections, NavNodeId id) {
-    NavNode<T>? hit;
+  static SuperNavNode<T>? find<T>(
+    List<SuperNavSection<T>> sections,
+    SuperNavNodeId id,
+  ) {
+    SuperNavNode<T>? hit;
     walk<T>(sections, (n, _) {
       if (n.id == id) hit = n;
     });
@@ -331,12 +336,12 @@ class NavOps {
   }
 
   /// Ancestor ids of [id], outermost-first (empty if top-level or missing).
-  static List<NavNodeId> ancestorsOf<T>(
-    List<NavSection<T>> sections,
-    NavNodeId id,
+  static List<SuperNavNodeId> ancestorsOf<T>(
+    List<SuperNavSection<T>> sections,
+    SuperNavNodeId id,
   ) {
-    List<NavNodeId>? result;
-    void rec(List<NavNode<T>> nodes, List<NavNodeId> path) {
+    List<SuperNavNodeId>? result;
+    void rec(List<SuperNavNode<T>> nodes, List<SuperNavNodeId> path) {
       for (final n in nodes) {
         if (n.id == id) {
           result = path;
@@ -355,7 +360,7 @@ class NavOps {
 
   /// True when [node] or anything beneath it carries a badge — used to mark a
   /// collapsed module/rail icon with a dot.
-  static bool subtreeHasBadge<T>(NavNode<T> node) {
+  static bool subtreeHasBadge<T>(SuperNavNode<T> node) {
     if (node.badge != null) return true;
     for (final c in node.children) {
       if (subtreeHasBadge(c)) return true;
@@ -366,10 +371,10 @@ class NavOps {
   /// Sum of all numeric badge texts on [node] and its descendants.
   ///
   /// Non-numeric badges (`'New'`, `'Live'`) count as 0. Used by
-  /// `NavigationSidebar.aggregateBadges` to roll pending-approval /
+  /// `SuperNavigationSidebar.aggregateBadges` to roll pending-approval /
   /// unposted-document counts up onto a collapsed module row — the ERP
   /// "12 things need you inside" affordance.
-  static int subtreeBadgeSum<T>(NavNode<T> node) {
+  static int subtreeBadgeSum<T>(SuperNavNode<T> node) {
     var sum = int.tryParse(node.badge?.text ?? '') ?? 0;
     for (final c in node.children) {
       sum += subtreeBadgeSum(c);
@@ -378,9 +383,9 @@ class NavOps {
   }
 
   /// All leaf ids beneath (and including, if leaf) [node].
-  static List<NavNodeId> leafIds<T>(NavNode<T> node) {
-    final out = <NavNodeId>[];
-    void rec(NavNode<T> n) {
+  static List<SuperNavNodeId> leafIds<T>(SuperNavNode<T> node) {
+    final out = <SuperNavNodeId>[];
+    void rec(SuperNavNode<T> n) {
       if (n.isLeaf) {
         out.add(n.id);
       } else {
@@ -394,21 +399,36 @@ class NavOps {
     return out;
   }
 
-  /// Returns all duplicate [NavNodeId]s found by walking [sections].
+  /// Returns all duplicate [SuperNavNodeId]s found by walking [sections].
   ///
   /// An empty list means the tree is valid (all ids are unique). Use this in
   /// host-app debug assertions or unit tests to validate nav trees:
   ///
   /// ```dart
-  /// assert(NavOps.findDuplicateIds(sections).isEmpty,
-  ///     'Duplicate nav ids: ${NavOps.findDuplicateIds(sections)}');
+  /// assert(SuperNavOps.findDuplicateIds(sections).isEmpty,
+  ///     'Duplicate nav ids: ${SuperNavOps.findDuplicateIds(sections)}');
   /// ```
-  static List<NavNodeId> findDuplicateIds<T>(List<NavSection<T>> sections) {
-    final seen = <NavNodeId>{};
-    final dups = <NavNodeId>[];
+  static List<SuperNavNodeId> findDuplicateIds<T>(
+    List<SuperNavSection<T>> sections,
+  ) {
+    final seen = <SuperNavNodeId>{};
+    final dups = <SuperNavNodeId>[];
     walk<T>(sections, (n, _) {
       if (!seen.add(n.id)) dups.add(n.id);
     });
     return dups;
   }
 }
+
+typedef NavNodeId = SuperNavNodeId;
+typedef NavNodeRole = SuperNavNodeRole;
+typedef NavBadgeTone = SuperNavBadgeTone;
+typedef NavBadge = SuperNavBadge;
+typedef NavNodeStatus = SuperNavNodeStatus;
+typedef NavNode<T> = SuperNavNode<T>;
+typedef NavSection<T> = SuperNavSection<T>;
+typedef NavSidebarMode = SuperNavSidebarMode;
+typedef NavSectionPlacement = SuperNavSectionPlacement;
+typedef NavSelectionIndicator = SuperNavSelectionIndicator;
+typedef NavSidebarBreakpoints = SuperNavSidebarBreakpoints;
+typedef NavOps = SuperNavOps;

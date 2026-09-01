@@ -3,11 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:super_navigation_sidebar/super_navigation_sidebar.dart';
 
-List<NavSection<String>> _sections() => [
-  NavSection<String>(
+List<SuperNavSection<String>> _sections() => [
+  SuperNavSection<String>(
     title: 'Workspace',
     items: [
-      NavNode(
+      SuperNavNode(
         id: 'dashboard',
         label: const Text('Dashboard'),
         code: 'DB01',
@@ -15,25 +15,28 @@ List<NavSection<String>> _sections() => [
         leadingIcon: const Icon(Icons.dashboard_outlined),
         value: 'dashboard',
       ),
-      NavNode(
+      SuperNavNode(
         id: 'finance',
         label: const Text('Finance'),
         leadingIcon: const Icon(Icons.account_balance_outlined),
         children: [
-          NavNode(
+          SuperNavNode(
             id: 'ledger_group',
             label: const Text('General ledger'),
             children: [
-              NavNode(
+              SuperNavNode(
                 id: 'journals',
                 label: const Text('Journal entries'),
                 code: 'JE01',
                 keywords: const ['voucher', 'posting'],
                 leadingIcon: const Icon(Icons.receipt_long_outlined),
-                badge: const NavBadge('4', tone: NavBadgeTone.warning),
+                badge: const SuperNavBadge(
+                  '4',
+                  tone: SuperNavBadgeTone.warning,
+                ),
                 value: 'journals',
               ),
-              NavNode(
+              SuperNavNode(
                 id: 'locked',
                 label: const Text('Year-end close'),
                 leadingIcon: const Icon(Icons.lock_outline),
@@ -47,11 +50,11 @@ List<NavSection<String>> _sections() => [
       ),
     ],
   ),
-  NavSection<String>(
+  SuperNavSection<String>(
     title: 'System',
-    placement: NavSectionPlacement.footer,
+    placement: SuperNavSectionPlacement.footer,
     items: [
-      NavNode(
+      SuperNavNode(
         id: 'settings',
         label: const Text('Settings'),
         leadingIcon: const Icon(Icons.settings_outlined),
@@ -61,12 +64,12 @@ List<NavSection<String>> _sections() => [
   ),
 ];
 
-List<NavSection<String>> _manySections() => [
-  NavSection<String>(
+List<SuperNavSection<String>> _manySections() => [
+  SuperNavSection<String>(
     title: 'Destinations',
     items: [
       for (var i = 0; i < 40; i++)
-        NavNode(
+        SuperNavNode(
           id: 'destination_$i',
           label: Text('Destination $i'),
           leadingIcon: const Icon(Icons.circle_outlined),
@@ -79,25 +82,25 @@ List<NavSection<String>> _manySections() => [
 Widget _app(Widget child) => MaterialApp(
   theme: ThemeData(
     extensions: const <ThemeExtension<dynamic>>[
-      NavigationSidebarThemeData.light,
+      SuperNavigationSidebarThemeData.light,
     ],
   ),
   home: Scaffold(body: child),
 );
 
 void main() {
-  group('NavSidebarBreakpoints', () {
+  group('SuperNavSidebarBreakpoints', () {
     test('maps widths to expanded, rail, and drawer', () {
-      const breakpoints = NavSidebarBreakpoints();
-      expect(breakpoints.modeFor(1400), NavSidebarMode.expanded);
-      expect(breakpoints.modeFor(900), NavSidebarMode.rail);
-      expect(breakpoints.modeFor(500), NavSidebarMode.drawer);
+      const breakpoints = SuperNavSidebarBreakpoints();
+      expect(breakpoints.modeFor(1400), SuperNavSidebarMode.expanded);
+      expect(breakpoints.modeFor(900), SuperNavSidebarMode.rail);
+      expect(breakpoints.modeFor(500), SuperNavSidebarMode.drawer);
     });
   });
 
-  group('NavigationSidebarController', () {
+  group('SuperNavigationSidebarController', () {
     test('navigates, records recents, and opens ancestors', () {
-      final nav = NavigationSidebarController<String>(
+      final nav = SuperNavigationSidebarController<String>(
         sections: _sections(),
         active: 'dashboard',
       );
@@ -112,7 +115,9 @@ void main() {
     });
 
     test('refuses locked destinations', () {
-      final nav = NavigationSidebarController<String>(sections: _sections());
+      final nav = SuperNavigationSidebarController<String>(
+        sections: _sections(),
+      );
       addTearDown(nav.dispose);
 
       expect(nav.navigate('locked'), isFalse);
@@ -121,7 +126,9 @@ void main() {
     });
 
     test('tracks favorites', () {
-      final nav = NavigationSidebarController<String>(sections: _sections());
+      final nav = SuperNavigationSidebarController<String>(
+        sections: _sections(),
+      );
       addTearDown(nav.dispose);
 
       nav.toggleFavorite('journals');
@@ -130,7 +137,9 @@ void main() {
     });
 
     test('tree filter matches code and keywords', () {
-      final nav = NavigationSidebarController<String>(sections: _sections());
+      final nav = SuperNavigationSidebarController<String>(
+        sections: _sections(),
+      );
       addTearDown(nav.dispose);
 
       nav.setQuery('JE01');
@@ -144,19 +153,19 @@ void main() {
     });
   });
 
-  group('NavSearchOps', () {
+  group('SuperNavSearchOps', () {
     test('builds leaf-only index and filters metadata', () {
-      final index = NavSearchOps.buildIndex<String>(_sections());
+      final index = SuperNavSearchOps.buildIndex<String>(_sections());
       expect(index.any((hit) => hit.id == 'finance'), isFalse);
       expect(index.any((hit) => hit.id == 'journals'), isTrue);
-      expect(NavSearchOps.filter(index, 'JE01').single.id, 'journals');
-      expect(NavSearchOps.filter(index, 'voucher').single.id, 'journals');
+      expect(SuperNavSearchOps.filter(index, 'JE01').single.id, 'journals');
+      expect(SuperNavSearchOps.filter(index, 'voucher').single.id, 'journals');
     });
   });
 
-  group('NavigationSearchView', () {
+  group('SuperNavigationSearchView', () {
     testWidgets('renders and filters results', (tester) async {
-      final nav = NavigationSidebarController<String>(
+      final nav = SuperNavigationSidebarController<String>(
         sections: _sections(),
         active: 'dashboard',
       );
@@ -166,7 +175,7 @@ void main() {
         _app(
           SizedBox(
             height: 520,
-            child: NavigationSearchView<String>(
+            child: SuperNavigationSearchView<String>(
               controller: nav,
               autofocus: false,
               closeOnPick: false,
@@ -189,7 +198,7 @@ void main() {
     testWidgets('keyboard navigation scrolls selected result into view', (
       tester,
     ) async {
-      final nav = NavigationSidebarController<String>(
+      final nav = SuperNavigationSidebarController<String>(
         sections: _manySections(),
       );
       addTearDown(nav.dispose);
@@ -198,7 +207,7 @@ void main() {
         _app(
           SizedBox(
             height: 320,
-            child: NavigationSearchView<String>(
+            child: SuperNavigationSearchView<String>(
               controller: nav,
               autofocus: false,
               closeOnPick: false,
@@ -222,7 +231,7 @@ void main() {
       expect(selected, findsOneWidget);
 
       final viewRect = tester.getRect(
-        find.byType(NavigationSearchView<String>),
+        find.byType(SuperNavigationSearchView<String>),
       );
       final selectedRect = tester.getRect(selected);
       expect(selectedRect.top, greaterThanOrEqualTo(viewRect.top));
@@ -244,7 +253,7 @@ void main() {
     testWidgets('picking a result navigates when no callback is supplied', (
       tester,
     ) async {
-      final nav = NavigationSidebarController<String>(
+      final nav = SuperNavigationSidebarController<String>(
         sections: _sections(),
         active: 'dashboard',
       );
@@ -254,7 +263,7 @@ void main() {
         _app(
           SizedBox(
             height: 520,
-            child: NavigationSearchView<String>(
+            child: SuperNavigationSearchView<String>(
               controller: nav,
               autofocus: false,
               closeOnPick: false,
@@ -272,7 +281,9 @@ void main() {
     testWidgets('dialog and sheet presenters open the same search view', (
       tester,
     ) async {
-      final nav = NavigationSidebarController<String>(sections: _sections());
+      final nav = SuperNavigationSidebarController<String>(
+        sections: _sections(),
+      );
       addTearDown(nav.dispose);
 
       await tester.pumpWidget(
@@ -281,18 +292,18 @@ void main() {
             builder: (context) => Column(
               children: [
                 TextButton(
-                  onPressed: () => showNavigationSearchView<String>(
+                  onPressed: () => showSuperNavigationSearchView<String>(
                     context,
                     controller: nav,
-                    mode: NavigationSearchViewMode.dialog,
+                    mode: SuperNavigationSearchViewMode.dialog,
                   ),
                   child: const Text('dialog'),
                 ),
                 TextButton(
-                  onPressed: () => showNavigationSearchView<String>(
+                  onPressed: () => showSuperNavigationSearchView<String>(
                     context,
                     controller: nav,
-                    mode: NavigationSearchViewMode.sheet,
+                    mode: SuperNavigationSearchViewMode.sheet,
                   ),
                   child: const Text('sheet'),
                 ),
@@ -304,19 +315,19 @@ void main() {
 
       await tester.tap(find.text('dialog'));
       await tester.pumpAndSettle();
-      expect(find.byType(NavigationSearchView<String>), findsOneWidget);
+      expect(find.byType(SuperNavigationSearchView<String>), findsOneWidget);
       await tester.tapAt(const Offset(5, 5));
       await tester.pumpAndSettle();
 
       await tester.tap(find.text('sheet'));
       await tester.pumpAndSettle();
-      expect(find.byType(NavigationSearchView<String>), findsOneWidget);
+      expect(find.byType(SuperNavigationSearchView<String>), findsOneWidget);
     });
   });
 
-  group('NavigationSidebar', () {
-    testWidgets('renders current 3.0 API', (tester) async {
-      final nav = NavigationSidebarController<String>(
+  group('SuperNavigationSidebar', () {
+    testWidgets('renders current 3.2 API', (tester) async {
+      final nav = SuperNavigationSidebarController<String>(
         sections: _sections(),
         active: 'dashboard',
       );
@@ -324,12 +335,12 @@ void main() {
 
       await tester.pumpWidget(
         _app(
-          NavigationSidebar<String>(
+          SuperNavigationSidebar<String>(
             controller: nav,
-            mode: NavSidebarMode.expanded,
+            mode: SuperNavSidebarMode.expanded,
             showPaneToggle: true,
             allowSearchView: true,
-            searchViewMode: NavigationSearchViewMode.dialog,
+            searchViewMode: SuperNavigationSearchViewMode.dialog,
             favoritable: true,
           ),
         ),

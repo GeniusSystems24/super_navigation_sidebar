@@ -1,12 +1,12 @@
 // ============================================================
-// NavigationSidebar — example screen.
+// SuperNavigationSidebar — example screen.
 // ------------------------------------------------------------
 // A faithful Flutter reproduction of the GeniusLink web
 // "Navigation Sidebar Workbench" (design_system/components-navigation-sidebar.html):
 //
 //   NavShell        — orchestrates the whole chrome
 //     ├ AppBar      — logo · centered search · workspace dropdown · user menu
-//     ├ NavigationSidebar — the component under test (rail / drawer / tree)
+//     ├ SuperNavigationSidebar — the component under test (rail / drawer / tree)
 //     │   footer    — ThemeToggle + "Need help?" card
 //     └ SearchDialog — command palette opened from the search field
 //
@@ -39,13 +39,13 @@ const _paperclip = Icons.attach_file;
 const _check = Icons.check;
 const _lock = Icons.lock_outline;
 
-NavNode<String> _leaf(
+SuperNavNode<String> _leaf(
   String id,
   String label,
   IconData icon, {
-  NavBadge? badge,
+  SuperNavBadge? badge,
 }) =>
-    NavNode<String>(
+    SuperNavNode<String>(
       id: id,
       label: Text(label),
       leadingIcon: Icon(icon),
@@ -53,22 +53,23 @@ NavNode<String> _leaf(
       badge: badge,
     );
 
-NavNode<String> _group(String id, String label, List<NavNode<String>> items) =>
-    NavNode<String>(id: id, label: Text(label), children: items);
+SuperNavNode<String> _group(
+        String id, String label, List<SuperNavNode<String>> items) =>
+    SuperNavNode<String>(id: id, label: Text(label), children: items);
 
 // Full mirror of the web HUB_TABS / NAV_SECTIONS tree.
-final List<NavSection<String>> kNavSections = [
-  NavSection(
+final List<SuperNavSection<String>> kNavSections = [
+  SuperNavSection(
     title: 'Overview',
     items: [
       _leaf('dashboard', 'Dashboard', _briefcase),
       _leaf('invDashboard', 'Inventory Dashboard', _scanner),
     ],
   ),
-  NavSection(
+  SuperNavSection(
     title: 'Finance',
     items: [
-      NavNode(
+      SuperNavNode(
         id: 'accountsHub',
         label: Text('Accounts'),
         leadingIcon: Icon(_ledger),
@@ -83,7 +84,7 @@ final List<NavSection<String>> kNavSections = [
           ]),
         ],
       ),
-      NavNode(
+      SuperNavNode(
         id: 'ledgerHub',
         label: Text('Ledger'),
         leadingIcon: Icon(_ledger),
@@ -93,14 +94,14 @@ final List<NavSection<String>> kNavSections = [
               'journals',
               'Journal Entries',
               _ledger,
-              badge: const NavBadge('3'),
+              badge: const SuperNavBadge('3'),
             ),
             _leaf('createJournal', 'Create Journal Entry', _plus),
             _leaf('journal', 'Opening Journal', _ledger),
           ]),
         ],
       ),
-      NavNode(
+      SuperNavNode(
         id: 'bankingHub',
         label: Text('Banking'),
         leadingIcon: Icon(_switch2),
@@ -115,7 +116,7 @@ final List<NavSection<String>> kNavSections = [
           ]),
         ],
       ),
-      NavNode(
+      SuperNavNode(
         id: 'reportsHub',
         label: Text('Reports'),
         leadingIcon: Icon(_doc),
@@ -133,17 +134,17 @@ final List<NavSection<String>> kNavSections = [
               'auditLog',
               'Audit Log',
               _lock,
-              badge: const NavBadge('12', tone: NavBadgeTone.muted),
+              badge: const SuperNavBadge('12', tone: SuperNavBadgeTone.muted),
             ),
           ]),
         ],
       ),
     ],
   ),
-  NavSection(
+  SuperNavSection(
     title: 'Operations',
     items: [
-      NavNode(
+      SuperNavNode(
         id: 'storesHub',
         label: Text('Inventory & Stores'),
         leadingIcon: Icon(_store),
@@ -167,13 +168,14 @@ final List<NavSection<String>> kNavSections = [
               'stockTake',
               'Stock Take',
               _check,
-              badge: const NavBadge('New', tone: NavBadgeTone.success),
+              badge:
+                  const SuperNavBadge('New', tone: SuperNavBadgeTone.success),
             ),
             _leaf('barcodePrint', 'Barcode Print', _scanner),
           ]),
         ],
       ),
-      NavNode(
+      SuperNavNode(
         id: 'salesHub',
         label: Text('Sales'),
         leadingIcon: Icon(_user),
@@ -184,7 +186,7 @@ final List<NavSection<String>> kNavSections = [
           ]),
         ],
       ),
-      NavNode(
+      SuperNavNode(
         id: 'procurementHub',
         label: Text('Procurement'),
         leadingIcon: Icon(_briefcase),
@@ -197,10 +199,10 @@ final List<NavSection<String>> kNavSections = [
       ),
     ],
   ),
-  NavSection(
+  SuperNavSection(
     title: 'Administration',
     items: [
-      NavNode(
+      SuperNavNode(
         id: 'configHub',
         label: Text('Configuration'),
         leadingIcon: Icon(_compass),
@@ -212,7 +214,8 @@ final List<NavSection<String>> kNavSections = [
               'exchangeRates',
               'Exchange Rates',
               _compass,
-              badge: const NavBadge('Live', tone: NavBadgeTone.success),
+              badge:
+                  const SuperNavBadge('Live', tone: SuperNavBadgeTone.success),
             ),
           ]),
           _group('configHub:cal', 'Calendar', [
@@ -220,7 +223,7 @@ final List<NavSection<String>> kNavSections = [
           ]),
         ],
       ),
-      NavNode(
+      SuperNavNode(
         id: 'adminHub',
         label: Text('Team & Access'),
         leadingIcon: Icon(_user),
@@ -234,7 +237,7 @@ final List<NavSection<String>> kNavSections = [
           ]),
         ],
       ),
-      NavNode(
+      SuperNavNode(
         id: 'settingsHub',
         label: Text('Settings'),
         leadingIcon: Icon(_settings),
@@ -281,11 +284,11 @@ class _NavigationSidebarDemoState extends State<NavigationSidebarDemo> {
   _Device _device = _Device.fill;
   int _tenant = 9;
 
-  static const _bp = NavSidebarBreakpoints();
-  NavSidebarMode? _prevMode;
+  static const _bp = SuperNavSidebarBreakpoints();
+  SuperNavSidebarMode? _prevMode;
 
-  late final NavigationSidebarController<String> _controller =
-      NavigationSidebarController<String>(
+  late final SuperNavigationSidebarController<String> _controller =
+      SuperNavigationSidebarController<String>(
     sections: kNavSections,
     active: 'accounts',
   );
@@ -301,14 +304,14 @@ class _NavigationSidebarDemoState extends State<NavigationSidebarDemo> {
   // Mirror the web NavShell: auto-collapse to a rail on tablet, expand on
   // desktop, close the drawer on mobile — but only when the breakpoint changes,
   // so an explicit user toggle within a breakpoint is preserved.
-  void _syncMode(NavSidebarMode mode) {
+  void _syncMode(SuperNavSidebarMode mode) {
     if (mode == _prevMode) return;
     _prevMode = mode;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      if (mode == NavSidebarMode.expanded) {
+      if (mode == SuperNavSidebarMode.expanded) {
         _controller.collapsed = false;
-      } else if (mode == NavSidebarMode.rail) {
+      } else if (mode == SuperNavSidebarMode.rail) {
         _controller.collapsed = true;
       } else {
         _controller.closeDrawer();
@@ -319,19 +322,19 @@ class _NavigationSidebarDemoState extends State<NavigationSidebarDemo> {
   @override
   Widget build(BuildContext context) {
     final ext = _light
-        ? NavigationSidebarThemeData.light
-        : NavigationSidebarThemeData.dark;
+        ? SuperNavigationSidebarThemeData.light
+        : SuperNavigationSidebarThemeData.dark;
     return Theme(
       data: ThemeData(
         brightness: _light ? Brightness.light : Brightness.dark,
         useMaterial3: true,
-        fontFamily: NavigationSidebarThemeData.bodyFont,
+        fontFamily: SuperNavigationSidebarThemeData.bodyFont,
         scaffoldBackgroundColor: ext.bg,
         extensions: [ext],
       ),
       child: Builder(
         builder: (context) {
-          final t = NavigationSidebarThemeData.of(context);
+          final t = SuperNavigationSidebarThemeData.of(context);
           final dev = _devices.firstWhere((d) => d.$1 == _device);
           return Directionality(
             textDirection: _dir,
@@ -360,7 +363,7 @@ class _NavigationSidebarDemoState extends State<NavigationSidebarDemo> {
                               dev.$3 != null ? 14.0 : 0.0,
                             ),
                             boxShadow: dev.$3 != null
-                                ? NavigationSidebarThemeData.popShadow
+                                ? SuperNavigationSidebarThemeData.popShadow
                                 : null,
                           ),
                           clipBehavior: Clip.antiAlias,
@@ -391,7 +394,7 @@ class _NavigationSidebarDemoState extends State<NavigationSidebarDemo> {
   }
 
   // ── workbench strip (LTR/RTL · device sim) — theme lives in the sidebar ──
-  Widget _workbenchBar(NavigationSidebarThemeData t) {
+  Widget _workbenchBar(SuperNavigationSidebarThemeData t) {
     return Container(
       height: 36,
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -405,18 +408,18 @@ class _NavigationSidebarDemoState extends State<NavigationSidebarDemo> {
             width: 7,
             height: 7,
             decoration: const BoxDecoration(
-              color: NavigationSidebarThemeData.accent,
+              color: SuperNavigationSidebarThemeData.accent,
               shape: BoxShape.circle,
             ),
           ),
           const SizedBox(width: 10),
           Flexible(
             child: Text(
-              'NavigationSidebar — isolated workbench · MVC',
+              'SuperNavigationSidebar — isolated workbench · MVC',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                fontFamily: NavigationSidebarThemeData.monoFont,
+                fontFamily: SuperNavigationSidebarThemeData.monoFont,
                 fontSize: 11,
                 letterSpacing: 0.4,
                 color: t.fg3,
@@ -443,7 +446,7 @@ class _NavigationSidebarDemoState extends State<NavigationSidebarDemo> {
   }
 
   Widget _seg<V>(
-    NavigationSidebarThemeData t,
+    SuperNavigationSidebarThemeData t,
     List<(V, String)> options,
     V value,
     ValueChanged<V> onPick,
@@ -462,7 +465,7 @@ class _NavigationSidebarDemoState extends State<NavigationSidebarDemo> {
             GestureDetector(
               onTap: () => onPick(o.$1),
               child: AnimatedContainer(
-                duration: NavigationSidebarThemeData.durFast,
+                duration: SuperNavigationSidebarThemeData.durFast,
                 padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
                 decoration: BoxDecoration(
                   color: o.$1 == value ? t.surface : Colors.transparent,
@@ -480,7 +483,7 @@ class _NavigationSidebarDemoState extends State<NavigationSidebarDemo> {
                 child: Text(
                   o.$2,
                   style: TextStyle(
-                    fontFamily: NavigationSidebarThemeData.monoFont,
+                    fontFamily: SuperNavigationSidebarThemeData.monoFont,
                     fontSize: 10,
                     letterSpacing: 0.4,
                     color: o.$1 == value ? t.fg1 : t.fg3,
@@ -498,7 +501,7 @@ class _NavigationSidebarDemoState extends State<NavigationSidebarDemo> {
 // NAV SHELL — responsive AppBar + sidebar + page.
 // ════════════════════════════════════════════════════════════
 class _NavShell extends StatelessWidget {
-  final NavigationSidebarController<String> controller;
+  final SuperNavigationSidebarController<String> controller;
   final double width;
   final bool light;
   final ValueChanged<bool> setTheme;
@@ -513,11 +516,11 @@ class _NavShell extends StatelessWidget {
     required this.onTenant,
   });
 
-  static const _bp = NavSidebarBreakpoints();
+  static const _bp = SuperNavSidebarBreakpoints();
 
   @override
   Widget build(BuildContext context) {
-    final t = NavigationSidebarThemeData.of(context);
+    final t = SuperNavigationSidebarThemeData.of(context);
     final mode = _bp.modeFor(width);
 
     Widget footer(BuildContext ctx, bool collapsed) =>
@@ -527,12 +530,12 @@ class _NavShell extends StatelessWidget {
       mode: mode,
       tenant: tenant,
       onTenant: onTenant,
-      onMenu: () => mode == NavSidebarMode.drawer
+      onMenu: () => mode == SuperNavSidebarMode.drawer
           ? controller.toggleDrawer()
           : controller.toggleCollapsed(),
     );
 
-    if (mode == NavSidebarMode.drawer) {
+    if (mode == SuperNavSidebarMode.drawer) {
       return Container(
         color: t.bg,
         child: Column(
@@ -543,9 +546,9 @@ class _NavShell extends StatelessWidget {
                 children: [
                   Positioned.fill(child: _FauxPage(controller: controller)),
                   Positioned.fill(
-                    child: NavigationSidebar<String>(
+                    child: SuperNavigationSidebar<String>(
                       controller: controller,
-                      mode: NavSidebarMode.drawer,
+                      mode: SuperNavSidebarMode.drawer,
                       allowSearchView: true,
                       searchHint: 'Search tabs & actions…',
                       footer: footer,
@@ -559,8 +562,9 @@ class _NavShell extends StatelessWidget {
       );
     }
 
-    final sidebarMode =
-        controller.collapsed ? NavSidebarMode.rail : NavSidebarMode.expanded;
+    final sidebarMode = controller.collapsed
+        ? SuperNavSidebarMode.rail
+        : SuperNavSidebarMode.expanded;
 
     return Container(
       color: t.bg,
@@ -570,7 +574,7 @@ class _NavShell extends StatelessWidget {
           Expanded(
             child: Row(
               children: [
-                NavigationSidebar<String>(
+                SuperNavigationSidebar<String>(
                   controller: controller,
                   mode: sidebarMode,
                   allowSearchView: true,
@@ -597,7 +601,7 @@ class _Logo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = NavigationSidebarThemeData.of(context);
+    final t = SuperNavigationSidebarThemeData.of(context);
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -612,7 +616,7 @@ class _Logo extends StatelessWidget {
           Text(
             'GeniusLink',
             style: TextStyle(
-              fontFamily: NavigationSidebarThemeData.displayFont,
+              fontFamily: SuperNavigationSidebarThemeData.displayFont,
               fontWeight: FontWeight.w800,
               fontSize: size * 0.66,
               letterSpacing: -0.2,
@@ -656,7 +660,7 @@ class _Hamburger extends StatelessWidget {
 // APP BAR — logo · search · workspace · user.
 // ════════════════════════════════════════════════════════════
 class _AppBar extends StatelessWidget {
-  final NavSidebarMode mode;
+  final SuperNavSidebarMode mode;
   final int tenant;
   final ValueChanged<int> onTenant;
   final VoidCallback onMenu;
@@ -669,9 +673,10 @@ class _AppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = NavigationSidebarThemeData.of(context);
-    final mobile = mode == NavSidebarMode.drawer;
-    final tight = mode != NavSidebarMode.expanded; // compact clusters on tablet
+    final t = SuperNavigationSidebarThemeData.of(context);
+    final mobile = mode == SuperNavSidebarMode.drawer;
+    final tight =
+        mode != SuperNavSidebarMode.expanded; // compact clusters on tablet
 
     Widget iconBtn({required Widget child, VoidCallback? onTap}) =>
         GestureDetector(
@@ -769,7 +774,7 @@ class _WorkspaceMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = NavigationSidebarThemeData.of(context);
+    final t = SuperNavigationSidebarThemeData.of(context);
     final cur = _tenants.firstWhere(
       (e) => e.$1 == tenant,
       orElse: () => _tenants.first,
@@ -779,13 +784,14 @@ class _WorkspaceMenu extends StatelessWidget {
           height: s,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: NavigationSidebarThemeData.accent.withValues(alpha: 0.18),
+            color:
+                SuperNavigationSidebarThemeData.accent.withValues(alpha: 0.18),
             borderRadius: BorderRadius.circular(7),
           ),
           child: Icon(
             Icons.apartment,
             size: s * 0.56,
-            color: NavigationSidebarThemeData.accent,
+            color: SuperNavigationSidebarThemeData.accent,
           ),
         );
 
@@ -801,7 +807,7 @@ class _WorkspaceMenu extends StatelessWidget {
           color: open ? t.hover : t.inputBg,
           borderRadius: BorderRadius.circular(t.radiusLg),
           border: Border.all(
-            color: open ? NavigationSidebarThemeData.accent : t.border,
+            color: open ? SuperNavigationSidebarThemeData.accent : t.border,
           ),
         ),
         child: Row(
@@ -830,7 +836,7 @@ class _WorkspaceMenu extends StatelessWidget {
                     Text(
                       'TENANT ${cur.$1}',
                       style: TextStyle(
-                        fontFamily: NavigationSidebarThemeData.monoFont,
+                        fontFamily: SuperNavigationSidebarThemeData.monoFont,
                         fontSize: 9.5,
                         color: t.fg3,
                         letterSpacing: 0.4,
@@ -854,7 +860,7 @@ class _WorkspaceMenu extends StatelessWidget {
             child: Text(
               'SWITCH WORKSPACE',
               style: TextStyle(
-                fontFamily: NavigationSidebarThemeData.monoFont,
+                fontFamily: SuperNavigationSidebarThemeData.monoFont,
                 fontSize: 10,
                 letterSpacing: 1.2,
                 color: t.fg4,
@@ -885,7 +891,7 @@ class _WorkspaceMenu extends StatelessWidget {
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
                             color: e.$1 == tenant
-                                ? NavigationSidebarThemeData.accent
+                                ? SuperNavigationSidebarThemeData.accent
                                 : t.fg1,
                           ),
                         ),
@@ -893,7 +899,8 @@ class _WorkspaceMenu extends StatelessWidget {
                           '${e.$3} · Tenant ${e.$1}',
                           style: TextStyle(
                             fontSize: 10.5,
-                            fontFamily: NavigationSidebarThemeData.monoFont,
+                            fontFamily:
+                                SuperNavigationSidebarThemeData.monoFont,
                             color: t.fg3,
                           ),
                         ),
@@ -904,7 +911,7 @@ class _WorkspaceMenu extends StatelessWidget {
                     const Icon(
                       Icons.check,
                       size: 15,
-                      color: NavigationSidebarThemeData.accent,
+                      color: SuperNavigationSidebarThemeData.accent,
                     ),
                 ],
               ),
@@ -920,15 +927,16 @@ class _UserMenu extends StatelessWidget {
   final bool compact;
   const _UserMenu({required this.compact});
 
-  Widget _avatar(NavigationSidebarThemeData t, double s) => Container(
+  Widget _avatar(SuperNavigationSidebarThemeData t, double s) => Container(
         width: s,
         height: s,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: NavigationSidebarThemeData.accent.withValues(alpha: 0.16),
+          color: SuperNavigationSidebarThemeData.accent.withValues(alpha: 0.16),
           shape: BoxShape.circle,
           border: Border.all(
-            color: NavigationSidebarThemeData.accent.withValues(alpha: 0.35),
+            color:
+                SuperNavigationSidebarThemeData.accent.withValues(alpha: 0.35),
           ),
         ),
         child: Text(
@@ -936,14 +944,14 @@ class _UserMenu extends StatelessWidget {
           style: TextStyle(
             fontSize: s * 0.36,
             fontWeight: FontWeight.w700,
-            color: NavigationSidebarThemeData.accent,
+            color: SuperNavigationSidebarThemeData.accent,
           ),
         ),
       );
 
   @override
   Widget build(BuildContext context) {
-    final t = NavigationSidebarThemeData.of(context);
+    final t = SuperNavigationSidebarThemeData.of(context);
     return _HeaderMenu(
       width: 240,
       align: _MenuAlign.end,
@@ -977,7 +985,7 @@ class _UserMenu extends StatelessWidget {
                   Text(
                     'Administrator',
                     style: TextStyle(
-                      fontFamily: NavigationSidebarThemeData.monoFont,
+                      fontFamily: SuperNavigationSidebarThemeData.monoFont,
                       fontSize: 10,
                       color: t.fg3,
                       letterSpacing: 0.4,
@@ -1020,7 +1028,7 @@ class _UserMenu extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontSize: 11,
-                          fontFamily: NavigationSidebarThemeData.monoFont,
+                          fontFamily: SuperNavigationSidebarThemeData.monoFont,
                           color: t.fg3,
                         ),
                       ),
@@ -1055,18 +1063,18 @@ class _UserMenu extends StatelessWidget {
   }
 
   Widget _menuLabel(
-    NavigationSidebarThemeData t,
+    SuperNavigationSidebarThemeData t,
     IconData icon,
     String label, {
     bool danger = false,
   }) {
-    final c = danger ? NavigationSidebarThemeData.danger : t.fg1;
+    final c = danger ? SuperNavigationSidebarThemeData.danger : t.fg1;
     return Row(
       children: [
         Icon(
           icon,
           size: 15,
-          color: danger ? NavigationSidebarThemeData.danger : t.fg3,
+          color: danger ? SuperNavigationSidebarThemeData.danger : t.fg3,
         ),
         const SizedBox(width: 10),
         Text(
@@ -1121,7 +1129,7 @@ class _HeaderMenuState extends State<_HeaderMenu> {
       _close();
       return;
     }
-    final t = NavigationSidebarThemeData.of(context);
+    final t = SuperNavigationSidebarThemeData.of(context);
     final themeData = Theme.of(context);
     final rtl = Directionality.of(context) == TextDirection.rtl;
     // In RTL, "start" anchors flip sides.
@@ -1161,7 +1169,7 @@ class _HeaderMenuState extends State<_HeaderMenu> {
                       color: t.surface,
                       borderRadius: BorderRadius.circular(t.radiusLg),
                       border: Border.all(color: t.borderStrong),
-                      boxShadow: NavigationSidebarThemeData.popShadow,
+                      boxShadow: SuperNavigationSidebarThemeData.popShadow,
                     ),
                     padding: const EdgeInsets.all(6),
                     child: widget.menu(_close),
@@ -1210,7 +1218,7 @@ class _MenuRowState extends State<_MenuRow> {
   bool _hover = false;
   @override
   Widget build(BuildContext context) {
-    final t = NavigationSidebarThemeData.of(context);
+    final t = SuperNavigationSidebarThemeData.of(context);
     final bg = widget.active
         ? t.accentFill(0.10)
         : (_hover ? t.hover : Colors.transparent);
@@ -1249,7 +1257,7 @@ class _SidebarFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = NavigationSidebarThemeData.of(context);
+    final t = SuperNavigationSidebarThemeData.of(context);
 
     if (collapsed) {
       return Column(
@@ -1314,7 +1322,7 @@ class _SidebarFooter extends StatelessWidget {
                   child: GestureDetector(
                     onTap: () => setTheme(opt.$1),
                     child: AnimatedContainer(
-                      duration: NavigationSidebarThemeData.durFast,
+                      duration: SuperNavigationSidebarThemeData.durFast,
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
@@ -1361,7 +1369,7 @@ class _SidebarFooter extends StatelessWidget {
                 height: 34,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: NavigationSidebarThemeData.accent.withValues(
+                  color: SuperNavigationSidebarThemeData.accent.withValues(
                     alpha: 0.14,
                   ),
                   borderRadius: BorderRadius.circular(9),
@@ -1369,7 +1377,7 @@ class _SidebarFooter extends StatelessWidget {
                 child: const Icon(
                   Icons.info_outline,
                   size: 18,
-                  color: NavigationSidebarThemeData.accent,
+                  color: SuperNavigationSidebarThemeData.accent,
                 ),
               ),
               const SizedBox(width: 12),
@@ -1406,17 +1414,17 @@ class _SidebarFooter extends StatelessWidget {
 // FAUX PAGE — muted backdrop with a live breadcrumb.
 // ════════════════════════════════════════════════════════════
 class _FauxPage extends StatelessWidget {
-  final NavigationSidebarController<String> controller;
+  final SuperNavigationSidebarController<String> controller;
   const _FauxPage({required this.controller});
 
   @override
   Widget build(BuildContext context) {
-    final t = NavigationSidebarThemeData.of(context);
+    final t = SuperNavigationSidebarThemeData.of(context);
     final activeId = controller.active;
     final node = activeId == null ? null : controller.node(activeId);
     final ancestors = activeId == null
         ? const <String>[]
-        : NavOps.ancestorsOf<String>(
+        : SuperNavOps.ancestorsOf<String>(
             controller.sections,
             activeId,
           )
@@ -1445,7 +1453,7 @@ class _FauxPage extends StatelessWidget {
             Text(
               (crumb.isEmpty ? 'Workspace' : crumb).toUpperCase(),
               style: TextStyle(
-                fontFamily: NavigationSidebarThemeData.monoFont,
+                fontFamily: SuperNavigationSidebarThemeData.monoFont,
                 fontSize: 11,
                 letterSpacing: 1.6,
                 color: t.fg4,
@@ -1490,7 +1498,8 @@ class _FauxPage extends StatelessWidget {
   }
 }
 
-String _plainExampleLabel<T>(NavNode<T>? node, {required String fallback}) {
+String _plainExampleLabel<T>(SuperNavNode<T>? node,
+    {required String fallback}) {
   if (node == null) return fallback;
   final label = node.label;
   if (label is Text) {

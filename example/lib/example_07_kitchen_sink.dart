@@ -9,17 +9,17 @@ class KitchenSinkExample extends StatefulWidget {
 }
 
 class _KitchenSinkExampleState extends State<KitchenSinkExample> {
-  late final NavigationSidebarController<String> _nav;
+  late final SuperNavigationSidebarController<String> _nav;
   bool _rtl = false;
   bool _favorites = true;
   bool _aggregateBadges = true;
   bool _guides = true;
 
-  static final _sections = <NavSection<String>>[
-    NavSection<String>(
+  static final _sections = <SuperNavSection<String>>[
+    SuperNavSection<String>(
       title: 'Overview',
       items: [
-        NavNode(
+        SuperNavNode(
           id: 'dashboard',
           label: Text('Dashboard'),
           code: 'DB01',
@@ -27,46 +27,47 @@ class _KitchenSinkExampleState extends State<KitchenSinkExample> {
           leadingIcon: Icon(Icons.dashboard_outlined),
           value: 'dashboard',
         ),
-        NavNode(
+        SuperNavNode(
           id: 'approvals',
           label: Text('Approvals'),
           code: 'AP01',
           leadingIcon: Icon(Icons.approval_outlined),
-          badge: const NavBadge('12', tone: NavBadgeTone.danger),
+          badge: const SuperNavBadge('12', tone: SuperNavBadgeTone.danger),
           value: 'approvals',
         ),
       ],
     ),
-    NavSection<String>(
+    SuperNavSection<String>(
       title: 'ERP',
       items: [
-        NavNode(
+        SuperNavNode(
           id: 'finance',
           label: Text('Finance'),
           leadingIcon: Icon(Icons.account_balance_outlined),
           children: [
-            NavNode(
+            SuperNavNode(
               id: 'gl',
               label: Text('General ledger'),
               children: [
-                NavNode(
+                SuperNavNode(
                   id: 'journals',
                   label: Text('Journal entries'),
                   code: 'JE01',
                   keywords: const ['voucher', 'posting', 'قيد يومية'],
                   leadingIcon: Icon(Icons.receipt_long_outlined),
-                  badge: const NavBadge('9', tone: NavBadgeTone.warning),
+                  badge:
+                      const SuperNavBadge('9', tone: SuperNavBadgeTone.warning),
                   value: 'journals',
                 ),
-                NavNode(
+                SuperNavNode(
                   id: 'period',
                   label: Text('Current fiscal period'),
                   code: 'FP01',
                   leadingIcon: Icon(Icons.calendar_month_outlined),
-                  status: NavNodeStatus.open,
+                  status: SuperNavNodeStatus.open,
                   value: 'period',
                 ),
-                NavNode(
+                SuperNavNode(
                   id: 'restricted',
                   label: Text('Year-end close'),
                   leadingIcon: Icon(Icons.lock_outline),
@@ -78,7 +79,7 @@ class _KitchenSinkExampleState extends State<KitchenSinkExample> {
             ),
           ],
         ),
-        NavNode(
+        SuperNavNode(
           id: 'inventory',
           label: Text('Inventory'),
           code: 'INV01',
@@ -88,11 +89,11 @@ class _KitchenSinkExampleState extends State<KitchenSinkExample> {
         ),
       ],
     ),
-    NavSection<String>(
+    SuperNavSection<String>(
       title: 'System',
-      placement: NavSectionPlacement.footer,
+      placement: SuperNavSectionPlacement.footer,
       items: [
-        NavNode(
+        SuperNavNode(
           id: 'settings',
           label: Text('Settings'),
           code: 'SET01',
@@ -106,7 +107,7 @@ class _KitchenSinkExampleState extends State<KitchenSinkExample> {
   @override
   void initState() {
     super.initState();
-    _nav = NavigationSidebarController<String>(
+    _nav = SuperNavigationSidebarController<String>(
       sections: _sections,
       active: 'dashboard',
     );
@@ -118,84 +119,89 @@ class _KitchenSinkExampleState extends State<KitchenSinkExample> {
     super.dispose();
   }
 
-  void _openSearch(BuildContext context, NavigationSearchViewMode mode) {
-    showNavigationSearchView<String>(
+  void _openSearch(BuildContext context, SuperNavigationSearchViewMode mode) {
+    final l10n = SuperNavigationLocalization.of(context);
+    showSuperNavigationSearchView<String>(
       context,
       controller: _nav,
       mode: mode,
       onPick: (id) {
         if (_nav.navigate(id)) setState(() {});
       },
-      recentsLabel: _rtl ? 'الأخيرة' : 'Recent',
+      recentsLabel: l10n.recentsTitle,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: _rtl ? TextDirection.rtl : TextDirection.ltr,
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final mode = const NavSidebarBreakpoints().modeFor(
-            constraints.maxWidth,
-          );
-          final searchMode = mode == NavSidebarMode.drawer
-              ? NavigationSearchViewMode.sheet
-              : NavigationSearchViewMode.dialog;
-          final sidebar = NavigationSidebar<String>(
-            controller: _nav,
-            mode: mode,
-            showGuides: _guides,
-            favoritable: _favorites,
-            aggregateBadges: _aggregateBadges,
-            showPaneToggle: mode != NavSidebarMode.drawer,
-            allowSearchView: true,
-            searchViewMode: searchMode,
-            localizations: _rtl
-                ? NavigationSidebarLocalizations.arabic
-                : const NavigationSidebarLocalizations(),
-            onNavigate: (_) => setState(() {}),
-          );
-          final page = _Workbench(
-            controller: _nav,
-            drawer: mode == NavSidebarMode.drawer,
-            onOpenDrawer: _nav.openDrawer,
-            rtl: _rtl,
-            favorites: _favorites,
-            aggregateBadges: _aggregateBadges,
-            guides: _guides,
-            onRtl: (v) => setState(() => _rtl = v),
-            onFavorites: (v) => setState(() => _favorites = v),
-            onAggregate: (v) => setState(() => _aggregateBadges = v),
-            onGuides: (v) => setState(() => _guides = v),
-            onDialogSearch: () =>
-                _openSearch(context, NavigationSearchViewMode.dialog),
-            onSheetSearch: () =>
-                _openSearch(context, NavigationSearchViewMode.sheet),
-          );
+    final locale = _rtl ? const Locale('ar') : const Locale('en');
+    final direction = _rtl ? TextDirection.rtl : TextDirection.ltr;
+    return Localizations.override(
+      context: context,
+      locale: locale,
+      delegates: SuperNavigationLocalization.localizationsDelegates,
+      child: Directionality(
+        textDirection: direction,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final mode = const SuperNavSidebarBreakpoints().modeFor(
+              constraints.maxWidth,
+            );
+            final searchMode = mode == SuperNavSidebarMode.drawer
+                ? SuperNavigationSearchViewMode.sheet
+                : SuperNavigationSearchViewMode.dialog;
+            final sidebar = SuperNavigationSidebar<String>(
+              controller: _nav,
+              mode: mode,
+              showGuides: _guides,
+              favoritable: _favorites,
+              aggregateBadges: _aggregateBadges,
+              showPaneToggle: mode != SuperNavSidebarMode.drawer,
+              allowSearchView: true,
+              searchViewMode: searchMode,
+              onNavigate: (_) => setState(() {}),
+            );
+            final page = _Workbench(
+              controller: _nav,
+              drawer: mode == SuperNavSidebarMode.drawer,
+              onOpenDrawer: _nav.openDrawer,
+              rtl: _rtl,
+              favorites: _favorites,
+              aggregateBadges: _aggregateBadges,
+              guides: _guides,
+              onRtl: (v) => setState(() => _rtl = v),
+              onFavorites: (v) => setState(() => _favorites = v),
+              onAggregate: (v) => setState(() => _aggregateBadges = v),
+              onGuides: (v) => setState(() => _guides = v),
+              onDialogSearch: () =>
+                  _openSearch(context, SuperNavigationSearchViewMode.dialog),
+              onSheetSearch: () =>
+                  _openSearch(context, SuperNavigationSearchViewMode.sheet),
+            );
 
-          if (mode == NavSidebarMode.drawer) {
-            return Stack(
+            if (mode == SuperNavSidebarMode.drawer) {
+              return Stack(
+                children: [
+                  Positioned.fill(child: page),
+                  Positioned.fill(child: sidebar),
+                ],
+              );
+            }
+            return Row(
               children: [
-                Positioned.fill(child: page),
-                Positioned.fill(child: sidebar),
+                sidebar,
+                Expanded(child: page),
               ],
             );
-          }
-          return Row(
-            children: [
-              sidebar,
-              Expanded(child: page),
-            ],
-          );
-        },
+          },
+        ),
       ),
     );
   }
 }
 
 class _Workbench extends StatelessWidget {
-  final NavigationSidebarController<String> controller;
+  final SuperNavigationSidebarController<String> controller;
   final bool drawer;
   final VoidCallback onOpenDrawer;
   final bool rtl;
@@ -227,7 +233,7 @@ class _Workbench extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = NavigationSidebarThemeData.of(context);
+    final theme = SuperNavigationSidebarThemeData.of(context);
     final active = _plainExampleLabel(
       controller.node(controller.active ?? ''),
       fallback: 'Dashboard',
@@ -247,7 +253,7 @@ class _Workbench extends StatelessWidget {
                   ),
                 Expanded(
                   child: Text(
-                    '3.0 Kitchen sink · $active',
+                    '3.2 Kitchen sink · $active',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                           color: theme.fg1,
                           fontWeight: FontWeight.w700,
@@ -309,7 +315,8 @@ class _Workbench extends StatelessWidget {
   }
 }
 
-String _plainExampleLabel<T>(NavNode<T>? node, {required String fallback}) {
+String _plainExampleLabel<T>(SuperNavNode<T>? node,
+    {required String fallback}) {
   if (node == null) return fallback;
   final label = node.label;
   if (label is Text) {

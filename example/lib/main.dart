@@ -39,13 +39,16 @@ class _ExampleAppState extends State<ExampleApp> {
       primaryTextTheme: typography,
     );
     return MaterialApp(
-      title: 'super_navigation_sidebar 3.0.0 examples',
+      title: 'super_navigation_sidebar 3.2.0 examples',
       debugShowCheckedModeBanner: false,
+      localizationsDelegates:
+          SuperNavigationLocalization.localizationsDelegates,
+      supportedLocales: SuperNavigationLocalization.supportedLocales,
       theme: light.copyWith(
-        extensions: [NavigationSidebarThemeData.fromMaterialTheme(light)],
+        extensions: [SuperNavigationSidebarThemeData.fromMaterialTheme(light)],
       ),
       darkTheme: dark.copyWith(
-        extensions: [NavigationSidebarThemeData.fromMaterialTheme(dark)],
+        extensions: [SuperNavigationSidebarThemeData.fromMaterialTheme(dark)],
       ),
       themeMode: _dark ? ThemeMode.dark : ThemeMode.light,
       home: LauncherScreen(
@@ -70,14 +73,14 @@ class LauncherScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = NavigationSidebarThemeData.of(context);
+    final s = SuperNavigationSidebarThemeData.of(context);
 
     final demos = <_Demo>[
       _Demo(
-        title: 'Kitchen sink — every feature (3.0)',
+        title: 'Kitchen sink — every feature (3.2)',
         subtitle:
-            'One workbench with the full 3.0 surface: adaptive pane layouts, '
-            'screen codes + keyword search, dialog/sheet NavigationSearchView, '
+            'One workbench with the full 3.2 surface: adaptive pane layouts, '
+            'screen codes + keyword search, dialog/sheet SuperNavigationSearchView, '
             'recent navigation, snapshot save/restore, badge roll-up, favorites, '
             'locked/status nodes and RTL — all behind live toggles.',
         badge: 'ALL · search view · codes · recents · snapshot',
@@ -93,7 +96,7 @@ class LauncherScreen extends StatelessWidget {
         title: 'Responsive app shell',
         subtitle:
             'A device-width simulator (Fill · Desktop · Tablet · Mobile) drives '
-            'NavSidebarBreakpoints — watch the same controller flip between '
+            'SuperNavSidebarBreakpoints — watch the same controller flip between '
             'expanded, rail and drawer modes.',
         badge: 'expanded · rail · drawer',
         preview: const _SidebarThumb(mode: _Mode.expanded, activeIndex: 1),
@@ -142,11 +145,11 @@ class LauncherScreen extends StatelessWidget {
         screen: const ErpBankingExample(),
       ),
       _Demo(
-        title: 'NavigationSearchView',
+        title: 'SuperNavigationSearchView',
         subtitle:
-            'The reusable 3.0 search experience shown inline, in a dialog, or '
+            'The reusable 3.2 search experience shown inline, in a dialog, or '
             'as a modal bottom sheet. It shares the same controller and typed '
-            'navigation tree used by NavigationSidebar.',
+            'navigation tree used by SuperNavigationSidebar.',
         badge: 'embedded · dialog · sheet',
         preview: const _SidebarThumb(
           mode: _Mode.expanded,
@@ -191,11 +194,11 @@ class LauncherScreen extends StatelessWidget {
                                 'SUPER_NAVIGATION_SIDEBAR',
                                 style: TextStyle(
                                   fontFamily:
-                                      NavigationSidebarThemeData.monoFont,
+                                      SuperNavigationSidebarThemeData.monoFont,
                                   fontSize: 12,
                                   fontWeight: FontWeight.w700,
                                   letterSpacing: 1.6,
-                                  color: NavigationSidebarThemeData.accent,
+                                  color: SuperNavigationSidebarThemeData.accent,
                                 ),
                               ),
                               const SizedBox(width: 10),
@@ -207,7 +210,7 @@ class LauncherScreen extends StatelessWidget {
                             'Responsive app navigation',
                             style: TextStyle(
                               fontFamily:
-                                  NavigationSidebarThemeData.displayFont,
+                                  SuperNavigationSidebarThemeData.displayFont,
                               fontSize: 34,
                               fontWeight: FontWeight.w800,
                               letterSpacing: -0.8,
@@ -219,12 +222,13 @@ class LauncherScreen extends StatelessWidget {
                           ConstrainedBox(
                             constraints: const BoxConstraints(maxWidth: 640),
                             child: Text(
-                              'One typed NavNode<T> tree renders as an expanded '
+                              'One typed SuperNavNode<T> tree renders as an expanded '
                               'tree, an icon rail with flyouts, or an off-canvas '
                               'drawer. Search, badges, favorites, header/footer slots and RTL '
                               'are included. Open any example to try it live.',
                               style: TextStyle(
-                                fontFamily: NavigationSidebarThemeData.bodyFont,
+                                fontFamily:
+                                    SuperNavigationSidebarThemeData.bodyFont,
                                 fontSize: 14.5,
                                 height: 1.6,
                                 color: s.fg3,
@@ -270,7 +274,7 @@ class LauncherScreen extends StatelessWidget {
                   child: Text(
                     'MIT © GeniusLink · pure Flutter, zero dependencies',
                     style: TextStyle(
-                      fontFamily: NavigationSidebarThemeData.monoFont,
+                      fontFamily: SuperNavigationSidebarThemeData.monoFont,
                       fontSize: 11,
                       color: s.fg4,
                     ),
@@ -316,7 +320,7 @@ class _DemoCardState extends State<_DemoCard> {
   bool _h = false;
   @override
   Widget build(BuildContext context) {
-    final s = NavigationSidebarThemeData.of(context);
+    final s = SuperNavigationSidebarThemeData.of(context);
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       onEnter: (_) => setState(() => _h = true),
@@ -324,8 +328,8 @@ class _DemoCardState extends State<_DemoCard> {
       child: GestureDetector(
         onTap: widget.onTap,
         child: AnimatedContainer(
-          duration: NavigationSidebarThemeData.durFast,
-          curve: NavigationSidebarThemeData.curveStandard,
+          duration: SuperNavigationSidebarThemeData.durFast,
+          curve: SuperNavigationSidebarThemeData.curveStandard,
           transform: _h
               ? Matrix4.translationValues(0.0, -4.0, 0.0)
               : Matrix4.identity(),
@@ -333,11 +337,12 @@ class _DemoCardState extends State<_DemoCard> {
             color: s.surface,
             border: Border.all(
               color: _h
-                  ? NavigationSidebarThemeData.accent.withValues(alpha: 0.55)
+                  ? SuperNavigationSidebarThemeData.accent
+                      .withValues(alpha: 0.55)
                   : s.border,
             ),
             borderRadius: BorderRadius.circular(s.radiusXl),
-            boxShadow: _h ? NavigationSidebarThemeData.popShadow : null,
+            boxShadow: _h ? SuperNavigationSidebarThemeData.popShadow : null,
           ),
           clipBehavior: Clip.antiAlias,
           child: Column(
@@ -362,7 +367,8 @@ class _DemoCardState extends State<_DemoCard> {
                         child: Text(
                           '0${widget.index}',
                           style: TextStyle(
-                            fontFamily: NavigationSidebarThemeData.monoFont,
+                            fontFamily:
+                                SuperNavigationSidebarThemeData.monoFont,
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
                             color: s.fg2,
@@ -389,7 +395,7 @@ class _DemoCardState extends State<_DemoCard> {
                             widget.demo.title,
                             style: TextStyle(
                               fontFamily:
-                                  NavigationSidebarThemeData.displayFont,
+                                  SuperNavigationSidebarThemeData.displayFont,
                               fontSize: 16.5,
                               fontWeight: FontWeight.w700,
                               color: s.fg1,
@@ -399,7 +405,9 @@ class _DemoCardState extends State<_DemoCard> {
                         Icon(
                           Icons.arrow_outward,
                           size: 16,
-                          color: _h ? NavigationSidebarThemeData.accent : s.fg3,
+                          color: _h
+                              ? SuperNavigationSidebarThemeData.accent
+                              : s.fg3,
                         ),
                       ],
                     ),
@@ -409,7 +417,7 @@ class _DemoCardState extends State<_DemoCard> {
                       maxLines: 3,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        fontFamily: NavigationSidebarThemeData.bodyFont,
+                        fontFamily: SuperNavigationSidebarThemeData.bodyFont,
                         fontSize: 12.5,
                         height: 1.5,
                         color: s.fg3,
@@ -449,7 +457,7 @@ class _SidebarThumb extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final base = NavigationSidebarThemeData.of(context);
+    final base = SuperNavigationSidebarThemeData.of(context);
     final s = warm
         ? base.copyWith(
             bg: const Color(0xFFF3EEE7),
@@ -463,43 +471,43 @@ class _SidebarThumb extends StatelessWidget {
             fg4: const Color(0xFFB4A99A),
           )
         : base;
-    const accent = NavigationSidebarThemeData.accent;
+    const accent = SuperNavigationSidebarThemeData.accent;
 
     final rows = erp
-        ? <(IconData, String, NavBadgeTone?)>[
-            (Icons.fact_check_outlined, 'Approvals', NavBadgeTone.danger),
+        ? <(IconData, String, SuperNavBadgeTone?)>[
+            (Icons.fact_check_outlined, 'Approvals', SuperNavBadgeTone.danger),
             (Icons.event_available_outlined, 'FY25 · Q3', null),
             (Icons.edit_note_outlined, 'Journal Entry', null),
             (Icons.bolt_outlined, 'Wire / SWIFT', null),
             (Icons.balance, 'Trial Balance', null),
           ]
-        : <(IconData, String, NavBadgeTone?)>[
+        : <(IconData, String, SuperNavBadgeTone?)>[
             (Icons.dashboard_outlined, 'Dashboard', null),
             (
               Icons.menu_book_outlined,
               'Accounts',
-              badges ? NavBadgeTone.success : null,
+              badges ? SuperNavBadgeTone.success : null,
             ),
             (
               Icons.receipt_long_outlined,
               'Journals',
-              badges ? NavBadgeTone.danger : null,
+              badges ? SuperNavBadgeTone.danger : null,
             ),
             (Icons.storefront_outlined, 'Inventory', null),
             (Icons.settings_outlined, 'Settings', null),
           ];
 
-    Color toneColor(NavBadgeTone t) {
+    Color toneColor(SuperNavBadgeTone t) {
       switch (t) {
-        case NavBadgeTone.success:
-          return NavigationSidebarThemeData.success;
-        case NavBadgeTone.danger:
-          return NavigationSidebarThemeData.danger;
-        case NavBadgeTone.warning:
-          return NavigationSidebarThemeData.warning;
-        case NavBadgeTone.muted:
+        case SuperNavBadgeTone.success:
+          return SuperNavigationSidebarThemeData.success;
+        case SuperNavBadgeTone.danger:
+          return SuperNavigationSidebarThemeData.danger;
+        case SuperNavBadgeTone.warning:
+          return SuperNavigationSidebarThemeData.warning;
+        case SuperNavBadgeTone.muted:
           return s.fg3;
-        case NavBadgeTone.accent:
+        case SuperNavBadgeTone.accent:
           return accent;
       }
     }
@@ -518,9 +526,8 @@ class _SidebarThumb extends StatelessWidget {
         decoration: BoxDecoration(
           color: active ? accent.withValues(alpha: 0.16) : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
-          border: active
-              ? Border.all(color: accent.withValues(alpha: 0.5))
-              : null,
+          border:
+              active ? Border.all(color: accent.withValues(alpha: 0.5)) : null,
         ),
         child: Stack(
           clipBehavior: Clip.none,
@@ -569,7 +576,7 @@ class _SidebarThumb extends StatelessWidget {
                   width: 6,
                   height: 6,
                   decoration: const BoxDecoration(
-                    color: NavigationSidebarThemeData.success,
+                    color: SuperNavigationSidebarThemeData.success,
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -581,7 +588,7 @@ class _SidebarThumb extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontFamily: NavigationSidebarThemeData.bodyFont,
+                    fontFamily: SuperNavigationSidebarThemeData.bodyFont,
                     fontSize: 10,
                     fontWeight: active ? FontWeight.w700 : FontWeight.w500,
                     color: active ? Colors.white : s.fg2,
@@ -601,9 +608,9 @@ class _SidebarThumb extends StatelessWidget {
                     borderRadius: BorderRadius.circular(999),
                   ),
                   child: Text(
-                    tone == NavBadgeTone.success ? 'Live' : '9+',
+                    tone == SuperNavBadgeTone.success ? 'Live' : '9+',
                     style: TextStyle(
-                      fontFamily: NavigationSidebarThemeData.monoFont,
+                      fontFamily: SuperNavigationSidebarThemeData.monoFont,
                       fontSize: 7,
                       fontWeight: FontWeight.w700,
                       color: active ? Colors.white : toneColor(tone),
@@ -616,7 +623,7 @@ class _SidebarThumb extends StatelessWidget {
                   size: 11,
                   color: active
                       ? Colors.white
-                      : NavigationSidebarThemeData.accent,
+                      : SuperNavigationSidebarThemeData.accent,
                 ),
               if (locked) Icon(Icons.lock_outline, size: 10, color: s.fg3),
             ],
@@ -641,9 +648,8 @@ class _SidebarThumb extends StatelessWidget {
               vertical: 10,
             ),
             child: Column(
-              crossAxisAlignment: isRail
-                  ? CrossAxisAlignment.center
-                  : CrossAxisAlignment.start,
+              crossAxisAlignment:
+                  isRail ? CrossAxisAlignment.center : CrossAxisAlignment.start,
               children: [
                 // header
                 if (isRail)
@@ -658,7 +664,7 @@ class _SidebarThumb extends StatelessWidget {
                     child: const Text(
                       'GL',
                       style: TextStyle(
-                        fontFamily: NavigationSidebarThemeData.displayFont,
+                        fontFamily: SuperNavigationSidebarThemeData.displayFont,
                         fontSize: 9,
                         fontWeight: FontWeight.w800,
                         color: Colors.white,
@@ -679,7 +685,8 @@ class _SidebarThumb extends StatelessWidget {
                         child: const Text(
                           'GL',
                           style: TextStyle(
-                            fontFamily: NavigationSidebarThemeData.displayFont,
+                            fontFamily:
+                                SuperNavigationSidebarThemeData.displayFont,
                             fontSize: 8,
                             fontWeight: FontWeight.w800,
                             color: Colors.white,
@@ -690,7 +697,8 @@ class _SidebarThumb extends StatelessWidget {
                       Text(
                         'GeniusLink',
                         style: TextStyle(
-                          fontFamily: NavigationSidebarThemeData.displayFont,
+                          fontFamily:
+                              SuperNavigationSidebarThemeData.displayFont,
                           fontSize: 11,
                           fontWeight: FontWeight.w800,
                           color: s.fg1,
@@ -715,7 +723,8 @@ class _SidebarThumb extends StatelessWidget {
                         Text(
                           'Search…',
                           style: TextStyle(
-                            fontFamily: NavigationSidebarThemeData.bodyFont,
+                            fontFamily:
+                                SuperNavigationSidebarThemeData.bodyFont,
                             fontSize: 8.5,
                             color: s.fg4,
                           ),
@@ -731,7 +740,7 @@ class _SidebarThumb extends StatelessWidget {
                     child: Text(
                       erp ? 'GENERAL LEDGER' : 'OVERVIEW',
                       style: TextStyle(
-                        fontFamily: NavigationSidebarThemeData.monoFont,
+                        fontFamily: SuperNavigationSidebarThemeData.monoFont,
                         fontSize: 7,
                         letterSpacing: 1.2,
                         fontWeight: FontWeight.w700,
@@ -764,7 +773,8 @@ class _SidebarThumb extends StatelessWidget {
                         Text(
                           'Need help?',
                           style: TextStyle(
-                            fontFamily: NavigationSidebarThemeData.bodyFont,
+                            fontFamily:
+                                SuperNavigationSidebarThemeData.bodyFont,
                             fontSize: 9,
                             fontWeight: FontWeight.w600,
                             color: s.fg2,
@@ -851,7 +861,7 @@ class _Mark extends StatelessWidget {
       height: 30,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: NavigationSidebarThemeData.accent,
+        color: SuperNavigationSidebarThemeData.accent,
         borderRadius: BorderRadius.circular(8),
       ),
       child: const Icon(
@@ -869,19 +879,19 @@ class _VersionPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: NavigationSidebarThemeData.accent.withValues(alpha: 0.13),
+        color: SuperNavigationSidebarThemeData.accent.withValues(alpha: 0.13),
         borderRadius: BorderRadius.circular(999),
         border: Border.all(
-          color: NavigationSidebarThemeData.accent.withValues(alpha: 0.35),
+          color: SuperNavigationSidebarThemeData.accent.withValues(alpha: 0.35),
         ),
       ),
       child: const Text(
-        'v3.0.0',
+        'v3.2.0',
         style: TextStyle(
-          fontFamily: NavigationSidebarThemeData.monoFont,
+          fontFamily: SuperNavigationSidebarThemeData.monoFont,
           fontSize: 10.5,
           fontWeight: FontWeight.w700,
-          color: NavigationSidebarThemeData.accent,
+          color: SuperNavigationSidebarThemeData.accent,
         ),
       ),
     );
@@ -893,7 +903,7 @@ class _TagPill extends StatelessWidget {
   const _TagPill(this.text);
   @override
   Widget build(BuildContext context) {
-    final s = NavigationSidebarThemeData.of(context);
+    final s = SuperNavigationSidebarThemeData.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
@@ -904,7 +914,7 @@ class _TagPill extends StatelessWidget {
       child: Text(
         text,
         style: TextStyle(
-          fontFamily: NavigationSidebarThemeData.monoFont,
+          fontFamily: SuperNavigationSidebarThemeData.monoFont,
           fontSize: 10,
           fontWeight: FontWeight.w600,
           letterSpacing: 0.3,
@@ -921,7 +931,7 @@ class _ThemeToggle extends StatelessWidget {
   const _ThemeToggle({required this.dark, required this.onToggle});
   @override
   Widget build(BuildContext context) {
-    final s = NavigationSidebarThemeData.of(context);
+    final s = SuperNavigationSidebarThemeData.of(context);
     return GestureDetector(
       onTap: () => onToggle(!dark),
       child: MouseRegion(
@@ -945,7 +955,7 @@ class _ThemeToggle extends StatelessWidget {
               Text(
                 dark ? 'Dark' : 'Light',
                 style: TextStyle(
-                  fontFamily: NavigationSidebarThemeData.bodyFont,
+                  fontFamily: SuperNavigationSidebarThemeData.bodyFont,
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                   color: s.fg1,
@@ -988,7 +998,7 @@ class _BackScaffold extends StatelessWidget {
                       Text(
                         'Demos',
                         style: TextStyle(
-                          fontFamily: NavigationSidebarThemeData.bodyFont,
+                          fontFamily: SuperNavigationSidebarThemeData.bodyFont,
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
                           color: Colors.white,

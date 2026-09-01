@@ -3,8 +3,8 @@
 // Goal: demonstrate the theming API, RTL mirror, and every chrome toggle.
 //
 //   Three themes (segmented control):
-//     Default Dark  — NavigationSidebarThemeData.dark
-//     Default Light — NavigationSidebarThemeData.light
+//     Default Dark  — SuperNavigationSidebarThemeData.dark
+//     Default Light — SuperNavigationSidebarThemeData.light
 //     Warm ✦        — light.copyWith(...) with annotated fields
 //
 //   LTR / RTL toggle — wraps the sidebar in Directionality
@@ -18,17 +18,17 @@
 import 'package:flutter/material.dart';
 import 'package:super_navigation_sidebar/super_navigation_sidebar.dart';
 
-final _sections = <NavSection<String>>[
-  NavSection(
+final _sections = <SuperNavSection<String>>[
+  SuperNavSection(
     title: 'Overview',
     items: [
-      NavNode(
+      SuperNavNode(
         id: 'dashboard',
         label: Text('Dashboard'),
         leadingIcon: Icon(Icons.dashboard_outlined),
         value: 'dashboard',
       ),
-      NavNode(
+      SuperNavNode(
         id: 'reports',
         label: Text('Reports'),
         leadingIcon: Icon(Icons.description_outlined),
@@ -36,48 +36,48 @@ final _sections = <NavSection<String>>[
       ),
     ],
   ),
-  NavSection(
+  SuperNavSection(
     title: 'Finance',
     items: [
-      NavNode(
+      SuperNavNode(
         id: 'accountsHub',
         label: Text('Accounts'),
         leadingIcon: Icon(Icons.menu_book_outlined),
         children: [
-          NavNode(
+          SuperNavNode(
             id: 'coaGroup',
             label: Text('Chart of Accounts'),
             children: [
-              NavNode(
+              SuperNavNode(
                 id: 'accounts',
                 label: Text('Chart of Accounts'),
                 leadingIcon: Icon(Icons.menu_book_outlined),
                 value: 'accounts',
               ),
-              NavNode(
+              SuperNavNode(
                 id: 'accountTree',
                 label: Text('Account Tree'),
                 leadingIcon: Icon(Icons.account_tree_outlined),
                 value: 'accountTree',
-                badge: NavBadge('3'),
+                badge: SuperNavBadge('3'),
               ),
             ],
           ),
         ],
       ),
-      NavNode(
+      SuperNavNode(
         id: 'journals',
         label: Text('Journals'),
         leadingIcon: Icon(Icons.receipt_long_outlined),
         value: 'journals',
-        badge: NavBadge('Live', tone: NavBadgeTone.success),
+        badge: SuperNavBadge('Live', tone: SuperNavBadgeTone.success),
       ),
     ],
   ),
-  NavSection(
+  SuperNavSection(
     title: 'Administration',
     items: [
-      NavNode(
+      SuperNavNode(
         id: 'settings',
         label: Text('Settings'),
         leadingIcon: Icon(Icons.settings_outlined),
@@ -103,7 +103,7 @@ class _ThemeRtlExampleState extends State<ThemeRtlExample> {
   bool _railMode = false;
   String _screen = 'dashboard';
 
-  final _nav = NavigationSidebarController<String>(
+  final _nav = SuperNavigationSidebarController<String>(
     sections: _sections,
     active: 'dashboard',
   );
@@ -115,17 +115,17 @@ class _ThemeRtlExampleState extends State<ThemeRtlExample> {
   }
 
   // ── Theme factory ─────────────────────────────────────────────
-  static NavigationSidebarThemeData _themeData(_ThemeChoice c) {
+  static SuperNavigationSidebarThemeData _themeData(_ThemeChoice c) {
     switch (c) {
       case _ThemeChoice.dark:
-        return NavigationSidebarThemeData.dark;
+        return SuperNavigationSidebarThemeData.dark;
 
       case _ThemeChoice.light:
-        return NavigationSidebarThemeData.light;
+        return SuperNavigationSidebarThemeData.light;
 
       case _ThemeChoice.warm:
         // Warm sidebar — every copyWith field annotated:
-        return NavigationSidebarThemeData.light.copyWith(
+        return SuperNavigationSidebarThemeData.light.copyWith(
           // bg: page backdrop behind the sidebar — warm parchment
           bg: const Color(0xFFF7F3EE),
           // surface: the sidebar panel fill
@@ -162,7 +162,7 @@ class _ThemeRtlExampleState extends State<ThemeRtlExample> {
       data: Theme.of(context).copyWith(extensions: [themeData]),
       child: Builder(
         builder: (ctx) {
-          final s = NavigationSidebarThemeData.of(ctx);
+          final s = SuperNavigationSidebarThemeData.of(ctx);
           return Scaffold(
             backgroundColor: s.bg,
             body: Column(
@@ -242,7 +242,7 @@ class _ThemeRtlExampleState extends State<ThemeRtlExample> {
                       'inputBg #EEE9E2 · border #DDD7CE · '
                       'guide #CEC8C0 · fg1 #1A1714',
                       style: TextStyle(
-                        fontFamily: NavigationSidebarThemeData.monoFont,
+                        fontFamily: SuperNavigationSidebarThemeData.monoFont,
                         fontSize: 11,
                         color: s.fg3,
                       ),
@@ -255,11 +255,11 @@ class _ThemeRtlExampleState extends State<ThemeRtlExample> {
                       Directionality(
                         textDirection:
                             _rtl ? TextDirection.rtl : TextDirection.ltr,
-                        child: NavigationSidebar<String>(
+                        child: SuperNavigationSidebar<String>(
                           controller: _nav,
                           mode: _railMode
-                              ? NavSidebarMode.rail
-                              : NavSidebarMode.expanded,
+                              ? SuperNavSidebarMode.rail
+                              : SuperNavSidebarMode.expanded,
                           showGuides: _showGuides,
                           railFlyouts: _railFlyouts,
                           header: (c, collapsed) =>
@@ -280,7 +280,7 @@ class _ThemeRtlExampleState extends State<ThemeRtlExample> {
                                 _screen.toUpperCase(),
                                 style: TextStyle(
                                   fontFamily:
-                                      NavigationSidebarThemeData.monoFont,
+                                      SuperNavigationSidebarThemeData.monoFont,
                                   fontSize: 10.5,
                                   letterSpacing: 1.6,
                                   color: s.fg4,
@@ -293,8 +293,8 @@ class _ThemeRtlExampleState extends State<ThemeRtlExample> {
                                   fallback: 'Screen',
                                 ),
                                 style: TextStyle(
-                                  fontFamily:
-                                      NavigationSidebarThemeData.displayFont,
+                                  fontFamily: SuperNavigationSidebarThemeData
+                                      .displayFont,
                                   fontSize: 24,
                                   fontWeight: FontWeight.w700,
                                   color: s.fg1,
@@ -316,7 +316,8 @@ class _ThemeRtlExampleState extends State<ThemeRtlExample> {
   }
 }
 
-String _plainExampleLabel<T>(NavNode<T>? node, {required String fallback}) {
+String _plainExampleLabel<T>(SuperNavNode<T>? node,
+    {required String fallback}) {
   if (node == null) return fallback;
   final label = node.label;
   if (label is Text)
@@ -330,7 +331,7 @@ class _Header extends StatelessWidget {
   const _Header({required this.collapsed});
   @override
   Widget build(BuildContext context) {
-    final s = NavigationSidebarThemeData.of(context);
+    final s = SuperNavigationSidebarThemeData.of(context);
     return SizedBox(
       height: 36,
       child: Row(
@@ -340,13 +341,13 @@ class _Header extends StatelessWidget {
             height: 26,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: NavigationSidebarThemeData.accent,
+              color: SuperNavigationSidebarThemeData.accent,
               borderRadius: BorderRadius.circular(7),
             ),
             child: const Text(
               'GL',
               style: TextStyle(
-                fontFamily: NavigationSidebarThemeData.displayFont,
+                fontFamily: SuperNavigationSidebarThemeData.displayFont,
                 fontSize: 10,
                 fontWeight: FontWeight.w800,
                 color: Colors.white,
@@ -358,7 +359,7 @@ class _Header extends StatelessWidget {
             Text(
               'GeniusLink',
               style: TextStyle(
-                fontFamily: NavigationSidebarThemeData.displayFont,
+                fontFamily: SuperNavigationSidebarThemeData.displayFont,
                 fontWeight: FontWeight.w800,
                 fontSize: 14,
                 color: s.fg1,
@@ -377,7 +378,7 @@ class _FooterHelp extends StatelessWidget {
   const _FooterHelp({required this.collapsed});
   @override
   Widget build(BuildContext context) {
-    final s = NavigationSidebarThemeData.of(context);
+    final s = SuperNavigationSidebarThemeData.of(context);
     if (collapsed) {
       return Container(
         width: 44,
@@ -391,7 +392,7 @@ class _FooterHelp extends StatelessWidget {
         child: const Icon(
           Icons.info_outline,
           size: 18,
-          color: NavigationSidebarThemeData.accent,
+          color: SuperNavigationSidebarThemeData.accent,
         ),
       );
     }
@@ -409,13 +410,14 @@ class _FooterHelp extends StatelessWidget {
             height: 30,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: NavigationSidebarThemeData.accent.withValues(alpha: 0.14),
+              color: SuperNavigationSidebarThemeData.accent
+                  .withValues(alpha: 0.14),
               borderRadius: BorderRadius.circular(8),
             ),
             child: const Icon(
               Icons.info_outline,
               size: 15,
-              color: NavigationSidebarThemeData.accent,
+              color: SuperNavigationSidebarThemeData.accent,
             ),
           ),
           const SizedBox(width: 10),
@@ -445,7 +447,7 @@ class _Seg extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) {
-    final s = NavigationSidebarThemeData.of(context);
+    final s = SuperNavigationSidebarThemeData.of(context);
     return Container(
       padding: const EdgeInsets.all(2),
       decoration: BoxDecoration(
@@ -460,18 +462,18 @@ class _Seg extends StatelessWidget {
           return GestureDetector(
             onTap: () => onChanged(i),
             child: AnimatedContainer(
-              duration: NavigationSidebarThemeData.durFast,
+              duration: SuperNavigationSidebarThemeData.durFast,
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
                 color: active
-                    ? NavigationSidebarThemeData.accent
+                    ? SuperNavigationSidebarThemeData.accent
                     : Colors.transparent,
                 borderRadius: BorderRadius.circular(s.radiusSm),
               ),
               child: Text(
                 options[i],
                 style: TextStyle(
-                  fontFamily: NavigationSidebarThemeData.monoFont,
+                  fontFamily: SuperNavigationSidebarThemeData.monoFont,
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
                   color: active ? Colors.white : s.fg2,
@@ -497,18 +499,18 @@ class _Toggle extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) {
-    final s = NavigationSidebarThemeData.of(context);
+    final s = SuperNavigationSidebarThemeData.of(context);
     return GestureDetector(
       onTap: () => onChanged(!value),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
           color: value
-              ? NavigationSidebarThemeData.accent.withValues(alpha: 0.12)
+              ? SuperNavigationSidebarThemeData.accent.withValues(alpha: 0.12)
               : s.inputBg,
           border: Border.all(
             color: value
-                ? NavigationSidebarThemeData.accent.withValues(alpha: 0.4)
+                ? SuperNavigationSidebarThemeData.accent.withValues(alpha: 0.4)
                 : s.border,
           ),
           borderRadius: BorderRadius.circular(s.radiusMd),
@@ -516,10 +518,10 @@ class _Toggle extends StatelessWidget {
         child: Text(
           label,
           style: TextStyle(
-            fontFamily: NavigationSidebarThemeData.bodyFont,
+            fontFamily: SuperNavigationSidebarThemeData.bodyFont,
             fontSize: 12,
             fontWeight: FontWeight.w600,
-            color: value ? NavigationSidebarThemeData.accent : s.fg2,
+            color: value ? SuperNavigationSidebarThemeData.accent : s.fg2,
           ),
         ),
       ),

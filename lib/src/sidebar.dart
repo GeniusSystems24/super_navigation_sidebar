@@ -1,7 +1,7 @@
 // ============================================================
-// NavigationSidebar — VIEW.
+// SuperNavigationSidebar — VIEW.
 // ------------------------------------------------------------
-// A thin, customisable render of NavigationSidebarController<T>. Paints the
+// A thin, customisable render of SuperNavigationSidebarController<T>. Paints the
 // titled sections and their node tree in one of three modes:
 //
 //   • expanded — full-width labelled tree with │ ├ └ connectors, badges and
@@ -25,27 +25,26 @@
 //
 // LOCALIZATIONS
 // -------------
-// All user-facing strings are sourced from NavigationSidebarLocalizations.
-// Pass a custom instance (or NavigationSidebarLocalizations.arabic) via the
-// `localizations` property. The existing drawerTitle / searchHint /
-// quickAccessTitle props still override their localizations counterparts for
-// backward compatibility.
+// All user-facing strings are sourced from generated package localizations.
+// Register SuperNavigationLocalization.localizationsDelegates in the host app.
+// The existing drawerTitle / searchHint / quickAccessTitle props still override
+// their localization counterparts for backward compatibility.
 //
 //   File: lib/src/sidebar.dart
 // ============================================================
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../localizations/generated/l10n.dart';
 import 'controller.dart';
-import 'localizations.dart';
 import 'models.dart';
 import 'navigation_search_view.dart';
 import 'theme.dart';
 
-typedef NavSidebarSlotBuilder =
+typedef SuperNavSidebarSlotBuilder =
     Widget Function(BuildContext context, bool collapsed);
 
-String _plainNodeLabel<T>(NavNode<T> node) {
+String _plainNodeLabel<T>(SuperNavNode<T> node) {
   final label = node.label;
   if (label is Text) {
     return label.data ?? label.textSpan?.toPlainText() ?? node.id;
@@ -53,25 +52,25 @@ String _plainNodeLabel<T>(NavNode<T> node) {
   return node.keywords.isNotEmpty ? node.keywords.first : node.id;
 }
 
-class NavigationSidebar<T> extends StatefulWidget {
+class SuperNavigationSidebar<T> extends StatefulWidget {
   /// Initial sections. Required when [controller] is null.
-  final List<NavSection<T>>? sections;
+  final List<SuperNavSection<T>>? sections;
 
   /// Active id on first build (ignored when a [controller] is supplied).
-  final NavNodeId? active;
+  final SuperNavNodeId? active;
 
   /// Ids expanded on first build (ignored when a [controller] is supplied).
-  final Set<NavNodeId>? initiallyExpanded;
+  final Set<SuperNavNodeId>? initiallyExpanded;
 
   /// Drive/observe from outside. When null the widget owns a private one.
-  final NavigationSidebarController<T>? controller;
+  final SuperNavigationSidebarController<T>? controller;
 
   /// How the sidebar is presented.
-  final NavSidebarMode mode;
+  final SuperNavSidebarMode mode;
 
   // ── slots ──
-  final NavSidebarSlotBuilder? header;
-  final NavSidebarSlotBuilder? footer;
+  final SuperNavSidebarSlotBuilder? header;
+  final SuperNavSidebarSlotBuilder? footer;
 
   /// Eyebrow above the drawer close button. Overrides
   /// [localizations.drawerTitle] when set.
@@ -93,7 +92,7 @@ class NavigationSidebar<T> extends StatefulWidget {
   /// [localizations.searchHint] when set.
   final String? searchHint;
 
-  /// Enable the built-in [NavigationSearchView] command palette.
+  /// Enable the built-in [SuperNavigationSearchView] command palette.
   ///
   /// This is the single switch that turns on search view: the sidebar
   /// renders a search trigger inside the pane — a field in expanded / drawer
@@ -104,13 +103,13 @@ class NavigationSidebar<T> extends StatefulWidget {
   final bool allowSearchView;
 
   /// Presentation used when [allowSearchView] opens the built-in search view.
-  final NavigationSearchViewMode searchViewMode;
+  final SuperNavigationSearchViewMode searchViewMode;
 
   /// Called when the user picks a result in the [allowSearchView] search view.
   ///
   /// The controller navigates to the picked node first; when this is null the
   /// sidebar falls back to [onNavigate]. Locked / disabled nodes never fire it.
-  final ValueChanged<NavNode<T>>? onSearchPick;
+  final ValueChanged<SuperNavNode<T>>? onSearchPick;
 
   /// Enable per-row star toggles and a synthesized "Quick Access" band.
   final bool favoritable;
@@ -118,7 +117,7 @@ class NavigationSidebar<T> extends StatefulWidget {
   /// Roll numeric badge counts up onto collapsed modules.
   ///
   /// When `true`, a closed module whose descendants carry numeric badges
-  /// (e.g. `NavBadge('3')` pending approvals) shows the summed count as a
+  /// (e.g. `SuperNavBadge('3')` pending approvals) shows the summed count as a
   /// chip instead of the plain accent dot — so "12 documents need you
   /// somewhere inside Finance" is visible without expanding the tree.
   /// Non-numeric badges (`'New'`) keep the dot. Default `false`.
@@ -128,26 +127,28 @@ class NavigationSidebar<T> extends StatefulWidget {
   /// [localizations.quickAccessTitle] when set.
   final String? quickAccessTitle;
 
-  /// Localization strings for all user-facing text rendered by this widget.
+  /// Explicit localization strings for all user-facing text rendered by this
+  /// widget.
   ///
-  /// Defaults to English. Use [NavigationSidebarLocalizations.arabic] for RTL
-  /// Arabic apps, or construct a custom instance for other languages.
-  final NavigationSidebarLocalizations localizations;
+  /// When null, strings are resolved from [SuperNavigationLocalization.of].
+  /// Register [SuperNavigationLocalization.localizationsDelegates] in the host
+  /// app and choose the locale through Flutter's standard localization setup.
+  final SuperNavigationLocalization? localizations;
 
   // ── callbacks ──
   /// Called when a destination is successfully navigated to.
   ///
-  /// Only fired when [NavigationSidebarController.navigate] returns true —
+  /// Only fired when [SuperNavigationSidebarController.navigate] returns true —
   /// locked and disabled nodes never trigger this callback.
-  final ValueChanged<NavNode<T>>? onNavigate;
+  final ValueChanged<SuperNavNode<T>>? onNavigate;
 
-  const NavigationSidebar({
+  const SuperNavigationSidebar({
     super.key,
     this.sections,
     this.active,
     this.initiallyExpanded,
     this.controller,
-    this.mode = NavSidebarMode.expanded,
+    this.mode = SuperNavSidebarMode.expanded,
     this.header,
     this.footer,
     this.drawerTitle,
@@ -157,12 +158,12 @@ class NavigationSidebar<T> extends StatefulWidget {
     this.searchable = false,
     this.searchHint,
     this.allowSearchView = false,
-    this.searchViewMode = NavigationSearchViewMode.dialog,
+    this.searchViewMode = SuperNavigationSearchViewMode.dialog,
     this.onSearchPick,
     this.favoritable = false,
     this.aggregateBadges = false,
     this.quickAccessTitle,
-    this.localizations = const NavigationSidebarLocalizations(),
+    this.localizations,
     this.onNavigate,
   }) : assert(
          sections != null || controller != null,
@@ -170,17 +171,30 @@ class NavigationSidebar<T> extends StatefulWidget {
        );
 
   @override
-  State<NavigationSidebar<T>> createState() => _NavigationSidebarState<T>();
+  State<SuperNavigationSidebar<T>> createState() =>
+      _NavigationSidebarState<T>();
 }
 
-class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
-  late NavigationSidebarController<T> _controller;
+class _NavigationSidebarState<T> extends State<SuperNavigationSidebar<T>> {
+  late SuperNavigationSidebarController<T> _controller;
   bool _ownsController = false;
   final ScrollController _scroll = ScrollController();
   final TextEditingController _search = TextEditingController();
 
-  NavigationSidebarThemeData get _t => NavigationSidebarThemeData.of(context);
-  NavigationSidebarLocalizations get _l10n => widget.localizations;
+  SuperNavigationSidebarThemeData get _t =>
+      SuperNavigationSidebarThemeData.of(context);
+  SuperNavigationLocalization get _l10n =>
+      widget.localizations ??
+      Localizations.of<SuperNavigationLocalization>(
+        context,
+        SuperNavigationLocalization,
+      ) ??
+      lookupSuperNavigationLocalization(switch (Localizations.maybeLocaleOf(
+        context,
+      )?.languageCode) {
+        'ar' => const Locale('ar'),
+        _ => const Locale('en'),
+      });
   bool get _rtl => Directionality.of(context) == TextDirection.rtl;
 
   // Resolved strings (explicit prop overrides localizations default).
@@ -194,18 +208,18 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
     super.initState();
     _controller =
         widget.controller ??
-        NavigationSidebarController<T>(
+        SuperNavigationSidebarController<T>(
           sections: widget.sections!,
           active: widget.active,
           expanded: widget.initiallyExpanded,
-          collapsed: widget.mode == NavSidebarMode.rail,
+          collapsed: widget.mode == SuperNavSidebarMode.rail,
         );
     _ownsController = widget.controller == null;
     _controller.addListener(_onChanged);
   }
 
   @override
-  void didUpdateWidget(covariant NavigationSidebar<T> old) {
+  void didUpdateWidget(covariant SuperNavigationSidebar<T> old) {
     super.didUpdateWidget(old);
     if (widget.controller != null && widget.controller != _controller) {
       _controller.removeListener(_onChanged);
@@ -216,8 +230,8 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
     }
     if (_ownsController &&
         widget.mode != old.mode &&
-        widget.mode != NavSidebarMode.drawer) {
-      _controller.collapsed = widget.mode == NavSidebarMode.rail;
+        widget.mode != SuperNavSidebarMode.drawer) {
+      _controller.collapsed = widget.mode == SuperNavSidebarMode.rail;
     }
   }
 
@@ -236,21 +250,21 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
 
   /// Navigate to [n] and fire [onNavigate] only when navigation was actually
   /// applied (i.e. node is not locked, disabled, or absent).
-  void _go(NavNode<T> n) {
+  void _go(SuperNavNode<T> n) {
     if (!n.enabled || n.locked) return;
     final navigated = _controller.navigate(n.id);
     if (navigated) widget.onNavigate?.call(n);
   }
 
-  /// Open the built-in [NavigationSearchView].
+  /// Open the built-in [SuperNavigationSearchView].
   ///
-  /// Enabled by [NavigationSidebar.allowSearchView]; the sidebar owns the
+  /// Enabled by [SuperNavigationSidebar.allowSearchView]; the sidebar owns the
   /// entire modal flow so host apps do not need to build the view themselves. On pick the
-  /// controller navigates and [NavigationSidebar.onSearchPick] (falling back
-  /// to [NavigationSidebar.onNavigate]) fires for the chosen node.
+  /// controller navigates and [SuperNavigationSidebar.onSearchPick] (falling back
+  /// to [SuperNavigationSidebar.onNavigate]) fires for the chosen node.
   void _openSearchView() {
-    if (widget.mode == NavSidebarMode.drawer) _controller.closeDrawer();
-    showNavigationSearchView<T>(
+    if (widget.mode == SuperNavSidebarMode.drawer) _controller.closeDrawer();
+    showSuperNavigationSearchView<T>(
       context,
       controller: _controller,
       mode: widget.searchViewMode,
@@ -265,7 +279,7 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
   }
 
   // Rail-mode search launcher (icon button sized like a rail item).
-  Widget _railSearchButton(NavigationSidebarThemeData t) {
+  Widget _railSearchButton(SuperNavigationSidebarThemeData t) {
     return Semantics(
       button: true,
       label: _searchHint,
@@ -296,23 +310,23 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
   }
 
   bool get _railed =>
-      widget.mode == NavSidebarMode.rail ||
-      (widget.mode != NavSidebarMode.drawer && _controller.collapsed);
+      widget.mode == SuperNavSidebarMode.rail ||
+      (widget.mode != SuperNavSidebarMode.drawer && _controller.collapsed);
 
   /// Sections that flow in the scrollable pane body.
-  List<NavSection<T>> get _bodySections => [
+  List<SuperNavSection<T>> get _bodySections => [
     for (final s in _controller.sections)
-      if (s.placement == NavSectionPlacement.body) s,
+      if (s.placement == SuperNavSectionPlacement.body) s,
   ];
 
   /// Sections pinned to the bottom of the pane (e.g. Settings / Help).
-  List<NavSection<T>> get _footerSections => [
+  List<SuperNavSection<T>> get _footerSections => [
     for (final s in _controller.sections)
-      if (s.placement == NavSectionPlacement.footer) s,
+      if (s.placement == SuperNavSectionPlacement.footer) s,
   ];
 
   // Pane toggle (top-of-pane menu button).
-  Widget _paneToggleRow(NavigationSidebarThemeData t, bool railed) {
+  Widget _paneToggleRow(SuperNavigationSidebarThemeData t, bool railed) {
     return Padding(
       padding: const EdgeInsetsDirectional.only(bottom: 2),
       child: Align(
@@ -348,8 +362,8 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
 
   // Pinned footer sections (expanded).
   Widget _expandedFooter(
-    NavigationSidebarThemeData t,
-    List<NavSection<T>> footers,
+    SuperNavigationSidebarThemeData t,
+    List<SuperNavSection<T>> footers,
   ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -380,8 +394,8 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
 
   // Pinned footer sections (rail).
   Widget _railFooter(
-    NavigationSidebarThemeData t,
-    List<NavSection<T>> footers,
+    SuperNavigationSidebarThemeData t,
+    List<SuperNavSection<T>> footers,
   ) {
     return Column(
       children: [
@@ -411,20 +425,20 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
 
   @override
   Widget build(BuildContext context) {
-    return NavigationSidebarScope<T>(
+    return SuperNavigationSidebarScope<T>(
       controller: _controller,
-      child: widget.mode == NavSidebarMode.drawer
+      child: widget.mode == SuperNavSidebarMode.drawer
           ? _buildDrawer(_t)
           : _buildInline(_t),
     );
   }
 
   // ── inline panel (expanded / rail) ─────────────────────────
-  Widget _buildInline(NavigationSidebarThemeData t) {
+  Widget _buildInline(SuperNavigationSidebarThemeData t) {
     final railed = _railed;
     return AnimatedContainer(
-      duration: NavigationSidebarThemeData.durBase,
-      curve: NavigationSidebarThemeData.curveStandard,
+      duration: SuperNavigationSidebarThemeData.durBase,
+      curve: SuperNavigationSidebarThemeData.curveStandard,
       width: railed ? t.widthRail : t.widthExpanded,
       decoration: BoxDecoration(
         color: t.surface,
@@ -435,7 +449,7 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
   }
 
   // ── drawer overlay ─────────────────────────────────────────
-  Widget _buildDrawer(NavigationSidebarThemeData t) {
+  Widget _buildDrawer(SuperNavigationSidebarThemeData t) {
     final open = _controller.drawerOpen;
     final hidden = t.widthDrawer + 8;
     return Stack(
@@ -446,7 +460,7 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
             child: GestureDetector(
               onTap: _controller.closeDrawer,
               child: AnimatedOpacity(
-                duration: NavigationSidebarThemeData.durDrawer,
+                duration: SuperNavigationSidebarThemeData.durDrawer,
                 opacity: open ? 1 : 0,
                 child: const ColoredBox(color: Color(0x8C08090C)),
               ),
@@ -454,8 +468,8 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
           ),
         ),
         AnimatedPositionedDirectional(
-          duration: NavigationSidebarThemeData.durDrawer,
-          curve: NavigationSidebarThemeData.curveStandard,
+          duration: SuperNavigationSidebarThemeData.durDrawer,
+          curve: SuperNavigationSidebarThemeData.curveStandard,
           top: 0,
           bottom: 0,
           start: open ? 0.0 : -hidden,
@@ -466,7 +480,9 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
             child: DecoratedBox(
               decoration: BoxDecoration(
                 color: t.surface,
-                boxShadow: open ? NavigationSidebarThemeData.popShadow : null,
+                boxShadow: open
+                    ? SuperNavigationSidebarThemeData.popShadow
+                    : null,
                 border: BorderDirectional(end: BorderSide(color: t.border)),
               ),
               child: _panelContents(t, railed: false, drawer: true),
@@ -478,7 +494,7 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
   }
 
   Widget _panelContents(
-    NavigationSidebarThemeData t, {
+    SuperNavigationSidebarThemeData t, {
     required bool railed,
     required bool drawer,
   }) {
@@ -522,7 +538,7 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
     );
   }
 
-  Widget _drawerHeader(NavigationSidebarThemeData t) {
+  Widget _drawerHeader(SuperNavigationSidebarThemeData t) {
     return SizedBox(
       height: 30,
       child: Row(
@@ -530,7 +546,7 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
           Text(
             _drawerTitle.toUpperCase(),
             style: TextStyle(
-              fontFamily: NavigationSidebarThemeData.monoFont,
+              fontFamily: SuperNavigationSidebarThemeData.monoFont,
               fontSize: 10,
               letterSpacing: 1.4,
               color: t.fg4,
@@ -555,7 +571,7 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
   }
 
   // ── expanded tree ──────────────────────────────────────────
-  Widget _expandedNav(NavigationSidebarThemeData t) {
+  Widget _expandedNav(SuperNavigationSidebarThemeData t) {
     final filtering = _controller.filtering;
     final match = filtering ? _controller.matchSet() : null;
 
@@ -569,10 +585,10 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
               Icon(Icons.search_off, size: 26, color: t.fg4),
               const SizedBox(height: 10),
               Text(
-                _l10n.searchEmptyFor(_controller.query.trim()),
+                _l10n.searchEmpty(_controller.query.trim()),
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontFamily: NavigationSidebarThemeData.bodyFont,
+                  fontFamily: SuperNavigationSidebarThemeData.bodyFont,
                   fontSize: 12.5,
                   color: t.fg3,
                 ),
@@ -619,7 +635,7 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
     );
   }
 
-  Widget _quickAccess(NavigationSidebarThemeData t) {
+  Widget _quickAccess(SuperNavigationSidebarThemeData t) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -630,7 +646,7 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
               const Icon(
                 Icons.star_rounded,
                 size: 13,
-                color: NavigationSidebarThemeData.accent,
+                color: SuperNavigationSidebarThemeData.accent,
               ),
               const SizedBox(width: 6),
               Text(
@@ -650,7 +666,7 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
             key: ValueKey('fav-${n.id}'),
             node: n,
             depth: 0,
-            role: NavNodeRole.direct,
+            role: SuperNavNodeRole.direct,
             active: _controller.isActive(n.id),
             query: '',
             favoritable: true,
@@ -668,16 +684,19 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
   }
 
   Widget _treeNode(
-    NavigationSidebarThemeData t,
-    NavNode<T> node,
+    SuperNavigationSidebarThemeData t,
+    SuperNavNode<T> node,
     int depth,
-    Set<NavNodeId>? match,
+    Set<SuperNavNodeId>? match,
   ) {
     if (match != null && !match.contains(node.id)) {
       return const SizedBox.shrink();
     }
     final filtering = match != null;
-    final role = NavNodeRole.of(depth: depth, hasChildren: node.hasChildren);
+    final role = SuperNavNodeRole.of(
+      depth: depth,
+      hasChildren: node.hasChildren,
+    );
 
     if (node.isLeaf) {
       return _NavRow<T>(
@@ -726,7 +745,7 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
                   t,
                   child: _treeNode(t, node.children[i], depth + 1, match),
                   lx: lx,
-                  childRole: NavNodeRole.of(
+                  childRole: SuperNavNodeRole.of(
                     depth: depth + 1,
                     hasChildren: node.children[i].hasChildren,
                   ),
@@ -739,10 +758,10 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
   }
 
   Widget _connectorWrap(
-    NavigationSidebarThemeData t, {
+    SuperNavigationSidebarThemeData t, {
     required Widget child,
     required double lx,
-    required NavNodeRole childRole,
+    required SuperNavNodeRole childRole,
     required bool last,
   }) {
     if (!widget.showGuides) return child;
@@ -777,7 +796,7 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
   }
 
   // ── rail nav ───────────────────────────────────────────────
-  Widget _railNav(NavigationSidebarThemeData t) {
+  Widget _railNav(SuperNavigationSidebarThemeData t) {
     return Scrollbar(
       controller: _scroll,
       child: SingleChildScrollView(
@@ -818,9 +837,9 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
 // ROW  — one expanded-tree line, styled by role.
 // ════════════════════════════════════════════════════════════
 class _NavRow<T> extends StatefulWidget {
-  final NavNode<T> node;
+  final SuperNavNode<T> node;
   final int depth;
-  final NavNodeRole role;
+  final SuperNavNodeRole role;
   final bool expandable;
   final bool open;
   final bool active;
@@ -831,7 +850,7 @@ class _NavRow<T> extends StatefulWidget {
   final bool favoritable;
   final bool favorite;
   final VoidCallback? onToggleFavorite;
-  final NavigationSidebarLocalizations localizations;
+  final SuperNavigationLocalization localizations;
 
   const _NavRow({
     super.key,
@@ -847,7 +866,7 @@ class _NavRow<T> extends StatefulWidget {
     this.favoritable = false,
     this.favorite = false,
     this.onToggleFavorite,
-    this.localizations = const NavigationSidebarLocalizations(),
+    required this.localizations,
     required this.onTap,
   });
 
@@ -861,7 +880,7 @@ class _NavRowState<T> extends State<_NavRow<T>> {
 
   @override
   Widget build(BuildContext context) {
-    final t = NavigationSidebarThemeData.of(context);
+    final t = SuperNavigationSidebarThemeData.of(context);
     final l10n = widget.localizations;
     final pad = t.contentInset(widget.depth);
     final h = t.rowHeight(widget.role);
@@ -869,30 +888,32 @@ class _NavRowState<T> extends State<_NavRow<T>> {
 
     Widget content;
     switch (widget.role) {
-      case NavNodeRole.direct:
-      case NavNodeRole.module:
+      case SuperNavNodeRole.direct:
+      case SuperNavNodeRole.module:
         content = _moduleOrDirect(t);
         break;
-      case NavNodeRole.group:
+      case SuperNavNodeRole.group:
         content = _group(t);
         break;
-      case NavNodeRole.item:
+      case SuperNavNodeRole.item:
         content = _item(t);
         break;
     }
 
     final radius =
-        widget.role == NavNodeRole.direct || widget.role == NavNodeRole.module
+        widget.role == SuperNavNodeRole.direct ||
+            widget.role == SuperNavNodeRole.module
         ? t.radiusLg
         : t.radiusMd;
 
-    final barStyle = t.selectionIndicator == NavSelectionIndicator.bar;
+    final barStyle = t.selectionIndicator == SuperNavSelectionIndicator.bar;
     final bool isLeafRow =
-        widget.role == NavNodeRole.direct || widget.role == NavNodeRole.item;
+        widget.role == SuperNavNodeRole.direct ||
+        widget.role == SuperNavNodeRole.item;
     final bool showBar = barStyle && widget.active && isLeafRow;
     Color bg = Colors.transparent;
-    if (widget.role == NavNodeRole.direct && widget.active && !barStyle) {
-      bg = NavigationSidebarThemeData.accent;
+    if (widget.role == SuperNavNodeRole.direct && widget.active && !barStyle) {
+      bg = SuperNavigationSidebarThemeData.accent;
     } else if (widget.active && isLeafRow) {
       bg = t.accentFill(barStyle ? 0.14 : 0.10);
     } else if (_hover || _focused) {
@@ -947,7 +968,7 @@ class _NavRowState<T> extends State<_NavRow<T>> {
                 child: Stack(
                   children: [
                     AnimatedContainer(
-                      duration: NavigationSidebarThemeData.durFast,
+                      duration: SuperNavigationSidebarThemeData.durFast,
                       height: h,
                       padding: EdgeInsetsDirectional.only(start: pad, end: 10),
                       decoration: BoxDecoration(
@@ -955,9 +976,8 @@ class _NavRowState<T> extends State<_NavRow<T>> {
                         borderRadius: BorderRadius.circular(radius),
                         border: Border.all(
                           color: _focused
-                              ? NavigationSidebarThemeData.accent.withValues(
-                                  alpha: 0.55,
-                                )
+                              ? SuperNavigationSidebarThemeData.accent
+                                    .withValues(alpha: 0.55)
                               : Colors.transparent,
                         ),
                       ),
@@ -971,7 +991,7 @@ class _NavRowState<T> extends State<_NavRow<T>> {
                         child: Container(
                           width: t.indicatorThickness,
                           decoration: BoxDecoration(
-                            color: NavigationSidebarThemeData.accent,
+                            color: SuperNavigationSidebarThemeData.accent,
                             borderRadius: BorderRadius.circular(
                               t.indicatorThickness,
                             ),
@@ -1022,7 +1042,7 @@ class _NavRowState<T> extends State<_NavRow<T>> {
       );
     }
     final hi = style.copyWith(
-      color: NavigationSidebarThemeData.accent,
+      color: SuperNavigationSidebarThemeData.accent,
       fontWeight: FontWeight.w800,
     );
     return Text.rich(
@@ -1039,7 +1059,7 @@ class _NavRowState<T> extends State<_NavRow<T>> {
     );
   }
 
-  Widget _labelWidget(NavigationSidebarThemeData t, TextStyle style) {
+  Widget _labelWidget(SuperNavigationSidebarThemeData t, TextStyle style) {
     final label = widget.node.label;
     if (label is Text) {
       final text = label.data ?? label.textSpan?.toPlainText();
@@ -1053,7 +1073,7 @@ class _NavRowState<T> extends State<_NavRow<T>> {
     );
   }
 
-  Widget _statusDot(NavigationSidebarThemeData t) {
+  Widget _statusDot(SuperNavigationSidebarThemeData t) {
     final c = t.statusColor(widget.node.status);
     if (c == null) return const SizedBox.shrink();
     return Padding(
@@ -1066,7 +1086,10 @@ class _NavRowState<T> extends State<_NavRow<T>> {
     );
   }
 
-  Widget _trailing(NavigationSidebarThemeData t, {required bool onAccent}) {
+  Widget _trailing(
+    SuperNavigationSidebarThemeData t, {
+    required bool onAccent,
+  }) {
     if (widget.node.locked) {
       return Padding(
         padding: const EdgeInsetsDirectional.only(start: 6),
@@ -1088,29 +1111,31 @@ class _NavRowState<T> extends State<_NavRow<T>> {
     return const SizedBox.shrink();
   }
 
-  Widget _chevron(NavigationSidebarThemeData t) {
+  Widget _chevron(SuperNavigationSidebarThemeData t) {
     return AnimatedRotation(
       turns: widget.open ? 0.5 : 0,
-      duration: NavigationSidebarThemeData.durBase,
-      curve: NavigationSidebarThemeData.curveStandard,
+      duration: SuperNavigationSidebarThemeData.durBase,
+      curve: SuperNavigationSidebarThemeData.curveStandard,
       child: Icon(Icons.keyboard_arrow_down, size: 16, color: t.fg3),
     );
   }
 
-  Widget _moduleOrDirect(NavigationSidebarThemeData t) {
-    final isDirect = widget.role == NavNodeRole.direct;
-    final barStyle = t.selectionIndicator == NavSelectionIndicator.bar;
+  Widget _moduleOrDirect(SuperNavigationSidebarThemeData t) {
+    final isDirect = widget.role == SuperNavNodeRole.direct;
+    final barStyle = t.selectionIndicator == SuperNavSelectionIndicator.bar;
     final fillActive = isDirect && widget.active && !barStyle;
     final Color tint = isDirect
         ? (fillActive
               ? Colors.white
-              : (widget.active ? NavigationSidebarThemeData.accent : t.fg2))
-        : (widget.ownsActive ? NavigationSidebarThemeData.accent : t.fg2);
+              : (widget.active
+                    ? SuperNavigationSidebarThemeData.accent
+                    : t.fg2))
+        : (widget.ownsActive ? SuperNavigationSidebarThemeData.accent : t.fg2);
     final bold = widget.active || widget.ownsActive;
     final closedWithBadges =
-        !isDirect && !widget.open && NavOps.subtreeHasBadge(widget.node);
+        !isDirect && !widget.open && SuperNavOps.subtreeHasBadge(widget.node);
     final badgeSum = closedWithBadges && widget.aggregateBadges
-        ? NavOps.subtreeBadgeSum(widget.node)
+        ? SuperNavOps.subtreeBadgeSum(widget.node)
         : 0;
     final moduleDot = closedWithBadges && badgeSum == 0;
 
@@ -1121,12 +1146,12 @@ class _NavRowState<T> extends State<_NavRow<T>> {
           child: widget.node.leadingIcon ?? const Icon(Icons.circle_outlined),
         ),
         const SizedBox(width: 12),
-        if (widget.node.status != NavNodeStatus.none) _statusDot(t),
+        if (widget.node.status != SuperNavNodeStatus.none) _statusDot(t),
         Expanded(
           child: _labelWidget(
             t,
             TextStyle(
-              fontFamily: NavigationSidebarThemeData.bodyFont,
+              fontFamily: SuperNavigationSidebarThemeData.bodyFont,
               fontSize: 13.5,
               fontWeight: bold ? FontWeight.w600 : FontWeight.w500,
               color: tint,
@@ -1140,7 +1165,7 @@ class _NavRowState<T> extends State<_NavRow<T>> {
         if (isDirect) _trailing(t, onAccent: fillActive),
         if (badgeSum > 0) ...[
           const SizedBox(width: 6),
-          _NavBadgeChip(badge: NavBadge('$badgeSum'), small: true),
+          _NavBadgeChip(badge: SuperNavBadge('$badgeSum'), small: true),
         ],
         if (moduleDot) ...[
           const SizedBox(width: 6),
@@ -1148,7 +1173,7 @@ class _NavRowState<T> extends State<_NavRow<T>> {
             width: 6,
             height: 6,
             decoration: const BoxDecoration(
-              color: NavigationSidebarThemeData.accent,
+              color: SuperNavigationSidebarThemeData.accent,
               shape: BoxShape.circle,
             ),
           ),
@@ -1158,8 +1183,10 @@ class _NavRowState<T> extends State<_NavRow<T>> {
     );
   }
 
-  Widget _group(NavigationSidebarThemeData t) {
-    final tint = widget.ownsActive ? NavigationSidebarThemeData.accent : t.fg3;
+  Widget _group(SuperNavigationSidebarThemeData t) {
+    final tint = widget.ownsActive
+        ? SuperNavigationSidebarThemeData.accent
+        : t.fg3;
     return Row(
       children: [
         Container(
@@ -1167,7 +1194,7 @@ class _NavRowState<T> extends State<_NavRow<T>> {
           height: 6,
           decoration: BoxDecoration(
             color: widget.ownsActive
-                ? NavigationSidebarThemeData.accent
+                ? SuperNavigationSidebarThemeData.accent
                 : t.fg4,
             shape: BoxShape.circle,
           ),
@@ -1179,7 +1206,7 @@ class _NavRowState<T> extends State<_NavRow<T>> {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              fontFamily: NavigationSidebarThemeData.bodyFont,
+              fontFamily: SuperNavigationSidebarThemeData.bodyFont,
               fontSize: 11.5,
               fontWeight: FontWeight.w600,
               letterSpacing: 0.3,
@@ -1192,7 +1219,7 @@ class _NavRowState<T> extends State<_NavRow<T>> {
     );
   }
 
-  Widget _item(NavigationSidebarThemeData t) {
+  Widget _item(SuperNavigationSidebarThemeData t) {
     final active = widget.active;
     return Row(
       children: [
@@ -1203,28 +1230,28 @@ class _NavRowState<T> extends State<_NavRow<T>> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(t.radiusMd),
             border: Border.all(
-              color: active ? NavigationSidebarThemeData.accent : t.border,
+              color: active ? SuperNavigationSidebarThemeData.accent : t.border,
             ),
             color: active ? t.accentFill(0.12) : t.surface,
           ),
           child: IconTheme(
             data: IconThemeData(
               size: t.iconItem,
-              color: active ? NavigationSidebarThemeData.accent : t.fg3,
+              color: active ? SuperNavigationSidebarThemeData.accent : t.fg3,
             ),
             child: widget.node.leadingIcon ?? const Icon(Icons.circle),
           ),
         ),
         const SizedBox(width: 10),
-        if (widget.node.status != NavNodeStatus.none) _statusDot(t),
+        if (widget.node.status != SuperNavNodeStatus.none) _statusDot(t),
         Expanded(
           child: _labelWidget(
             t,
             TextStyle(
-              fontFamily: NavigationSidebarThemeData.bodyFont,
+              fontFamily: SuperNavigationSidebarThemeData.bodyFont,
               fontSize: 12.5,
               fontWeight: active ? FontWeight.w600 : FontWeight.w500,
-              color: active ? NavigationSidebarThemeData.accent : t.fg2,
+              color: active ? SuperNavigationSidebarThemeData.accent : t.fg2,
             ),
           ),
         ),
@@ -1242,13 +1269,13 @@ class _NavRowState<T> extends State<_NavRow<T>> {
 // RAIL ITEM — 44×44 icon button with optional hover flyout.
 // ════════════════════════════════════════════════════════════
 class _RailItem<T> extends StatefulWidget {
-  final NavNode<T> node;
+  final SuperNavNode<T> node;
   final bool active;
-  final NavNodeId? activeId;
+  final SuperNavNodeId? activeId;
   final bool flyouts;
   final bool rtl;
-  final NavigationSidebarLocalizations localizations;
-  final ValueChanged<NavNode<T>> onNavigate;
+  final SuperNavigationLocalization localizations;
+  final ValueChanged<SuperNavNode<T>> onNavigate;
 
   const _RailItem({
     super.key,
@@ -1292,7 +1319,7 @@ class _RailItemState<T> extends State<_RailItem<T>> {
     if (!widget.flyouts || !widget.node.hasChildren || _entry != null) {
       return;
     }
-    final t = NavigationSidebarThemeData.of(context);
+    final t = SuperNavigationSidebarThemeData.of(context);
     final themeData = Theme.of(context);
     const flyW = 248.0;
     _entry = OverlayEntry(
@@ -1339,20 +1366,20 @@ class _RailItemState<T> extends State<_RailItem<T>> {
 
   @override
   Widget build(BuildContext context) {
-    final t = NavigationSidebarThemeData.of(context);
+    final t = SuperNavigationSidebarThemeData.of(context);
     final isModule = widget.node.hasChildren;
-    final hasBadge = NavOps.subtreeHasBadge(widget.node);
+    final hasBadge = SuperNavOps.subtreeHasBadge(widget.node);
     final isInteractive = widget.node.enabled && !widget.node.locked;
 
-    final barStyle = t.selectionIndicator == NavSelectionIndicator.bar;
+    final barStyle = t.selectionIndicator == SuperNavSelectionIndicator.bar;
     Color bg = Colors.transparent;
     Color fg = t.fg2;
     if (widget.active) {
       if (isModule || barStyle) {
         bg = t.accentFill(0.12);
-        fg = NavigationSidebarThemeData.accent;
+        fg = SuperNavigationSidebarThemeData.accent;
       } else {
-        bg = NavigationSidebarThemeData.accent;
+        bg = SuperNavigationSidebarThemeData.accent;
         fg = Colors.white;
       }
     } else if (_hover) {
@@ -1361,7 +1388,7 @@ class _RailItemState<T> extends State<_RailItem<T>> {
 
     final badgeColor = widget.node.badge != null
         ? t.badgeColors(widget.node.badge!.tone).fg
-        : NavigationSidebarThemeData.accent;
+        : SuperNavigationSidebarThemeData.accent;
 
     return Semantics(
       button: isInteractive,
@@ -1427,7 +1454,7 @@ class _RailItemState<T> extends State<_RailItem<T>> {
                         child: Container(
                           width: t.indicatorThickness,
                           decoration: BoxDecoration(
-                            color: NavigationSidebarThemeData.accent,
+                            color: SuperNavigationSidebarThemeData.accent,
                             borderRadius: BorderRadius.circular(
                               t.indicatorThickness,
                             ),
@@ -1466,11 +1493,11 @@ class _RailItemState<T> extends State<_RailItem<T>> {
 }
 
 class _RailFlyout<T> extends StatelessWidget {
-  final NavNode<T> node;
-  final NavigationSidebarThemeData theme;
-  final NavNodeId? activeId;
-  final NavigationSidebarLocalizations localizations;
-  final ValueChanged<NavNode<T>> onNavigate;
+  final SuperNavNode<T> node;
+  final SuperNavigationSidebarThemeData theme;
+  final SuperNavNodeId? activeId;
+  final SuperNavigationLocalization localizations;
+  final ValueChanged<SuperNavNode<T>> onNavigate;
 
   const _RailFlyout({
     required this.node,
@@ -1491,7 +1518,7 @@ class _RailFlyout<T> extends StatelessWidget {
           color: t.surface,
           borderRadius: BorderRadius.circular(t.radiusXl),
           border: Border.all(color: t.borderStrong),
-          boxShadow: NavigationSidebarThemeData.popShadow,
+          boxShadow: SuperNavigationSidebarThemeData.popShadow,
         ),
         padding: const EdgeInsets.all(8),
         child: SingleChildScrollView(
@@ -1517,7 +1544,7 @@ class _RailFlyout<T> extends StatelessWidget {
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
                           color: t.fg1,
-                          fontFamily: NavigationSidebarThemeData.bodyFont,
+                          fontFamily: SuperNavigationSidebarThemeData.bodyFont,
                         ),
                         child: node.label,
                       ),
@@ -1535,7 +1562,10 @@ class _RailFlyout<T> extends StatelessWidget {
     );
   }
 
-  Widget _flyoutGroup(NavigationSidebarThemeData t, NavNode<T> group) {
+  Widget _flyoutGroup(
+    SuperNavigationSidebarThemeData t,
+    SuperNavNode<T> group,
+  ) {
     final leaves = group.hasChildren ? group.children : [group];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1558,7 +1588,7 @@ class _RailFlyout<T> extends StatelessWidget {
     );
   }
 
-  Widget _flyoutRow(NavigationSidebarThemeData t, NavNode<T> leaf) {
+  Widget _flyoutRow(SuperNavigationSidebarThemeData t, SuperNavNode<T> leaf) {
     return _FlyoutRow<T>(
       leaf: leaf,
       theme: t,
@@ -1570,10 +1600,10 @@ class _RailFlyout<T> extends StatelessWidget {
 }
 
 class _FlyoutRow<T> extends StatefulWidget {
-  final NavNode<T> leaf;
-  final NavigationSidebarThemeData theme;
+  final SuperNavNode<T> leaf;
+  final SuperNavigationSidebarThemeData theme;
   final bool active;
-  final NavigationSidebarLocalizations localizations;
+  final SuperNavigationLocalization localizations;
   final VoidCallback onTap;
 
   const _FlyoutRow({
@@ -1635,7 +1665,7 @@ class _FlyoutRowState<T> extends State<_FlyoutRow<T>> {
                       borderRadius: BorderRadius.circular(7),
                       border: Border.all(
                         color: active
-                            ? NavigationSidebarThemeData.accent
+                            ? SuperNavigationSidebarThemeData.accent
                             : t.border,
                       ),
                     ),
@@ -1643,7 +1673,7 @@ class _FlyoutRowState<T> extends State<_FlyoutRow<T>> {
                       data: IconThemeData(
                         size: 13,
                         color: active
-                            ? NavigationSidebarThemeData.accent
+                            ? SuperNavigationSidebarThemeData.accent
                             : t.fg3,
                       ),
                       child:
@@ -1659,9 +1689,9 @@ class _FlyoutRowState<T> extends State<_FlyoutRow<T>> {
                         fontSize: 12.5,
                         fontWeight: active ? FontWeight.w600 : FontWeight.w500,
                         color: active
-                            ? NavigationSidebarThemeData.accent
+                            ? SuperNavigationSidebarThemeData.accent
                             : t.fg1,
-                        fontFamily: NavigationSidebarThemeData.bodyFont,
+                        fontFamily: SuperNavigationSidebarThemeData.bodyFont,
                       ),
                       child: widget.leaf.label,
                     ),
@@ -1684,13 +1714,13 @@ class _FlyoutRowState<T> extends State<_FlyoutRow<T>> {
 // SHARED LEAF WIDGETS
 // ════════════════════════════════════════════════════════════
 class _NavBadgeChip extends StatelessWidget {
-  final NavBadge badge;
+  final SuperNavBadge badge;
   final bool small;
   const _NavBadgeChip({required this.badge, this.small = false});
 
   @override
   Widget build(BuildContext context) {
-    final t = NavigationSidebarThemeData.of(context);
+    final t = SuperNavigationSidebarThemeData.of(context);
     final c = t.badgeColors(badge.tone);
     return Container(
       padding: EdgeInsets.symmetric(
@@ -1705,7 +1735,7 @@ class _NavBadgeChip extends StatelessWidget {
       child: Text(
         badge.text,
         style: TextStyle(
-          fontFamily: NavigationSidebarThemeData.monoFont,
+          fontFamily: SuperNavigationSidebarThemeData.monoFont,
           fontSize: small ? 9 : 9.5,
           fontWeight: FontWeight.w700,
           height: 1.1,
@@ -1729,7 +1759,7 @@ class _SearchField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = NavigationSidebarThemeData.of(context);
+    final t = SuperNavigationSidebarThemeData.of(context);
     return ValueListenableBuilder<TextEditingValue>(
       valueListenable: controller,
       builder: (context, value, _) {
@@ -1750,9 +1780,9 @@ class _SearchField extends StatelessWidget {
                 child: TextField(
                   controller: controller,
                   onChanged: onChanged,
-                  cursorColor: NavigationSidebarThemeData.accent,
+                  cursorColor: SuperNavigationSidebarThemeData.accent,
                   style: TextStyle(
-                    fontFamily: NavigationSidebarThemeData.bodyFont,
+                    fontFamily: SuperNavigationSidebarThemeData.bodyFont,
                     fontSize: 12.5,
                     color: t.fg1,
                   ),
@@ -1761,7 +1791,7 @@ class _SearchField extends StatelessWidget {
                     border: InputBorder.none,
                     hintText: hint,
                     hintStyle: TextStyle(
-                      fontFamily: NavigationSidebarThemeData.bodyFont,
+                      fontFamily: SuperNavigationSidebarThemeData.bodyFont,
                       fontSize: 12.5,
                       color: t.fg4,
                     ),
@@ -1790,8 +1820,8 @@ class _SearchField extends StatelessWidget {
 
 // ── Star toggle ────────────────────────────────────────────────────
 // ── Search view trigger ──────────────────────────────────
-// A field-styled button that opens NavigationSearchView. Rendered inside the pane
-// when NavigationSidebar.allowSearchView is enabled (expanded / drawer).
+// A field-styled button that opens SuperNavigationSearchView. Rendered inside the pane
+// when SuperNavigationSidebar.allowSearchView is enabled (expanded / drawer).
 class _SearchTrigger extends StatefulWidget {
   final String hint;
   final VoidCallback onTap;
@@ -1806,7 +1836,7 @@ class _SearchTriggerState extends State<_SearchTrigger> {
 
   @override
   Widget build(BuildContext context) {
-    final t = NavigationSidebarThemeData.of(context);
+    final t = SuperNavigationSidebarThemeData.of(context);
     return Semantics(
       button: true,
       label: widget.hint,
@@ -1818,7 +1848,7 @@ class _SearchTriggerState extends State<_SearchTrigger> {
           behavior: HitTestBehavior.opaque,
           onTap: widget.onTap,
           child: AnimatedContainer(
-            duration: NavigationSidebarThemeData.durFast,
+            duration: SuperNavigationSidebarThemeData.durFast,
             height: 36,
             padding: const EdgeInsetsDirectional.only(start: 10, end: 8),
             decoration: BoxDecoration(
@@ -1836,7 +1866,7 @@ class _SearchTriggerState extends State<_SearchTrigger> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontFamily: NavigationSidebarThemeData.bodyFont,
+                      fontFamily: SuperNavigationSidebarThemeData.bodyFont,
                       fontSize: 12.5,
                       color: t.fg4,
                     ),
@@ -1854,7 +1884,7 @@ class _SearchTriggerState extends State<_SearchTrigger> {
                   child: Text(
                     '/',
                     style: TextStyle(
-                      fontFamily: NavigationSidebarThemeData.monoFont,
+                      fontFamily: SuperNavigationSidebarThemeData.monoFont,
                       fontSize: 10,
                       color: t.fg4,
                     ),
@@ -1872,7 +1902,7 @@ class _SearchTriggerState extends State<_SearchTrigger> {
 class _StarButton extends StatelessWidget {
   final bool on;
   final bool onAccent;
-  final NavigationSidebarLocalizations localizations;
+  final SuperNavigationLocalization localizations;
   final VoidCallback? onTap;
 
   const _StarButton({
@@ -1884,10 +1914,10 @@ class _StarButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = NavigationSidebarThemeData.of(context);
+    final t = SuperNavigationSidebarThemeData.of(context);
     final l10n = localizations;
     final color = on
-        ? (onAccent ? Colors.white : NavigationSidebarThemeData.accent)
+        ? (onAccent ? Colors.white : SuperNavigationSidebarThemeData.accent)
         : (onAccent ? Colors.white.withValues(alpha: 0.8) : t.fg3);
     return Semantics(
       button: true,
@@ -1911,3 +1941,6 @@ class _StarButton extends StatelessWidget {
     );
   }
 }
+
+typedef NavSidebarSlotBuilder = SuperNavSidebarSlotBuilder;
+typedef NavigationSidebar<T> = SuperNavigationSidebar<T>;

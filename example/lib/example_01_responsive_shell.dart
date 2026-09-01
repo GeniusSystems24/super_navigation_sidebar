@@ -6,12 +6,12 @@
 //     Fill · Desktop 1280 · Tablet 900 · Mobile 390
 //
 //   Selecting a preset changes the simulated width → LayoutBuilder +
-//   NavSidebarBreakpoints derives the mode:
+//   SuperNavSidebarBreakpoints derives the mode:
 //     expanded ≥ 1200  ·  rail ≥ 768  ·  drawer below
 //
 //   The sidebar has a real header (logo mark), a real footer (theme
 //   toggle + help card), and a faux page that shows a breadcrumb built
-//   from NavOps.ancestorsOf.
+//   from SuperNavOps.ancestorsOf.
 //
 //   A hamburger button in the mock app bar opens the drawer on mobile.
 
@@ -19,17 +19,17 @@ import 'package:flutter/material.dart';
 import 'package:super_navigation_sidebar/super_navigation_sidebar.dart';
 
 // ── Minimal section tree for this demo ───────────────────────────
-final _sections = <NavSection<String>>[
-  NavSection(
+final _sections = <SuperNavSection<String>>[
+  SuperNavSection(
     title: 'Overview',
     items: [
-      NavNode(
+      SuperNavNode(
         id: 'dashboard',
         label: Text('Dashboard'),
         leadingIcon: Icon(Icons.dashboard_outlined),
         value: 'dashboard',
       ),
-      NavNode(
+      SuperNavNode(
         id: 'invDashboard',
         label: Text('Inventory Dashboard'),
         leadingIcon: Icon(Icons.qr_code_scanner),
@@ -37,52 +37,52 @@ final _sections = <NavSection<String>>[
       ),
     ],
   ),
-  NavSection(
+  SuperNavSection(
     title: 'Finance',
     items: [
-      NavNode(
+      SuperNavNode(
         id: 'accountsHub',
         label: Text('Accounts'),
         leadingIcon: Icon(Icons.menu_book_outlined),
         children: [
-          NavNode(
+          SuperNavNode(
             id: 'coaGroup',
             label: Text('Chart of Accounts'),
             children: [
-              NavNode(
+              SuperNavNode(
                 id: 'accounts',
                 label: Text('Chart of Accounts'),
                 leadingIcon: Icon(Icons.menu_book_outlined),
                 value: 'accounts',
               ),
-              NavNode(
+              SuperNavNode(
                 id: 'accountTree',
                 label: Text('Account Tree'),
                 leadingIcon: Icon(Icons.account_tree_outlined),
                 value: 'accountTree',
-                badge: NavBadge('3'),
+                badge: SuperNavBadge('3'),
               ),
             ],
           ),
         ],
       ),
-      NavNode(
+      SuperNavNode(
         id: 'ledgerHub',
         label: Text('Ledger'),
         leadingIcon: Icon(Icons.receipt_long_outlined),
         children: [
-          NavNode(
+          SuperNavNode(
             id: 'jeGroup',
             label: Text('Journal Entries'),
             children: [
-              NavNode(
+              SuperNavNode(
                 id: 'journals',
                 label: Text('Journal Entries'),
                 leadingIcon: Icon(Icons.receipt_long_outlined),
                 value: 'journals',
-                badge: NavBadge('3'),
+                badge: SuperNavBadge('3'),
               ),
-              NavNode(
+              SuperNavNode(
                 id: 'createJournal',
                 label: Text('Create Journal Entry'),
                 leadingIcon: Icon(Icons.add),
@@ -94,25 +94,25 @@ final _sections = <NavSection<String>>[
       ),
     ],
   ),
-  NavSection(
+  SuperNavSection(
     title: 'Administration',
     items: [
-      NavNode(
+      SuperNavNode(
         id: 'settingsHub',
         label: Text('Settings'),
         leadingIcon: Icon(Icons.settings_outlined),
         children: [
-          NavNode(
+          SuperNavNode(
             id: 'wsGroup',
             label: Text('Workspace'),
             children: [
-              NavNode(
+              SuperNavNode(
                 id: 'settingsGeneral',
                 label: Text('General'),
                 leadingIcon: Icon(Icons.settings_outlined),
                 value: 'settingsGeneral',
               ),
-              NavNode(
+              SuperNavNode(
                 id: 'settingsPlatform',
                 label: Text('Platform'),
                 leadingIcon: Icon(Icons.explore_outlined),
@@ -145,10 +145,10 @@ class _ResponsiveShellExampleState extends State<ResponsiveShellExample> {
   bool _light = false;
   _Device _device = _Device.fill;
   String _screen = 'dashboard';
-  NavSidebarMode? _prevMode;
+  SuperNavSidebarMode? _prevMode;
 
-  late final NavigationSidebarController<String> _nav =
-      NavigationSidebarController<String>(
+  late final SuperNavigationSidebarController<String> _nav =
+      SuperNavigationSidebarController<String>(
     sections: _sections,
     active: 'dashboard',
   );
@@ -161,14 +161,14 @@ class _ResponsiveShellExampleState extends State<ResponsiveShellExample> {
 
   // Sync collapsed only when the breakpoint CHANGES — preserves explicit
   // user toggles within a breakpoint.
-  void _syncMode(NavSidebarMode mode) {
+  void _syncMode(SuperNavSidebarMode mode) {
     if (mode == _prevMode) return;
     _prevMode = mode;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      if (mode == NavSidebarMode.expanded)
+      if (mode == SuperNavSidebarMode.expanded)
         _nav.collapsed = false;
-      else if (mode == NavSidebarMode.rail)
+      else if (mode == SuperNavSidebarMode.rail)
         _nav.collapsed = true;
       else
         _nav.closeDrawer();
@@ -178,14 +178,14 @@ class _ResponsiveShellExampleState extends State<ResponsiveShellExample> {
   @override
   Widget build(BuildContext context) {
     final theme = _light
-        ? NavigationSidebarThemeData.light
-        : NavigationSidebarThemeData.dark;
+        ? SuperNavigationSidebarThemeData.light
+        : SuperNavigationSidebarThemeData.dark;
 
     return Theme(
       data: Theme.of(context).copyWith(extensions: [theme]),
       child: Builder(
         builder: (ctx) {
-          final s = NavigationSidebarThemeData.of(ctx);
+          final s = SuperNavigationSidebarThemeData.of(ctx);
           final dev = _devices.firstWhere((d) => d.$1 == _device);
 
           return Scaffold(
@@ -201,7 +201,7 @@ class _ResponsiveShellExampleState extends State<ResponsiveShellExample> {
               title: Text(
                 '01 · Responsive shell',
                 style: TextStyle(
-                  fontFamily: NavigationSidebarThemeData.displayFont,
+                  fontFamily: SuperNavigationSidebarThemeData.displayFont,
                   fontWeight: FontWeight.w700,
                   fontSize: 16,
                   color: s.fg1,
@@ -262,12 +262,13 @@ class _ResponsiveShellExampleState extends State<ResponsiveShellExample> {
                         child: LayoutBuilder(
                           builder: (ctx2, c) {
                             // ← this is the key: mode derived from width
-                            final mode = const NavSidebarBreakpoints().modeFor(
+                            final mode =
+                                const SuperNavSidebarBreakpoints().modeFor(
                               c.maxWidth,
                             );
                             _syncMode(mode);
 
-                            final sidebar = NavigationSidebar<String>(
+                            final sidebar = SuperNavigationSidebar<String>(
                               controller: _nav,
                               mode: mode,
                               header: (c, collapsed) =>
@@ -283,7 +284,7 @@ class _ResponsiveShellExampleState extends State<ResponsiveShellExample> {
 
                             final page = _FauxPage(nav: _nav, screen: _screen);
 
-                            if (mode == NavSidebarMode.drawer) {
+                            if (mode == SuperNavSidebarMode.drawer) {
                               return Column(
                                 children: [
                                   // mock app bar with hamburger
@@ -309,7 +310,7 @@ class _ResponsiveShellExampleState extends State<ResponsiveShellExample> {
                                           'GeniusLink',
                                           style: TextStyle(
                                             fontFamily:
-                                                NavigationSidebarThemeData
+                                                SuperNavigationSidebarThemeData
                                                     .displayFont,
                                             fontWeight: FontWeight.w700,
                                             color: s.fg1,
@@ -357,7 +358,7 @@ class _Logo extends StatelessWidget {
   const _Logo({required this.collapsed});
   @override
   Widget build(BuildContext context) {
-    final s = NavigationSidebarThemeData.of(context);
+    final s = SuperNavigationSidebarThemeData.of(context);
     return SizedBox(
       height: 40,
       child: Row(
@@ -367,13 +368,13 @@ class _Logo extends StatelessWidget {
             height: 28,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: NavigationSidebarThemeData.accent,
+              color: SuperNavigationSidebarThemeData.accent,
               borderRadius: BorderRadius.circular(8),
             ),
             child: const Text(
               'GL',
               style: TextStyle(
-                fontFamily: NavigationSidebarThemeData.displayFont,
+                fontFamily: SuperNavigationSidebarThemeData.displayFont,
                 fontSize: 11,
                 fontWeight: FontWeight.w800,
                 color: Colors.white,
@@ -385,7 +386,7 @@ class _Logo extends StatelessWidget {
             Text(
               'GeniusLink',
               style: TextStyle(
-                fontFamily: NavigationSidebarThemeData.displayFont,
+                fontFamily: SuperNavigationSidebarThemeData.displayFont,
                 fontWeight: FontWeight.w800,
                 fontSize: 15,
                 color: s.fg1,
@@ -410,7 +411,7 @@ class _Footer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = NavigationSidebarThemeData.of(context);
+    final s = SuperNavigationSidebarThemeData.of(context);
     if (collapsed) {
       return GestureDetector(
         onTap: () => onToggle(!light),
@@ -450,7 +451,7 @@ class _Footer extends StatelessWidget {
                   child: GestureDetector(
                     onTap: () => onToggle(opt.$1),
                     child: AnimatedContainer(
-                      duration: NavigationSidebarThemeData.durFast,
+                      duration: SuperNavigationSidebarThemeData.durFast,
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
@@ -488,7 +489,7 @@ class _Footer extends StatelessWidget {
                 height: 32,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: NavigationSidebarThemeData.accent.withValues(
+                  color: SuperNavigationSidebarThemeData.accent.withValues(
                     alpha: 0.14,
                   ),
                   borderRadius: BorderRadius.circular(8),
@@ -496,7 +497,7 @@ class _Footer extends StatelessWidget {
                 child: const Icon(
                   Icons.info_outline,
                   size: 16,
-                  color: NavigationSidebarThemeData.accent,
+                  color: SuperNavigationSidebarThemeData.accent,
                 ),
               ),
               const SizedBox(width: 10),
@@ -527,14 +528,14 @@ class _Footer extends StatelessWidget {
 
 // ── Faux page ─────────────────────────────────────────────────────
 class _FauxPage extends StatelessWidget {
-  final NavigationSidebarController<String> nav;
+  final SuperNavigationSidebarController<String> nav;
   final String screen;
   const _FauxPage({required this.nav, required this.screen});
 
   @override
   Widget build(BuildContext context) {
-    final s = NavigationSidebarThemeData.of(context);
-    final ancestors = NavOps.ancestorsOf<String>(
+    final s = SuperNavigationSidebarThemeData.of(context);
+    final ancestors = SuperNavOps.ancestorsOf<String>(
       nav.sections,
       screen,
     ).map((id) => _plainExampleLabel(nav.node(id), fallback: id)).toList();
@@ -559,7 +560,7 @@ class _FauxPage extends StatelessWidget {
             Text(
               crumb.toUpperCase(),
               style: TextStyle(
-                fontFamily: NavigationSidebarThemeData.monoFont,
+                fontFamily: SuperNavigationSidebarThemeData.monoFont,
                 fontSize: 10.5,
                 letterSpacing: 1.6,
                 color: s.fg4,
@@ -604,7 +605,8 @@ class _FauxPage extends StatelessWidget {
   }
 }
 
-String _plainExampleLabel<T>(NavNode<T>? node, {required String fallback}) {
+String _plainExampleLabel<T>(SuperNavNode<T>? node,
+    {required String fallback}) {
   if (node == null) return fallback;
   final label = node.label;
   if (label is Text) {
@@ -626,7 +628,7 @@ class _SegCtrl extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = NavigationSidebarThemeData.of(context);
+    final s = SuperNavigationSidebarThemeData.of(context);
     return Container(
       padding: const EdgeInsets.all(2),
       decoration: BoxDecoration(
@@ -641,18 +643,18 @@ class _SegCtrl extends StatelessWidget {
           return GestureDetector(
             onTap: () => onChanged(i),
             child: AnimatedContainer(
-              duration: NavigationSidebarThemeData.durFast,
+              duration: SuperNavigationSidebarThemeData.durFast,
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
                 color: active
-                    ? NavigationSidebarThemeData.accent
+                    ? SuperNavigationSidebarThemeData.accent
                     : Colors.transparent,
                 borderRadius: BorderRadius.circular(s.radiusSm),
               ),
               child: Text(
                 options[i],
                 style: TextStyle(
-                  fontFamily: NavigationSidebarThemeData.monoFont,
+                  fontFamily: SuperNavigationSidebarThemeData.monoFont,
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
                   color: active ? Colors.white : s.fg2,

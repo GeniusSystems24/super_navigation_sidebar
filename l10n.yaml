@@ -1,0 +1,11 @@
+flutter_intl:
+  enabled: true
+  
+arb-dir: lib/localizations
+template-arb-file: intl_en.arb
+output-localization-file: l10n.dart
+output-class: SuperNavigationLocalization
+output-dir: lib/localizations/generated
+nullable-getter: false
+use-escaping: true
+use_deferred_loading: true

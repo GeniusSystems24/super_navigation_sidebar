@@ -1,22 +1,22 @@
-# super_navigation_sidebar
+﻿# super_navigation_sidebar
 
 A focused, responsive navigation pane for Flutter applications.
 
-Version **3.0.0** keeps the package centered on navigation state and navigation
+Version **3.2.0** keeps the package centered on navigation state and navigation
 UI. The host application owns its `Scaffold`, app bar, routing, and global
 keyboard shortcuts. The package provides the sidebar, controller, models,
-theme/localization support, and the reusable `NavigationSearchView`.
+theme/generated-localization support, and the reusable `SuperNavigationSearchView`.
 
 ## Features
 
 - Expanded sidebar, icon rail, and off-canvas drawer modes.
-- `NavSidebarBreakpoints` for adaptive mode selection.
-- Typed `NavNode<T>` / `NavSection<T>` navigation trees.
+- `SuperNavSidebarBreakpoints` for adaptive mode selection.
+- Typed `SuperNavNode<T>` / `SuperNavSection<T>` navigation trees.
 - Deep modules and groups with connector guides and flyouts.
-- `NavigationSidebarController<T>` for active state, expansion, drawer state,
+- `SuperNavigationSidebarController<T>` for active state, expansion, drawer state,
   favorites, recents, filtering, and persistence snapshots.
 - Screen codes and hidden keywords for navigation search.
-- `NavigationSearchView<T>` for reusable navigation search UI.
+- `SuperNavigationSearchView<T>` for reusable navigation search UI.
 - Dialog and modal-bottom-sheet search presentation modes.
 - Quick Access favorites and recent destinations.
 - Permission-locked and disabled nodes.
@@ -31,14 +31,14 @@ theme/localization support, and the reusable `NavigationSearchView`.
 | --- | ---: |
 | Dart SDK | `>=3.8.0 <4.0.0` |
 | Flutter | `>=3.32.0` |
-| `super_core` | `>=3.3.0 <4.0.0` |
-| `super_form_field` | `>=1.10.0 <2.0.0` |
+| `super_core` | `>=3.6.0 <4.0.0` |
+| `super_form_field` | `>=1.11.1 <2.0.0` |
 
 ## Installation
 
 ```yaml
 dependencies:
-  super_navigation_sidebar: ^3.0.0
+  super_navigation_sidebar: ^3.2.0
 ```
 
 ```dart
@@ -58,25 +58,52 @@ final light = SuperMaterialThemeData.light(
 MaterialApp(
   theme: light.copyWith(
     extensions: [
-      NavigationSidebarThemeData.fromMaterialTheme(light),
+      SuperNavigationSidebarThemeData.fromMaterialTheme(light),
     ],
   ),
   home: const AppRoot(),
 );
 ```
 
-You can also register `NavigationSidebarThemeData.light` / `.dark` directly.
+You can also register `SuperNavigationSidebarThemeData.light` / `.dark` directly.
+
+## Localization setup
+
+Version 3.2 uses Flutter generated localizations from
+`lib/localizations/generated`. Register the package delegates in the host app:
+
+```dart
+MaterialApp(
+  localizationsDelegates: SuperNavigationLocalization.localizationsDelegates,
+  supportedLocales: SuperNavigationLocalization.supportedLocales,
+  home: const AppRoot(),
+);
+```
+
+`SuperNavigationSidebar` resolves strings from `SuperNavigationLocalization.of`
+when delegates are registered and falls back to English otherwise. Explicit
+`drawerTitle`, `searchHint`, and `quickAccessTitle` values still take
+precedence.
+
+## Super-prefixed API
+
+Version 3.2 renames the public navigation components with a `Super` prefix:
+`SuperNavigationSidebar`, `SuperNavigationSidebarController`, `SuperNavNode`,
+`SuperNavSection`, `SuperNavigationSearchView`,
+`SuperNavigationSidebarThemeData`, and related enums/helpers. The previous
+public type names remain available as compatibility typedefs, and
+`showNavigationSearchView` forwards to `showSuperNavigationSearchView`.
 
 ## Quick start
 
 Create one controller and let your host own the page layout:
 
 ```dart
-final sections = <NavSection<String>>[
-  NavSection<String>(
+final sections = <SuperNavSection<String>>[
+  SuperNavSection<String>(
     title: 'Workspace',
     items: [
-      NavNode(
+      SuperNavNode(
         id: 'dashboard',
         label: Text('Dashboard'),
         code: 'DB01',
@@ -84,22 +111,22 @@ final sections = <NavSection<String>>[
         leadingIcon: Icon(Icons.dashboard_outlined),
         value: 'dashboard',
       ),
-      NavNode(
+      SuperNavNode(
         id: 'finance',
         label: Text('Finance'),
         leadingIcon: Icon(Icons.account_balance_outlined),
         children: [
-          NavNode(
+          SuperNavNode(
             id: 'ledger_group',
             label: Text('General ledger'),
             children: [
-              NavNode(
+              SuperNavNode(
                 id: 'journals',
                 label: Text('Journal entries'),
                 code: 'JE01',
                 keywords: const ['voucher', 'posting'],
                 leadingIcon: Icon(Icons.receipt_long_outlined),
-                badge: const NavBadge('8', tone: NavBadgeTone.warning),
+                badge: const SuperNavBadge('8', tone: SuperNavBadgeTone.warning),
                 value: 'journals',
               ),
             ],
@@ -110,8 +137,8 @@ final sections = <NavSection<String>>[
   ),
 ];
 
-late final NavigationSidebarController<String> nav =
-    NavigationSidebarController<String>(
+late final SuperNavigationSidebarController<String> nav =
+    SuperNavigationSidebarController<String>(
   sections: sections,
   active: 'dashboard',
 );
@@ -122,9 +149,9 @@ Use `LayoutBuilder` to choose a presentation mode:
 ```dart
 LayoutBuilder(
   builder: (context, constraints) {
-    final mode = const NavSidebarBreakpoints().modeFor(constraints.maxWidth);
+    final mode = const SuperNavSidebarBreakpoints().modeFor(constraints.maxWidth);
 
-    if (mode == NavSidebarMode.drawer) {
+    if (mode == SuperNavSidebarMode.drawer) {
       return Stack(
         children: [
           Positioned.fill(
@@ -140,11 +167,11 @@ LayoutBuilder(
             ),
           ),
           Positioned.fill(
-            child: NavigationSidebar<String>(
+            child: SuperNavigationSidebar<String>(
               controller: nav,
               mode: mode,
               allowSearchView: true,
-              searchViewMode: NavigationSearchViewMode.sheet,
+              searchViewMode: SuperNavigationSearchViewMode.sheet,
             ),
           ),
         ],
@@ -153,12 +180,12 @@ LayoutBuilder(
 
     return Row(
       children: [
-        NavigationSidebar<String>(
+        SuperNavigationSidebar<String>(
           controller: nav,
           mode: mode,
           showPaneToggle: true,
           allowSearchView: true,
-          searchViewMode: NavigationSearchViewMode.dialog,
+          searchViewMode: SuperNavigationSearchViewMode.dialog,
         ),
         const Expanded(child: CurrentPage()),
       ],
@@ -167,14 +194,14 @@ LayoutBuilder(
 );
 ```
 
-## NavigationSearchView
+## SuperNavigationSearchView
 
-`NavigationSearchView<T>` is presentation-independent. Embed it directly:
+`SuperNavigationSearchView<T>` is presentation-independent. Embed it directly:
 
 ```dart
 SizedBox(
   height: 520,
-  child: NavigationSearchView<String>(
+  child: SuperNavigationSearchView<String>(
     controller: nav,
     autofocus: false,
     closeOnPick: false,
@@ -186,20 +213,20 @@ SizedBox(
 Open it as a dialog:
 
 ```dart
-showNavigationSearchView<String>(
+showSuperNavigationSearchView<String>(
   context,
   controller: nav,
-  mode: NavigationSearchViewMode.dialog,
+  mode: SuperNavigationSearchViewMode.dialog,
 );
 ```
 
 Open it as a modal bottom sheet:
 
 ```dart
-showNavigationSearchView<String>(
+showSuperNavigationSearchView<String>(
   context,
   controller: nav,
-  mode: NavigationSearchViewMode.sheet,
+  mode: SuperNavigationSearchViewMode.sheet,
 );
 ```
 
@@ -208,11 +235,11 @@ name. When the query is empty, recent destinations are shown first.
 
 ## Sidebar search options
 
-`NavigationSidebar` supports two distinct search experiences:
+`SuperNavigationSidebar` supports two distinct search experiences:
 
 - `searchable: true` filters the currently rendered tree in place.
 - `allowSearchView: true` renders a search trigger that opens
-  `NavigationSearchView` using `searchViewMode`.
+  `SuperNavigationSearchView` using `searchViewMode`.
 
 When both are enabled, `allowSearchView` takes precedence for the built-in
 search control.
@@ -220,9 +247,9 @@ search control.
 ## Favorites and recents
 
 ```dart
-NavigationSidebar<String>(
+SuperNavigationSidebar<String>(
   controller: nav,
-  mode: NavSidebarMode.expanded,
+  mode: SuperNavSidebarMode.expanded,
   favoritable: true,
 )
 ```
@@ -241,7 +268,7 @@ nav.clearRecents();
 ## Locked, disabled, and status nodes
 
 ```dart
-NavNode(
+SuperNavNode(
   id: 'year_end_close',
   label: Text('Year-end close'),
   leadingIcon: Icon(Icons.lock_outline),
@@ -250,26 +277,26 @@ NavNode(
   value: 'year_end_close',
 )
 
-NavNode(
+SuperNavNode(
   id: 'fiscal_period',
   label: Text('Current fiscal period'),
   leadingIcon: Icon(Icons.calendar_month_outlined),
-  status: NavNodeStatus.open,
+  status: SuperNavNodeStatus.open,
   value: 'fiscal_period',
 )
 ```
 
-`NavigationSidebarController.navigate` returns `false` for missing, locked, or
+`SuperNavigationSidebarController.navigate` returns `false` for missing, locked, or
 disabled nodes.
 
 ## Footer navigation
 
 ```dart
-NavSection<String>(
+SuperNavSection<String>(
   title: 'System',
-  placement: NavSectionPlacement.footer,
+  placement: SuperNavSectionPlacement.footer,
   items: [
-    NavNode(
+    SuperNavNode(
       id: 'settings',
       label: Text('Settings'),
       leadingIcon: Icon(Icons.settings_outlined),
@@ -293,8 +320,8 @@ execution layer. Migrate host code as follows:
 - Build app bars and page scaffolds with Flutter / your application design
   system.
 - Compose responsive layouts with `LayoutBuilder`, `Row`, and `Stack`.
-- Open mobile drawers with `NavigationSidebarController.openDrawer()`.
-- Replace command-palette calls with `showNavigationSearchView(...)`.
+- Open mobile drawers with `SuperNavigationSidebarController.openDrawer()`.
+- Replace command-palette calls with `showSuperNavigationSearchView(...)`.
 - Replace `allowSearchDialog` with `allowSearchView` and choose
   `searchViewMode`.
 - Register application keyboard shortcuts in the host using Flutter
@@ -309,27 +336,27 @@ and app-bar/shell-only controller/theme state.
 
 | API | Purpose |
 | --- | --- |
-| `NavigationSidebar<T>` | Expanded / rail / drawer navigation pane. |
-| `NavigationSidebarController<T>` | Navigation and pane state. |
-| `NavigationSidebarScope<T>` | Makes a controller available to descendants. |
-| `NavigationSidebarThemeData` | Theme extension and geometry tokens. |
-| `NavigationSidebarLocalizations` | User-facing strings and Arabic preset. |
-| `NavigationSearchView<T>` | Reusable navigation search UI. |
-| `NavigationSearchViewMode` | `dialog` / `sheet` presentation choice. |
-| `showNavigationSearchView<T>` | Opens the search UI modally. |
-| `NavSearchHit` | Flattened search-index entry. |
-| `NavSearchOps` | Search index/filter helpers. |
-| `NavNode<T>` | Typed navigation node. |
-| `NavSection<T>` | Navigation section. |
-| `NavSidebarBreakpoints` | Responsive mode thresholds. |
-| `NavSidebarStateSnapshot` | Serializable pane/controller state snapshot. |
+| `SuperNavigationSidebar<T>` | Expanded / rail / drawer navigation pane. |
+| `SuperNavigationSidebarController<T>` | Navigation and pane state. |
+| `SuperNavigationSidebarScope<T>` | Makes a controller available to descendants. |
+| `SuperNavigationSidebarThemeData` | Theme extension and geometry tokens. |
+| `SuperNavigationLocalization` | Generated package localizations and delegates. |
+| `SuperNavigationSearchView<T>` | Reusable navigation search UI. |
+| `SuperNavigationSearchViewMode` | `dialog` / `sheet` presentation choice. |
+| `showSuperNavigationSearchView<T>` | Opens the search UI modally. |
+| `SuperNavSearchHit` | Flattened search-index entry. |
+| `SuperNavSearchOps` | Search index/filter helpers. |
+| `SuperNavNode<T>` | Typed navigation node. |
+| `SuperNavSection<T>` | Navigation section. |
+| `SuperNavSidebarBreakpoints` | Responsive mode thresholds. |
+| `SuperNavSidebarStateSnapshot` | Serializable pane/controller state snapshot. |
 
-## NavNode content
+## SuperNavNode content
 
-`NavNode` accepts widgets for its label and optional leading/trailing icons. This allows navigation items to use rich text, badges, progress indicators, custom icon widgets, or any other Flutter widget without requiring a package-specific wrapper.
+`SuperNavNode` accepts widgets for its label and optional leading/trailing icons. This allows navigation items to use rich text, badges, progress indicators, custom icon widgets, or any other Flutter widget without requiring a package-specific wrapper.
 
 ```dart
-NavNode(
+SuperNavNode(
   label: const Text('Dashboard'),
   leadingIcon: const Icon(Icons.dashboard_outlined),
   trailingIcon: const Icon(Icons.chevron_right),
@@ -342,13 +369,13 @@ Only `label` is required. Omit `leadingIcon` or `trailingIcon` when that positio
 
 Starting with version `3.1.0`, navigation content is Widget-based.
 
-`NavNode.label` accepts any `Widget`, so labels are no longer limited to plain
+`SuperNavNode.label` accepts any `Widget`, so labels are no longer limited to plain
 text. `leadingIcon` and `trailingIcon` also accept Widgets, allowing navigation
 items to use custom visual content without forcing it into `String` or
 `IconData`.
 
 ```dart
-NavNode(
+SuperNavNode(
   label: const Text('Dashboard'),
   leadingIcon: const Icon(Icons.dashboard_outlined),
   trailingIcon: const Icon(Icons.chevron_right),
@@ -359,7 +386,7 @@ NavNode(
 A label can also be a custom widget:
 
 ```dart
-NavNode(
+SuperNavNode(
   label: Row(
     mainAxisSize: MainAxisSize.min,
     children: const [
@@ -379,7 +406,7 @@ Because `label` can be any Widget, the package does not attempt to extract text
 from it. Search and filtering should use `keywords`.
 
 ```dart
-NavNode(
+SuperNavNode(
   label: const Text('Customer Accounts'),
   leadingIcon: const Icon(Icons.people_outline),
   keywords: const [
@@ -398,7 +425,7 @@ argument and the default empty list is used.
 Both icon positions accept arbitrary Widgets:
 
 ```dart
-NavNode(
+SuperNavNode(
   label: const Text('Notifications'),
   leadingIcon: const Icon(Icons.notifications_outlined),
   trailingIcon: const Badge(
