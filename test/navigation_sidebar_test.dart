@@ -4,86 +4,86 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:super_navigation_sidebar/super_navigation_sidebar.dart';
 
 List<NavSection<String>> _sections() => [
-      NavSection<String>(
-        title: 'Workspace',
-        items: [
+  NavSection<String>(
+    title: 'Workspace',
+    items: [
+      NavNode(
+        id: 'dashboard',
+        label: const Text('Dashboard'),
+        code: 'DB01',
+        keywords: const ['overview', 'home'],
+        leadingIcon: const Icon(Icons.dashboard_outlined),
+        value: 'dashboard',
+      ),
+      NavNode(
+        id: 'finance',
+        label: const Text('Finance'),
+        leadingIcon: const Icon(Icons.account_balance_outlined),
+        children: [
           NavNode(
-            id: 'dashboard',
-            label: 'Dashboard',
-            code: 'DB01',
-            keywords: const ['overview', 'home'],
-            icon: Icons.dashboard_outlined,
-            value: 'dashboard',
-          ),
-          NavNode(
-            id: 'finance',
-            label: 'Finance',
-            icon: Icons.account_balance_outlined,
+            id: 'ledger_group',
+            label: const Text('General ledger'),
             children: [
               NavNode(
-                id: 'ledger_group',
-                label: 'General ledger',
-                children: [
-                  NavNode(
-                    id: 'journals',
-                    label: 'Journal entries',
-                    code: 'JE01',
-                    keywords: const ['voucher', 'posting'],
-                    icon: Icons.receipt_long_outlined,
-                    badge: const NavBadge('4', tone: NavBadgeTone.warning),
-                    value: 'journals',
-                  ),
-                  NavNode(
-                    id: 'locked',
-                    label: 'Year-end close',
-                    icon: Icons.lock_outline,
-                    locked: true,
-                    lockMessage: 'Requires Controller role',
-                    value: 'locked',
-                  ),
-                ],
+                id: 'journals',
+                label: const Text('Journal entries'),
+                code: 'JE01',
+                keywords: const ['voucher', 'posting'],
+                leadingIcon: const Icon(Icons.receipt_long_outlined),
+                badge: const NavBadge('4', tone: NavBadgeTone.warning),
+                value: 'journals',
+              ),
+              NavNode(
+                id: 'locked',
+                label: const Text('Year-end close'),
+                leadingIcon: const Icon(Icons.lock_outline),
+                locked: true,
+                lockMessage: 'Requires Controller role',
+                value: 'locked',
               ),
             ],
           ),
         ],
       ),
-      NavSection<String>(
-        title: 'System',
-        placement: NavSectionPlacement.footer,
-        items: [
-          NavNode(
-            id: 'settings',
-            label: 'Settings',
-            icon: Icons.settings_outlined,
-            value: 'settings',
-          ),
-        ],
+    ],
+  ),
+  NavSection<String>(
+    title: 'System',
+    placement: NavSectionPlacement.footer,
+    items: [
+      NavNode(
+        id: 'settings',
+        label: const Text('Settings'),
+        leadingIcon: const Icon(Icons.settings_outlined),
+        value: 'settings',
       ),
-    ];
+    ],
+  ),
+];
 
 List<NavSection<String>> _manySections() => [
-      NavSection<String>(
-        title: 'Destinations',
-        items: [
-          for (var i = 0; i < 40; i++)
-            NavNode(
-              id: 'destination_$i',
-              label: 'Destination $i',
-              icon: Icons.circle_outlined,
-              value: 'destination_$i',
-            ),
-        ],
-      ),
-    ];
+  NavSection<String>(
+    title: 'Destinations',
+    items: [
+      for (var i = 0; i < 40; i++)
+        NavNode(
+          id: 'destination_$i',
+          label: Text('Destination $i'),
+          leadingIcon: const Icon(Icons.circle_outlined),
+          value: 'destination_$i',
+        ),
+    ],
+  ),
+];
 
 Widget _app(Widget child) => MaterialApp(
-      theme: ThemeData(
-        extensions: const <ThemeExtension<dynamic>>[
-          NavigationSidebarThemeData.light,
-        ],
-      ),
-      home: Scaffold(body: child),
-    );
+  theme: ThemeData(
+    extensions: const <ThemeExtension<dynamic>>[
+      NavigationSidebarThemeData.light,
+    ],
+  ),
+  home: Scaffold(body: child),
+);
 
 void main() {
   group('NavSidebarBreakpoints', () {
@@ -134,7 +134,10 @@ void main() {
       addTearDown(nav.dispose);
 
       nav.setQuery('JE01');
-      expect(nav.matchSet(), containsAll(<String>['finance', 'ledger_group', 'journals']));
+      expect(
+        nav.matchSet(),
+        containsAll(<String>['finance', 'ledger_group', 'journals']),
+      );
 
       nav.setQuery('voucher');
       expect(nav.matchSet(), contains('journals'));
@@ -171,22 +174,21 @@ void main() {
           ),
         ),
       );
+      await tester.pumpAndSettle();
 
       expect(find.text('Dashboard'), findsOneWidget);
       expect(find.text('Journal entries'), findsOneWidget);
 
-      await tester.enterText(
-        find.byKey(const ValueKey('navigation-search-input')),
-        'JE01',
-      );
+      await tester.enterText(find.byType(EditableText), 'JE01');
       await tester.pump();
 
       expect(find.text('Journal entries'), findsOneWidget);
       expect(find.text('Dashboard'), findsNothing);
     });
 
-    testWidgets('keyboard navigation scrolls selected result into view',
-        (tester) async {
+    testWidgets('keyboard navigation scrolls selected result into view', (
+      tester,
+    ) async {
       final nav = NavigationSidebarController<String>(
         sections: _manySections(),
       );
@@ -205,8 +207,9 @@ void main() {
           ),
         ),
       );
+      await tester.pumpAndSettle();
 
-      await tester.tap(find.byKey(const ValueKey('navigation-search-input')));
+      await tester.tap(find.byType(EditableText));
       await tester.pump();
 
       for (var i = 0; i < 24; i++) {
@@ -218,8 +221,9 @@ void main() {
       final selected = find.text('Destination 24');
       expect(selected, findsOneWidget);
 
-      final viewRect =
-          tester.getRect(find.byType(NavigationSearchView<String>));
+      final viewRect = tester.getRect(
+        find.byType(NavigationSearchView<String>),
+      );
       final selectedRect = tester.getRect(selected);
       expect(selectedRect.top, greaterThanOrEqualTo(viewRect.top));
       expect(selectedRect.bottom, lessThanOrEqualTo(viewRect.bottom));
@@ -237,8 +241,9 @@ void main() {
       expect(firstRect.bottom, lessThanOrEqualTo(viewRect.bottom));
     });
 
-    testWidgets('picking a result navigates when no callback is supplied',
-        (tester) async {
+    testWidgets('picking a result navigates when no callback is supplied', (
+      tester,
+    ) async {
       final nav = NavigationSidebarController<String>(
         sections: _sections(),
         active: 'dashboard',
@@ -257,14 +262,16 @@ void main() {
           ),
         ),
       );
+      await tester.pumpAndSettle();
 
       await tester.tap(find.text('Journal entries'));
       await tester.pump();
       expect(nav.active, 'journals');
     });
 
-    testWidgets('dialog and sheet presenters open the same search view',
-        (tester) async {
+    testWidgets('dialog and sheet presenters open the same search view', (
+      tester,
+    ) async {
       final nav = NavigationSidebarController<String>(sections: _sections());
       addTearDown(nav.dispose);
 

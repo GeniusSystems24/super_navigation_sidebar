@@ -42,10 +42,10 @@ class _ExampleAppState extends State<ExampleApp> {
       title: 'super_navigation_sidebar 3.0.0 examples',
       debugShowCheckedModeBanner: false,
       theme: light.copyWith(
-        extensions:  [NavigationSidebarThemeData.fromMaterialTheme(light)],
+        extensions: [NavigationSidebarThemeData.fromMaterialTheme(light)],
       ),
       darkTheme: dark.copyWith(
-        extensions:  [NavigationSidebarThemeData.fromMaterialTheme(dark)],
+        extensions: [NavigationSidebarThemeData.fromMaterialTheme(dark)],
       ),
       themeMode: _dark ? ThemeMode.dark : ThemeMode.light,
       home: LauncherScreen(
@@ -62,8 +62,11 @@ class _ExampleAppState extends State<ExampleApp> {
 class LauncherScreen extends StatelessWidget {
   final bool dark;
   final ValueChanged<bool> onToggleTheme;
-  const LauncherScreen(
-      {super.key, required this.dark, required this.onToggleTheme});
+  const LauncherScreen({
+    super.key,
+    required this.dark,
+    required this.onToggleTheme,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -72,13 +75,18 @@ class LauncherScreen extends StatelessWidget {
     final demos = <_Demo>[
       _Demo(
         title: 'Kitchen sink — every feature (3.0)',
-        subtitle: 'One workbench with the full 3.0 surface: adaptive pane layouts, '
+        subtitle:
+            'One workbench with the full 3.0 surface: adaptive pane layouts, '
             'screen codes + keyword search, dialog/sheet NavigationSearchView, '
             'recent navigation, snapshot save/restore, badge roll-up, favorites, '
             'locked/status nodes and RTL — all behind live toggles.',
         badge: 'ALL · search view · codes · recents · snapshot',
         preview: const _SidebarThumb(
-            mode: _Mode.expanded, activeIndex: 2, badges: true, erp: true),
+          mode: _Mode.expanded,
+          activeIndex: 2,
+          badges: true,
+          erp: true,
+        ),
         screen: const KitchenSinkExample(),
       ),
       _Demo(
@@ -99,7 +107,10 @@ class LauncherScreen extends StatelessWidget {
             'through replaceSections.',
         badge: 'badges · favorites · search · of(context)',
         preview: const _SidebarThumb(
-            mode: _Mode.expanded, activeIndex: 2, badges: true),
+          mode: _Mode.expanded,
+          activeIndex: 2,
+          badges: true,
+        ),
         screen: const AdminDashboardExample(),
       ),
       _Demo(
@@ -109,7 +120,10 @@ class LauncherScreen extends StatelessWidget {
             'toggle, plus showGuides and railFlyouts switches.',
         badge: 'theming · RTL',
         preview: const _SidebarThumb(
-            mode: _Mode.expanded, activeIndex: 0, warm: true),
+          mode: _Mode.expanded,
+          activeIndex: 0,
+          warm: true,
+        ),
         screen: const ThemeRtlExample(),
       ),
       _Demo(
@@ -120,7 +134,11 @@ class LauncherScreen extends StatelessWidget {
             'dots on a deep banking tree.',
         badge: 'search · favorites · locked · status',
         preview: const _SidebarThumb(
-            mode: _Mode.expanded, activeIndex: 2, badges: true, erp: true),
+          mode: _Mode.expanded,
+          activeIndex: 2,
+          badges: true,
+          erp: true,
+        ),
         screen: const ErpBankingExample(),
       ),
       _Demo(
@@ -131,7 +149,10 @@ class LauncherScreen extends StatelessWidget {
             'navigation tree used by NavigationSidebar.',
         badge: 'embedded · dialog · sheet',
         preview: const _SidebarThumb(
-            mode: _Mode.expanded, activeIndex: 1, badges: true),
+          mode: _Mode.expanded,
+          activeIndex: 1,
+          badges: true,
+        ),
         screen: const NavigationSearchViewExample(),
       ),
       _Demo(
@@ -162,30 +183,38 @@ class LauncherScreen extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(children: [
-                            _Mark(),
-                            const SizedBox(width: 12),
-                            Text('SUPER_NAVIGATION_SIDEBAR',
+                          Row(
+                            children: [
+                              _Mark(),
+                              const SizedBox(width: 12),
+                              Text(
+                                'SUPER_NAVIGATION_SIDEBAR',
                                 style: TextStyle(
-                                    fontFamily:
-                                        NavigationSidebarThemeData.monoFont,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w700,
-                                    letterSpacing: 1.6,
-                                    color: NavigationSidebarThemeData.accent)),
-                            const SizedBox(width: 10),
-                            _VersionPill(),
-                          ]),
-                          const SizedBox(height: 16),
-                          Text('Responsive app navigation',
-                              style: TextStyle(
                                   fontFamily:
-                                      NavigationSidebarThemeData.displayFont,
-                                  fontSize: 34,
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: -0.8,
-                                  height: 1.05,
-                                  color: s.fg1)),
+                                      NavigationSidebarThemeData.monoFont,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 1.6,
+                                  color: NavigationSidebarThemeData.accent,
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              _VersionPill(),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Responsive app navigation',
+                            style: TextStyle(
+                              fontFamily:
+                                  NavigationSidebarThemeData.displayFont,
+                              fontSize: 34,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: -0.8,
+                              height: 1.05,
+                              color: s.fg1,
+                            ),
+                          ),
                           const SizedBox(height: 12),
                           ConstrainedBox(
                             constraints: const BoxConstraints(maxWidth: 640),
@@ -195,11 +224,11 @@ class LauncherScreen extends StatelessWidget {
                               'drawer. Search, badges, favorites, header/footer slots and RTL '
                               'are included. Open any example to try it live.',
                               style: TextStyle(
-                                  fontFamily:
-                                      NavigationSidebarThemeData.bodyFont,
-                                  fontSize: 14.5,
-                                  height: 1.6,
-                                  color: s.fg3),
+                                fontFamily: NavigationSidebarThemeData.bodyFont,
+                                fontSize: 14.5,
+                                height: 1.6,
+                                color: s.fg3,
+                              ),
                             ),
                           ),
                         ],
@@ -210,37 +239,42 @@ class LauncherScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 36),
                 // ── grid ──────────────────────────────────────
-                LayoutBuilder(builder: (context, c) {
-                  final cols = c.maxWidth > 720 ? 2 : 1;
-                  return GridView.count(
-                    crossAxisCount: cols,
-                    crossAxisSpacing: 18,
-                    mainAxisSpacing: 18,
-                    childAspectRatio: 1.42,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    children: [
-                      for (var i = 0; i < demos.length; i++)
-                        _DemoCard(
-                          index: i + 1,
-                          demo: demos[i],
-                          onTap: () => Navigator.of(context).push(
-                            MaterialPageRoute(
+                LayoutBuilder(
+                  builder: (context, c) {
+                    final cols = c.maxWidth > 720 ? 2 : 1;
+                    return GridView.count(
+                      crossAxisCount: cols,
+                      crossAxisSpacing: 18,
+                      mainAxisSpacing: 18,
+                      childAspectRatio: 1.42,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      children: [
+                        for (var i = 0; i < demos.length; i++)
+                          _DemoCard(
+                            index: i + 1,
+                            demo: demos[i],
+                            onTap: () => Navigator.of(context).push(
+                              MaterialPageRoute(
                                 builder: (_) =>
-                                    _BackScaffold(child: demos[i].screen)),
+                                    _BackScaffold(child: demos[i].screen),
+                              ),
+                            ),
                           ),
-                        ),
-                    ],
-                  );
-                }),
+                      ],
+                    );
+                  },
+                ),
                 const SizedBox(height: 24),
                 Center(
                   child: Text(
-                      'MIT © GeniusLink · pure Flutter, zero dependencies',
-                      style: TextStyle(
-                          fontFamily: NavigationSidebarThemeData.monoFont,
-                          fontSize: 11,
-                          color: s.fg4)),
+                    'MIT © GeniusLink · pure Flutter, zero dependencies',
+                    style: TextStyle(
+                      fontFamily: NavigationSidebarThemeData.monoFont,
+                      fontSize: 11,
+                      color: s.fg4,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -269,8 +303,11 @@ class _DemoCard extends StatefulWidget {
   final int index;
   final _Demo demo;
   final VoidCallback onTap;
-  const _DemoCard(
-      {required this.index, required this.demo, required this.onTap});
+  const _DemoCard({
+    required this.index,
+    required this.demo,
+    required this.onTap,
+  });
   @override
   State<_DemoCard> createState() => _DemoCardState();
 }
@@ -295,9 +332,10 @@ class _DemoCardState extends State<_DemoCard> {
           decoration: BoxDecoration(
             color: s.surface,
             border: Border.all(
-                color: _h
-                    ? NavigationSidebarThemeData.accent.withValues(alpha: 0.55)
-                    : s.border),
+              color: _h
+                  ? NavigationSidebarThemeData.accent.withValues(alpha: 0.55)
+                  : s.border,
+            ),
             borderRadius: BorderRadius.circular(s.radiusXl),
             boxShadow: _h ? NavigationSidebarThemeData.popShadow : null,
           ),
@@ -306,29 +344,34 @@ class _DemoCardState extends State<_DemoCard> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Expanded(
-                child: Stack(children: [
-                  Positioned.fill(child: widget.demo.preview),
-                  Positioned(
-                    top: 10,
-                    right: 10,
-                    child: Container(
-                      width: 24,
-                      height: 24,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: s.bg.withValues(alpha: 0.82),
-                        borderRadius: BorderRadius.circular(7),
-                        border: Border.all(color: s.border),
-                      ),
-                      child: Text('0${widget.index}',
+                child: Stack(
+                  children: [
+                    Positioned.fill(child: widget.demo.preview),
+                    Positioned(
+                      top: 10,
+                      right: 10,
+                      child: Container(
+                        width: 24,
+                        height: 24,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: s.bg.withValues(alpha: 0.82),
+                          borderRadius: BorderRadius.circular(7),
+                          border: Border.all(color: s.border),
+                        ),
+                        child: Text(
+                          '0${widget.index}',
                           style: TextStyle(
-                              fontFamily: NavigationSidebarThemeData.monoFont,
-                              fontSize: 10,
-                              fontWeight: FontWeight.w700,
-                              color: s.fg2)),
+                            fontFamily: NavigationSidebarThemeData.monoFont,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            color: s.fg2,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                ]),
+                  ],
+                ),
               ),
               Container(
                 decoration: BoxDecoration(
@@ -339,30 +382,39 @@ class _DemoCardState extends State<_DemoCard> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(children: [
-                      Expanded(
-                        child: Text(widget.demo.title,
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            widget.demo.title,
                             style: TextStyle(
-                                fontFamily:
-                                    NavigationSidebarThemeData.displayFont,
-                                fontSize: 16.5,
-                                fontWeight: FontWeight.w700,
-                                color: s.fg1)),
-                      ),
-                      Icon(Icons.arrow_outward,
+                              fontFamily:
+                                  NavigationSidebarThemeData.displayFont,
+                              fontSize: 16.5,
+                              fontWeight: FontWeight.w700,
+                              color: s.fg1,
+                            ),
+                          ),
+                        ),
+                        Icon(
+                          Icons.arrow_outward,
                           size: 16,
-                          color:
-                              _h ? NavigationSidebarThemeData.accent : s.fg3),
-                    ]),
+                          color: _h ? NavigationSidebarThemeData.accent : s.fg3,
+                        ),
+                      ],
+                    ),
                     const SizedBox(height: 6),
-                    Text(widget.demo.subtitle,
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                            fontFamily: NavigationSidebarThemeData.bodyFont,
-                            fontSize: 12.5,
-                            height: 1.5,
-                            color: s.fg3)),
+                    Text(
+                      widget.demo.subtitle,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontFamily: NavigationSidebarThemeData.bodyFont,
+                        fontSize: 12.5,
+                        height: 1.5,
+                        color: s.fg3,
+                      ),
+                    ),
                     const SizedBox(height: 10),
                     _TagPill(widget.demo.badge),
                   ],
@@ -426,12 +478,12 @@ class _SidebarThumb extends StatelessWidget {
             (
               Icons.menu_book_outlined,
               'Accounts',
-              badges ? NavBadgeTone.success : null
+              badges ? NavBadgeTone.success : null,
             ),
             (
               Icons.receipt_long_outlined,
               'Journals',
-              badges ? NavBadgeTone.danger : null
+              badges ? NavBadgeTone.danger : null,
             ),
             (Icons.storefront_outlined, 'Inventory', null),
             (Icons.settings_outlined, 'Settings', null),
@@ -466,22 +518,29 @@ class _SidebarThumb extends StatelessWidget {
         decoration: BoxDecoration(
           color: active ? accent.withValues(alpha: 0.16) : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
-          border: active ? Border.all(color: accent.withValues(alpha: 0.5)) : null,
+          border: active
+              ? Border.all(color: accent.withValues(alpha: 0.5))
+              : null,
         ),
-        child: Stack(clipBehavior: Clip.none, children: [
-          Icon(icon, size: 15, color: active ? accent : s.fg3),
-          if (tone != null)
-            Positioned(
-              right: -3,
-              top: -3,
-              child: Container(
-                width: 6,
-                height: 6,
-                decoration: BoxDecoration(
-                    color: toneColor(tone), shape: BoxShape.circle),
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Icon(icon, size: 15, color: active ? accent : s.fg3),
+            if (tone != null)
+              Positioned(
+                right: -3,
+                top: -3,
+                child: Container(
+                  width: 6,
+                  height: 6,
+                  decoration: BoxDecoration(
+                    color: toneColor(tone),
+                    shape: BoxShape.circle,
+                  ),
+                ),
               ),
-            ),
-        ]),
+          ],
+        ),
       );
     }
 
@@ -501,232 +560,284 @@ class _SidebarThumb extends StatelessWidget {
             color: active ? accent : Colors.transparent,
             borderRadius: BorderRadius.circular(7),
           ),
-          child: Row(children: [
-            Icon(icon, size: 12, color: active ? Colors.white : s.fg3),
-            const SizedBox(width: 7),
-            if (statusOpen) ...[
-              Container(
+          child: Row(
+            children: [
+              Icon(icon, size: 12, color: active ? Colors.white : s.fg3),
+              const SizedBox(width: 7),
+              if (statusOpen) ...[
+                Container(
                   width: 6,
                   height: 6,
                   decoration: const BoxDecoration(
-                      color: NavigationSidebarThemeData.success,
-                      shape: BoxShape.circle)),
-              const SizedBox(width: 5),
-            ],
-            Expanded(
-              child: Text(label,
+                    color: NavigationSidebarThemeData.success,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: 5),
+              ],
+              Expanded(
+                child: Text(
+                  label,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                      fontFamily: NavigationSidebarThemeData.bodyFont,
-                      fontSize: 10,
-                      fontWeight: active ? FontWeight.w700 : FontWeight.w500,
-                      color: active ? Colors.white : s.fg2)),
-            ),
-            if (tone != null)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-                decoration: BoxDecoration(
-                  color: active
-                      ? Colors.white.withValues(alpha: 0.25)
-                      : toneColor(tone).withValues(alpha: 0.18),
-                  borderRadius: BorderRadius.circular(999),
+                    fontFamily: NavigationSidebarThemeData.bodyFont,
+                    fontSize: 10,
+                    fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+                    color: active ? Colors.white : s.fg2,
+                  ),
                 ),
-                child: Text(tone == NavBadgeTone.success ? 'Live' : '9+',
-                    style: TextStyle(
-                        fontFamily: NavigationSidebarThemeData.monoFont,
-                        fontSize: 7,
-                        fontWeight: FontWeight.w700,
-                        color: active ? Colors.white : toneColor(tone))),
               ),
-            if (star)
-              Icon(Icons.star_rounded,
+              if (tone != null)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                    vertical: 1,
+                  ),
+                  decoration: BoxDecoration(
+                    color: active
+                        ? Colors.white.withValues(alpha: 0.25)
+                        : toneColor(tone).withValues(alpha: 0.18),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Text(
+                    tone == NavBadgeTone.success ? 'Live' : '9+',
+                    style: TextStyle(
+                      fontFamily: NavigationSidebarThemeData.monoFont,
+                      fontSize: 7,
+                      fontWeight: FontWeight.w700,
+                      color: active ? Colors.white : toneColor(tone),
+                    ),
+                  ),
+                ),
+              if (star)
+                Icon(
+                  Icons.star_rounded,
                   size: 11,
                   color: active
                       ? Colors.white
-                      : NavigationSidebarThemeData.accent),
-            if (locked) Icon(Icons.lock_outline, size: 10, color: s.fg3),
-          ]),
+                      : NavigationSidebarThemeData.accent,
+                ),
+              if (locked) Icon(Icons.lock_outline, size: 10, color: s.fg3),
+            ],
+          ),
         ),
       );
     }
 
     return Container(
       color: s.bg,
-      child: Row(children: [
-        // panel
-        Container(
-          width: panelW,
-          decoration: BoxDecoration(
-            color: s.surface,
-            border: Border(right: BorderSide(color: s.border)),
-          ),
-          padding:
-              EdgeInsets.symmetric(horizontal: isRail ? 9 : 10, vertical: 10),
-          child: Column(
-            crossAxisAlignment:
-                isRail ? CrossAxisAlignment.center : CrossAxisAlignment.start,
-            children: [
-              // header
-              if (isRail)
-                Container(
-                  width: 26,
-                  height: 26,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                      color: accent, borderRadius: BorderRadius.circular(7)),
-                  child: const Text('GL',
-                      style: TextStyle(
-                          fontFamily: NavigationSidebarThemeData.displayFont,
-                          fontSize: 9,
-                          fontWeight: FontWeight.w800,
-                          color: Colors.white)),
-                )
-              else
-                Row(children: [
+      child: Row(
+        children: [
+          // panel
+          Container(
+            width: panelW,
+            decoration: BoxDecoration(
+              color: s.surface,
+              border: Border(right: BorderSide(color: s.border)),
+            ),
+            padding: EdgeInsets.symmetric(
+              horizontal: isRail ? 9 : 10,
+              vertical: 10,
+            ),
+            child: Column(
+              crossAxisAlignment: isRail
+                  ? CrossAxisAlignment.center
+                  : CrossAxisAlignment.start,
+              children: [
+                // header
+                if (isRail)
                   Container(
-                    width: 22,
-                    height: 22,
+                    width: 26,
+                    height: 26,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                        color: accent, borderRadius: BorderRadius.circular(6)),
-                    child: const Text('GL',
-                        style: TextStyle(
+                      color: accent,
+                      borderRadius: BorderRadius.circular(7),
+                    ),
+                    child: const Text(
+                      'GL',
+                      style: TextStyle(
+                        fontFamily: NavigationSidebarThemeData.displayFont,
+                        fontSize: 9,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                      ),
+                    ),
+                  )
+                else
+                  Row(
+                    children: [
+                      Container(
+                        width: 22,
+                        height: 22,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: accent,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: const Text(
+                          'GL',
+                          style: TextStyle(
                             fontFamily: NavigationSidebarThemeData.displayFont,
                             fontSize: 8,
                             fontWeight: FontWeight.w800,
-                            color: Colors.white)),
-                  ),
-                  const SizedBox(width: 7),
-                  Text('GeniusLink',
-                      style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 7),
+                      Text(
+                        'GeniusLink',
+                        style: TextStyle(
                           fontFamily: NavigationSidebarThemeData.displayFont,
                           fontSize: 11,
                           fontWeight: FontWeight.w800,
-                          color: s.fg1)),
-                ]),
-              const SizedBox(height: 12),
-              if (erp && !isRail) ...[
-                Container(
-                  height: 22,
-                  padding: const EdgeInsetsDirectional.only(start: 7, end: 4),
-                  decoration: BoxDecoration(
-                    color: s.inputBg,
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: s.border),
-                  ),
-                  child: Row(children: [
-                    Icon(Icons.search, size: 10, color: s.fg3),
-                    const SizedBox(width: 5),
-                    Text('Search…',
-                        style: TextStyle(
-                            fontFamily: NavigationSidebarThemeData.bodyFont,
-                            fontSize: 8.5,
-                            color: s.fg4)),
-                  ]),
-                ),
-                const SizedBox(height: 8),
-              ],
-              if (!isRail)
-                Padding(
-                  padding: const EdgeInsets.only(left: 2, bottom: 6),
-                  child: Text(erp ? 'GENERAL LEDGER' : 'OVERVIEW',
-                      style: TextStyle(
-                          fontFamily: NavigationSidebarThemeData.monoFont,
-                          fontSize: 7,
-                          letterSpacing: 1.2,
-                          fontWeight: FontWeight.w700,
-                          color: s.fg4)),
-                ),
-              Expanded(
-                child: Column(
-                  children: [
-                    for (var i = 0; i < rows.length; i++)
-                      isRail ? railIcon(i) : expandedRow(i),
-                  ],
-                ),
-              ),
-              // footer help
-              if (!isRail)
-                Container(
-                  height: 26,
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  decoration: BoxDecoration(
-                    color: s.inputBg,
-                    borderRadius: BorderRadius.circular(7),
-                    border: Border.all(color: s.border),
-                  ),
-                  child: Row(children: [
-                    Icon(Icons.info_outline, size: 11, color: accent),
-                    const SizedBox(width: 6),
-                    Text('Need help?',
-                        style: TextStyle(
-                            fontFamily: NavigationSidebarThemeData.bodyFont,
-                            fontSize: 9,
-                            fontWeight: FontWeight.w600,
-                            color: s.fg2)),
-                  ]),
-                )
-              else
-                Container(
-                  width: 32,
-                  height: 26,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: s.inputBg,
-                    borderRadius: BorderRadius.circular(7),
-                    border: Border.all(color: s.border),
-                  ),
-                  child: Icon(Icons.info_outline, size: 12, color: accent),
-                ),
-            ],
-          ),
-        ),
-        // faux page
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                    width: 80,
-                    height: 8,
-                    decoration: BoxDecoration(
-                        color: s.fg1.withValues(alpha: 0.65),
-                        borderRadius: BorderRadius.circular(3))),
-                const SizedBox(height: 10),
-                Row(children: [
-                  for (var i = 0; i < 3; i++) ...[
-                    if (i > 0) const SizedBox(width: 6),
-                    Expanded(
-                      child: Container(
-                        height: 30,
-                        decoration: BoxDecoration(
-                          color: s.surface,
-                          borderRadius: BorderRadius.circular(6),
-                          border: Border.all(color: s.border),
+                          color: s.fg1,
                         ),
                       ),
-                    ),
-                  ],
-                ]),
-                const SizedBox(height: 8),
-                Expanded(
-                  child: Container(
-                    width: double.infinity,
+                    ],
+                  ),
+                const SizedBox(height: 12),
+                if (erp && !isRail) ...[
+                  Container(
+                    height: 22,
+                    padding: const EdgeInsetsDirectional.only(start: 7, end: 4),
                     decoration: BoxDecoration(
-                      color: s.surface,
+                      color: s.inputBg,
                       borderRadius: BorderRadius.circular(6),
                       border: Border.all(color: s.border),
                     ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.search, size: 10, color: s.fg3),
+                        const SizedBox(width: 5),
+                        Text(
+                          'Search…',
+                          style: TextStyle(
+                            fontFamily: NavigationSidebarThemeData.bodyFont,
+                            fontSize: 8.5,
+                            color: s.fg4,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                ],
+                if (!isRail)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 2, bottom: 6),
+                    child: Text(
+                      erp ? 'GENERAL LEDGER' : 'OVERVIEW',
+                      style: TextStyle(
+                        fontFamily: NavigationSidebarThemeData.monoFont,
+                        fontSize: 7,
+                        letterSpacing: 1.2,
+                        fontWeight: FontWeight.w700,
+                        color: s.fg4,
+                      ),
+                    ),
+                  ),
+                Expanded(
+                  child: Column(
+                    children: [
+                      for (var i = 0; i < rows.length; i++)
+                        isRail ? railIcon(i) : expandedRow(i),
+                    ],
                   ),
                 ),
+                // footer help
+                if (!isRail)
+                  Container(
+                    height: 26,
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    decoration: BoxDecoration(
+                      color: s.inputBg,
+                      borderRadius: BorderRadius.circular(7),
+                      border: Border.all(color: s.border),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.info_outline, size: 11, color: accent),
+                        const SizedBox(width: 6),
+                        Text(
+                          'Need help?',
+                          style: TextStyle(
+                            fontFamily: NavigationSidebarThemeData.bodyFont,
+                            fontSize: 9,
+                            fontWeight: FontWeight.w600,
+                            color: s.fg2,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                else
+                  Container(
+                    width: 32,
+                    height: 26,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: s.inputBg,
+                      borderRadius: BorderRadius.circular(7),
+                      border: Border.all(color: s.border),
+                    ),
+                    child: Icon(Icons.info_outline, size: 12, color: accent),
+                  ),
               ],
             ),
           ),
-        ),
-      ]),
+          // faux page
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 80,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: s.fg1.withValues(alpha: 0.65),
+                      borderRadius: BorderRadius.circular(3),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      for (var i = 0; i < 3; i++) ...[
+                        if (i > 0) const SizedBox(width: 6),
+                        Expanded(
+                          child: Container(
+                            height: 30,
+                            decoration: BoxDecoration(
+                              color: s.surface,
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(color: s.border),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Expanded(
+                    child: Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: s.surface,
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: s.border),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -743,8 +854,11 @@ class _Mark extends StatelessWidget {
         color: NavigationSidebarThemeData.accent,
         borderRadius: BorderRadius.circular(8),
       ),
-      child:
-          const Icon(Icons.view_sidebar_rounded, size: 16, color: Colors.white),
+      child: const Icon(
+        Icons.view_sidebar_rounded,
+        size: 16,
+        color: Colors.white,
+      ),
     );
   }
 }
@@ -758,14 +872,18 @@ class _VersionPill extends StatelessWidget {
         color: NavigationSidebarThemeData.accent.withValues(alpha: 0.13),
         borderRadius: BorderRadius.circular(999),
         border: Border.all(
-            color: NavigationSidebarThemeData.accent.withValues(alpha: 0.35)),
+          color: NavigationSidebarThemeData.accent.withValues(alpha: 0.35),
+        ),
       ),
-      child: const Text('v3.0.0',
-          style: TextStyle(
-              fontFamily: NavigationSidebarThemeData.monoFont,
-              fontSize: 10.5,
-              fontWeight: FontWeight.w700,
-              color: NavigationSidebarThemeData.accent)),
+      child: const Text(
+        'v3.0.0',
+        style: TextStyle(
+          fontFamily: NavigationSidebarThemeData.monoFont,
+          fontSize: 10.5,
+          fontWeight: FontWeight.w700,
+          color: NavigationSidebarThemeData.accent,
+        ),
+      ),
     );
   }
 }
@@ -783,13 +901,16 @@ class _TagPill extends StatelessWidget {
         borderRadius: BorderRadius.circular(6),
         border: Border.all(color: s.border),
       ),
-      child: Text(text,
-          style: TextStyle(
-              fontFamily: NavigationSidebarThemeData.monoFont,
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.3,
-              color: s.fg3)),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontFamily: NavigationSidebarThemeData.monoFont,
+          fontSize: 10,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.3,
+          color: s.fg3,
+        ),
+      ),
     );
   }
 }
@@ -813,17 +934,25 @@ class _ThemeToggle extends StatelessWidget {
             border: Border.all(color: s.borderStrong),
             borderRadius: BorderRadius.circular(s.radiusMd),
           ),
-          child: Row(children: [
-            Icon(dark ? Icons.dark_mode_outlined : Icons.light_mode_outlined,
-                size: 15, color: s.fg2),
-            const SizedBox(width: 8),
-            Text(dark ? 'Dark' : 'Light',
+          child: Row(
+            children: [
+              Icon(
+                dark ? Icons.dark_mode_outlined : Icons.light_mode_outlined,
+                size: 15,
+                color: s.fg2,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                dark ? 'Dark' : 'Light',
                 style: TextStyle(
-                    fontFamily: NavigationSidebarThemeData.bodyFont,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: s.fg1)),
-          ]),
+                  fontFamily: NavigationSidebarThemeData.bodyFont,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: s.fg1,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -836,35 +965,43 @@ class _BackScaffold extends StatelessWidget {
   const _BackScaffold({required this.child});
   @override
   Widget build(BuildContext context) {
-    return Stack(children: [
-      Positioned.fill(child: child),
-      Positioned(
-        left: 16,
-        bottom: 16,
-        child: SafeArea(
-          child: Material(
-            color: Colors.black.withValues(alpha: 0.62),
-            borderRadius: BorderRadius.circular(999),
-            child: InkWell(
+    return Stack(
+      children: [
+        Positioned.fill(child: child),
+        Positioned(
+          left: 16,
+          bottom: 16,
+          child: SafeArea(
+            child: Material(
+              color: Colors.black.withValues(alpha: 0.62),
               borderRadius: BorderRadius.circular(999),
-              onTap: () => Navigator.of(context).maybePop(),
-              child: const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                child: Row(mainAxisSize: MainAxisSize.min, children: [
-                  Icon(Icons.arrow_back, size: 16, color: Colors.white),
-                  SizedBox(width: 7),
-                  Text('Demos',
-                      style: TextStyle(
+              child: InkWell(
+                borderRadius: BorderRadius.circular(999),
+                onTap: () => Navigator.of(context).maybePop(),
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.arrow_back, size: 16, color: Colors.white),
+                      SizedBox(width: 7),
+                      Text(
+                        'Demos',
+                        style: TextStyle(
                           fontFamily: NavigationSidebarThemeData.bodyFont,
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
-                          color: Colors.white)),
-                ]),
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
         ),
-      ),
-    ]);
+      ],
+    );
   }
 }

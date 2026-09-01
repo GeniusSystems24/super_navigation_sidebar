@@ -33,6 +33,14 @@
 import 'package:flutter/widgets.dart';
 import 'models.dart';
 
+String _plainNodeLabel<T>(NavNode<T> node) {
+  final label = node.label;
+  if (label is Text) {
+    return label.data ?? label.textSpan?.toPlainText() ?? node.id;
+  }
+  return node.keywords.isNotEmpty ? node.keywords.first : node.id;
+}
+
 class NavigationSidebarController<T> extends ChangeNotifier {
   NavigationSidebarController({
     required List<NavSection<T>> sections,
@@ -237,7 +245,6 @@ class NavigationSidebarController<T> extends ChangeNotifier {
   void closeDrawer() => drawerOpen = false;
   void toggleDrawer() => drawerOpen = !_drawerOpen;
 
-
   // ── search filter (optional) ───────────────────────────────
   void setQuery(String q) {
     if (q == _query) return;
@@ -254,13 +261,11 @@ class NavigationSidebarController<T> extends ChangeNotifier {
     final matched = <NavNodeId>{};
     final onPath = <NavNodeId>{};
     bool hit(NavNode<T> n) {
-      if (n.label.toLowerCase().contains(q)) return true;
+      if (_plainNodeLabel(n).toLowerCase().contains(q)) return true;
       if (n.code != null && n.code!.toLowerCase().contains(q)) return true;
       final kw = n.keywords;
-      if (kw != null) {
-        for (final k in kw) {
-          if (k.toLowerCase().contains(q)) return true;
-        }
+      for (final k in kw) {
+        if (k.toLowerCase().contains(q)) return true;
       }
       return false;
     }

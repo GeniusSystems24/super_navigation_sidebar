@@ -39,122 +39,215 @@ const _paperclip = Icons.attach_file;
 const _check = Icons.check;
 const _lock = Icons.lock_outline;
 
-NavNode<String> _leaf(String id, String label, IconData icon, {NavBadge? badge}) =>
-    NavNode<String>(id: id, label: label, icon: icon, value: id, badge: badge);
+NavNode<String> _leaf(
+  String id,
+  String label,
+  IconData icon, {
+  NavBadge? badge,
+}) =>
+    NavNode<String>(
+      id: id,
+      label: Text(label),
+      leadingIcon: Icon(icon),
+      value: id,
+      badge: badge,
+    );
 
 NavNode<String> _group(String id, String label, List<NavNode<String>> items) =>
-    NavNode<String>(id: id, label: label, children: items);
+    NavNode<String>(id: id, label: Text(label), children: items);
 
 // Full mirror of the web HUB_TABS / NAV_SECTIONS tree.
 final List<NavSection<String>> kNavSections = [
-  NavSection(title: 'Overview', items: [
-    _leaf('dashboard', 'Dashboard', _briefcase),
-    _leaf('invDashboard', 'Inventory Dashboard', _scanner),
-  ]),
-  NavSection(title: 'Finance', items: [
-    NavNode(id: 'accountsHub', label: 'Accounts', icon: _ledger, children: [
-      _group('accountsHub:coa', 'Chart of Accounts', [
-        _leaf('accounts', 'Chart of Accounts', _ledger),
-        _leaf('accountTree', 'Account Tree', _briefcase),
-        _leaf('createAccount', 'Create Account', _plus),
-      ]),
-      _group('accountsHub:groups', 'Account Groups', [
-        _leaf('group', 'Create Account Group', _briefcase),
-      ]),
-    ]),
-    NavNode(id: 'ledgerHub', label: 'Ledger', icon: _ledger, children: [
-      _group('ledgerHub:je', 'Journal Entries', [
-        _leaf('journals', 'Journal Entries', _ledger, badge: const NavBadge('3')),
-        _leaf('createJournal', 'Create Journal Entry', _plus),
-        _leaf('journal', 'Opening Journal', _ledger),
-      ]),
-    ]),
-    NavNode(id: 'bankingHub', label: 'Banking', icon: _switch2, children: [
-      _group('bankingHub:cash', 'Cash Movements', [
-        _leaf('deposit', 'Create Deposit', _download),
-        _leaf('withdrawal', 'Create Withdrawal', _upload),
-      ]),
-      _group('bankingHub:transfers', 'Transfers', [
-        _leaf('localTransfer', 'Local Transfer', _paperclip),
-        _leaf('extTransfer', 'External Transfer', _compass),
-      ]),
-    ]),
-    NavNode(id: 'reportsHub', label: 'Reports', icon: _doc, children: [
-      _group('reportsHub:fin', 'Financial', [
-        _leaf('trialBalance', 'Trial Balance', _ledger),
-        _leaf('incomeStmt', 'Income Statement', _doc),
-        _leaf('balanceSheet', 'Balance Sheet', _doc),
-      ]),
-      _group('reportsHub:inv', 'Inventory', [
-        _leaf('invValuation', 'Inventory Valuation', _scanner),
-      ]),
-      _group('reportsHub:sec', 'Security', [
-        _leaf('auditLog', 'Audit Log', _lock, badge: const NavBadge('12', tone: NavBadgeTone.muted)),
-      ]),
-    ]),
-  ]),
-  NavSection(title: 'Operations', items: [
-    NavNode(id: 'storesHub', label: 'Inventory & Stores', icon: _store, children: [
-      _group('storesHub:catalog', 'Catalog', [
-        _leaf('products', 'Products', _scanner),
-        _leaf('categories', 'Categories', _briefcase),
-        _leaf('uom', 'Units of Measure', _compass),
-        _leaf('priceLists', 'Price Lists', _ledger),
-      ]),
-      _group('storesHub:wh', 'Warehouses', [
-        _leaf('stores', 'Warehouses', _store),
-        _leaf('createStore', 'Create Warehouse', _plus),
-      ]),
-      _group('storesHub:stock', 'Stock Operations', [
-        _leaf('inventory', 'Issue Inventory', _scanner),
-        _leaf('receive', 'Receive Inventory', _download),
-        _leaf('transferList', 'Stock Transfers', _paperclip),
-        _leaf('adjust', 'Stock Adjustment', _settings),
-        _leaf('stockTake', 'Stock Take', _check, badge: const NavBadge('New', tone: NavBadgeTone.success)),
-        _leaf('barcodePrint', 'Barcode Print', _scanner),
-      ]),
-    ]),
-    NavNode(id: 'salesHub', label: 'Sales', icon: _user, children: [
-      _group('salesHub:customers', 'Customers', [
-        _leaf('customers', 'Customers', _user),
-        _leaf('createCustomer', 'Add Customer', _plus),
-      ]),
-    ]),
-    NavNode(id: 'procurementHub', label: 'Procurement', icon: _briefcase, children: [
-      _group('procurementHub:suppliers', 'Suppliers', [
-        _leaf('suppliers', 'Suppliers', _briefcase),
-        _leaf('createSupplier', 'Add Supplier', _plus),
-      ]),
-    ]),
-  ]),
-  NavSection(title: 'Administration', items: [
-    NavNode(id: 'configHub', label: 'Configuration', icon: _compass, children: [
-      _group('configHub:cur', 'Currencies', [
-        _leaf('currencies', 'Currencies', _briefcase),
-        _leaf('createCurrency', 'Add Currency', _plus),
-        _leaf('exchangeRates', 'Exchange Rates', _compass, badge: const NavBadge('Live', tone: NavBadgeTone.success)),
-      ]),
-      _group('configHub:cal', 'Calendar', [
-        _leaf('fiscalYear', 'Fiscal Year', _ledger),
-      ]),
-    ]),
-    NavNode(id: 'adminHub', label: 'Team & Access', icon: _user, children: [
-      _group('adminHub:users', 'Users', [
-        _leaf('users', 'Users', _user),
-        _leaf('createUser', 'Invite User', _plus),
-      ]),
-      _group('adminHub:access', 'Access', [
-        _leaf('roles', 'Roles & Permissions', _settings),
-      ]),
-    ]),
-    NavNode(id: 'settingsHub', label: 'Settings', icon: _settings, children: [
-      _group('settingsHub:ws', 'Workspace', [
-        _leaf('settingsGeneral', 'General', _settings),
-        _leaf('settingsPlatform', 'Platform', _compass),
-        _leaf('settingsTeam', 'Team', _user),
-      ]),
-    ]),
-  ]),
+  NavSection(
+    title: 'Overview',
+    items: [
+      _leaf('dashboard', 'Dashboard', _briefcase),
+      _leaf('invDashboard', 'Inventory Dashboard', _scanner),
+    ],
+  ),
+  NavSection(
+    title: 'Finance',
+    items: [
+      NavNode(
+        id: 'accountsHub',
+        label: Text('Accounts'),
+        leadingIcon: Icon(_ledger),
+        children: [
+          _group('accountsHub:coa', 'Chart of Accounts', [
+            _leaf('accounts', 'Chart of Accounts', _ledger),
+            _leaf('accountTree', 'Account Tree', _briefcase),
+            _leaf('createAccount', 'Create Account', _plus),
+          ]),
+          _group('accountsHub:groups', 'Account Groups', [
+            _leaf('group', 'Create Account Group', _briefcase),
+          ]),
+        ],
+      ),
+      NavNode(
+        id: 'ledgerHub',
+        label: Text('Ledger'),
+        leadingIcon: Icon(_ledger),
+        children: [
+          _group('ledgerHub:je', 'Journal Entries', [
+            _leaf(
+              'journals',
+              'Journal Entries',
+              _ledger,
+              badge: const NavBadge('3'),
+            ),
+            _leaf('createJournal', 'Create Journal Entry', _plus),
+            _leaf('journal', 'Opening Journal', _ledger),
+          ]),
+        ],
+      ),
+      NavNode(
+        id: 'bankingHub',
+        label: Text('Banking'),
+        leadingIcon: Icon(_switch2),
+        children: [
+          _group('bankingHub:cash', 'Cash Movements', [
+            _leaf('deposit', 'Create Deposit', _download),
+            _leaf('withdrawal', 'Create Withdrawal', _upload),
+          ]),
+          _group('bankingHub:transfers', 'Transfers', [
+            _leaf('localTransfer', 'Local Transfer', _paperclip),
+            _leaf('extTransfer', 'External Transfer', _compass),
+          ]),
+        ],
+      ),
+      NavNode(
+        id: 'reportsHub',
+        label: Text('Reports'),
+        leadingIcon: Icon(_doc),
+        children: [
+          _group('reportsHub:fin', 'Financial', [
+            _leaf('trialBalance', 'Trial Balance', _ledger),
+            _leaf('incomeStmt', 'Income Statement', _doc),
+            _leaf('balanceSheet', 'Balance Sheet', _doc),
+          ]),
+          _group('reportsHub:inv', 'Inventory', [
+            _leaf('invValuation', 'Inventory Valuation', _scanner),
+          ]),
+          _group('reportsHub:sec', 'Security', [
+            _leaf(
+              'auditLog',
+              'Audit Log',
+              _lock,
+              badge: const NavBadge('12', tone: NavBadgeTone.muted),
+            ),
+          ]),
+        ],
+      ),
+    ],
+  ),
+  NavSection(
+    title: 'Operations',
+    items: [
+      NavNode(
+        id: 'storesHub',
+        label: Text('Inventory & Stores'),
+        leadingIcon: Icon(_store),
+        children: [
+          _group('storesHub:catalog', 'Catalog', [
+            _leaf('products', 'Products', _scanner),
+            _leaf('categories', 'Categories', _briefcase),
+            _leaf('uom', 'Units of Measure', _compass),
+            _leaf('priceLists', 'Price Lists', _ledger),
+          ]),
+          _group('storesHub:wh', 'Warehouses', [
+            _leaf('stores', 'Warehouses', _store),
+            _leaf('createStore', 'Create Warehouse', _plus),
+          ]),
+          _group('storesHub:stock', 'Stock Operations', [
+            _leaf('inventory', 'Issue Inventory', _scanner),
+            _leaf('receive', 'Receive Inventory', _download),
+            _leaf('transferList', 'Stock Transfers', _paperclip),
+            _leaf('adjust', 'Stock Adjustment', _settings),
+            _leaf(
+              'stockTake',
+              'Stock Take',
+              _check,
+              badge: const NavBadge('New', tone: NavBadgeTone.success),
+            ),
+            _leaf('barcodePrint', 'Barcode Print', _scanner),
+          ]),
+        ],
+      ),
+      NavNode(
+        id: 'salesHub',
+        label: Text('Sales'),
+        leadingIcon: Icon(_user),
+        children: [
+          _group('salesHub:customers', 'Customers', [
+            _leaf('customers', 'Customers', _user),
+            _leaf('createCustomer', 'Add Customer', _plus),
+          ]),
+        ],
+      ),
+      NavNode(
+        id: 'procurementHub',
+        label: Text('Procurement'),
+        leadingIcon: Icon(_briefcase),
+        children: [
+          _group('procurementHub:suppliers', 'Suppliers', [
+            _leaf('suppliers', 'Suppliers', _briefcase),
+            _leaf('createSupplier', 'Add Supplier', _plus),
+          ]),
+        ],
+      ),
+    ],
+  ),
+  NavSection(
+    title: 'Administration',
+    items: [
+      NavNode(
+        id: 'configHub',
+        label: Text('Configuration'),
+        leadingIcon: Icon(_compass),
+        children: [
+          _group('configHub:cur', 'Currencies', [
+            _leaf('currencies', 'Currencies', _briefcase),
+            _leaf('createCurrency', 'Add Currency', _plus),
+            _leaf(
+              'exchangeRates',
+              'Exchange Rates',
+              _compass,
+              badge: const NavBadge('Live', tone: NavBadgeTone.success),
+            ),
+          ]),
+          _group('configHub:cal', 'Calendar', [
+            _leaf('fiscalYear', 'Fiscal Year', _ledger),
+          ]),
+        ],
+      ),
+      NavNode(
+        id: 'adminHub',
+        label: Text('Team & Access'),
+        leadingIcon: Icon(_user),
+        children: [
+          _group('adminHub:users', 'Users', [
+            _leaf('users', 'Users', _user),
+            _leaf('createUser', 'Invite User', _plus),
+          ]),
+          _group('adminHub:access', 'Access', [
+            _leaf('roles', 'Roles & Permissions', _settings),
+          ]),
+        ],
+      ),
+      NavNode(
+        id: 'settingsHub',
+        label: Text('Settings'),
+        leadingIcon: Icon(_settings),
+        children: [
+          _group('settingsHub:ws', 'Workspace', [
+            _leaf('settingsGeneral', 'General', _settings),
+            _leaf('settingsPlatform', 'Platform', _compass),
+            _leaf('settingsTeam', 'Team', _user),
+          ]),
+        ],
+      ),
+    ],
+  ),
 ];
 
 // ── tenants + user (mirror the web mock) ──
@@ -191,7 +284,8 @@ class _NavigationSidebarDemoState extends State<NavigationSidebarDemo> {
   static const _bp = NavSidebarBreakpoints();
   NavSidebarMode? _prevMode;
 
-  late final NavigationSidebarController<String> _controller = NavigationSidebarController<String>(
+  late final NavigationSidebarController<String> _controller =
+      NavigationSidebarController<String>(
     sections: kNavSections,
     active: 'accounts',
   );
@@ -224,7 +318,9 @@ class _NavigationSidebarDemoState extends State<NavigationSidebarDemo> {
 
   @override
   Widget build(BuildContext context) {
-    final ext = _light ? NavigationSidebarThemeData.light : NavigationSidebarThemeData.dark;
+    final ext = _light
+        ? NavigationSidebarThemeData.light
+        : NavigationSidebarThemeData.dark;
     return Theme(
       data: ThemeData(
         brightness: _light ? Brightness.light : Brightness.dark,
@@ -233,52 +329,64 @@ class _NavigationSidebarDemoState extends State<NavigationSidebarDemo> {
         scaffoldBackgroundColor: ext.bg,
         extensions: [ext],
       ),
-      child: Builder(builder: (context) {
-        final t = NavigationSidebarThemeData.of(context);
-        final dev = _devices.firstWhere((d) => d.$1 == _device);
-        return Directionality(
-          textDirection: _dir,
-          child: Scaffold(
-            backgroundColor: t.bg,
-            body: Column(
-              children: [
-                _workbenchBar(t),
-                Expanded(
-                  child: Container(
-                    color: t.bg,
-                    padding: EdgeInsets.all(dev.$3 != null ? 20.0 : 0.0),
-                    alignment: Alignment.center,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(dev.$3 != null ? 14.0 : 0.0),
-                      child: Container(
-                        width: dev.$3,
-                        decoration: BoxDecoration(
-                          color: t.bg,
-                          border: dev.$3 != null ? Border.all(color: t.borderStrong) : null,
-                          borderRadius: BorderRadius.circular(dev.$3 != null ? 14.0 : 0.0),
-                          boxShadow: dev.$3 != null ? NavigationSidebarThemeData.popShadow : null,
+      child: Builder(
+        builder: (context) {
+          final t = NavigationSidebarThemeData.of(context);
+          final dev = _devices.firstWhere((d) => d.$1 == _device);
+          return Directionality(
+            textDirection: _dir,
+            child: Scaffold(
+              backgroundColor: t.bg,
+              body: Column(
+                children: [
+                  _workbenchBar(t),
+                  Expanded(
+                    child: Container(
+                      color: t.bg,
+                      padding: EdgeInsets.all(dev.$3 != null ? 20.0 : 0.0),
+                      alignment: Alignment.center,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(
+                          dev.$3 != null ? 14.0 : 0.0,
                         ),
-                        clipBehavior: Clip.antiAlias,
-                        child: LayoutBuilder(builder: (context, c) {
-                          _syncMode(_bp.modeFor(c.maxWidth));
-                          return _NavShell(
-                            controller: _controller,
-                            width: c.maxWidth,
-                            light: _light,
-                            setTheme: _setTheme,
-                            tenant: _tenant,
-                            onTenant: (id) => setState(() => _tenant = id),
-                          );
-                        }),
+                        child: Container(
+                          width: dev.$3,
+                          decoration: BoxDecoration(
+                            color: t.bg,
+                            border: dev.$3 != null
+                                ? Border.all(color: t.borderStrong)
+                                : null,
+                            borderRadius: BorderRadius.circular(
+                              dev.$3 != null ? 14.0 : 0.0,
+                            ),
+                            boxShadow: dev.$3 != null
+                                ? NavigationSidebarThemeData.popShadow
+                                : null,
+                          ),
+                          clipBehavior: Clip.antiAlias,
+                          child: LayoutBuilder(
+                            builder: (context, c) {
+                              _syncMode(_bp.modeFor(c.maxWidth));
+                              return _NavShell(
+                                controller: _controller,
+                                width: c.maxWidth,
+                                light: _light,
+                                setTheme: _setTheme,
+                                tenant: _tenant,
+                                onTenant: (id) => setState(() => _tenant = id),
+                              );
+                            },
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        );
-      }),
+          );
+        },
+      ),
     );
   }
 
@@ -293,26 +401,53 @@ class _NavigationSidebarDemoState extends State<NavigationSidebarDemo> {
       ),
       child: Row(
         children: [
-          Container(width: 7, height: 7, decoration: const BoxDecoration(color: NavigationSidebarThemeData.accent, shape: BoxShape.circle)),
+          Container(
+            width: 7,
+            height: 7,
+            decoration: const BoxDecoration(
+              color: NavigationSidebarThemeData.accent,
+              shape: BoxShape.circle,
+            ),
+          ),
           const SizedBox(width: 10),
           Flexible(
             child: Text(
               'NavigationSidebar — isolated workbench · MVC',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontFamily: NavigationSidebarThemeData.monoFont, fontSize: 11, letterSpacing: 0.4, color: t.fg3),
+              style: TextStyle(
+                fontFamily: NavigationSidebarThemeData.monoFont,
+                fontSize: 11,
+                letterSpacing: 0.4,
+                color: t.fg3,
+              ),
             ),
           ),
           const Spacer(),
-          _seg<TextDirection>(t, const [(TextDirection.ltr, 'LTR'), (TextDirection.rtl, 'RTL')], _dir, (v) => setState(() => _dir = v)),
+          _seg<TextDirection>(
+            t,
+            const [(TextDirection.ltr, 'LTR'), (TextDirection.rtl, 'RTL')],
+            _dir,
+            (v) => setState(() => _dir = v),
+          ),
           const SizedBox(width: 8),
-          _seg<_Device>(t, [for (final d in _devices) (d.$1, d.$2)], _device, (v) => setState(() => _device = v)),
+          _seg<_Device>(
+            t,
+            [for (final d in _devices) (d.$1, d.$2)],
+            _device,
+            (v) => setState(() => _device = v),
+          ),
         ],
       ),
     );
   }
 
-  Widget _seg<V>(NavigationSidebarThemeData t, List<(V, String)> options, V value, ValueChanged<V> onPick) {
+  Widget _seg<V>(
+    NavigationSidebarThemeData t,
+    List<(V, String)> options,
+    V value,
+    ValueChanged<V> onPick,
+  ) {
     return Container(
       padding: const EdgeInsets.all(2),
       decoration: BoxDecoration(
@@ -332,7 +467,15 @@ class _NavigationSidebarDemoState extends State<NavigationSidebarDemo> {
                 decoration: BoxDecoration(
                   color: o.$1 == value ? t.surface : Colors.transparent,
                   borderRadius: BorderRadius.circular(4),
-                  boxShadow: o.$1 == value ? const [BoxShadow(color: Color(0x40000000), blurRadius: 2, offset: Offset(0, 1))] : null,
+                  boxShadow: o.$1 == value
+                      ? const [
+                          BoxShadow(
+                            color: Color(0x40000000),
+                            blurRadius: 2,
+                            offset: Offset(0, 1),
+                          ),
+                        ]
+                      : null,
                 ),
                 child: Text(
                   o.$2,
@@ -384,51 +527,62 @@ class _NavShell extends StatelessWidget {
       mode: mode,
       tenant: tenant,
       onTenant: onTenant,
-      onMenu: () => mode == NavSidebarMode.drawer ? controller.toggleDrawer() : controller.toggleCollapsed(),
+      onMenu: () => mode == NavSidebarMode.drawer
+          ? controller.toggleDrawer()
+          : controller.toggleCollapsed(),
     );
 
     if (mode == NavSidebarMode.drawer) {
       return Container(
         color: t.bg,
-        child: Column(children: [
+        child: Column(
+          children: [
+            appBar,
+            Expanded(
+              child: Stack(
+                children: [
+                  Positioned.fill(child: _FauxPage(controller: controller)),
+                  Positioned.fill(
+                    child: NavigationSidebar<String>(
+                      controller: controller,
+                      mode: NavSidebarMode.drawer,
+                      allowSearchView: true,
+                      searchHint: 'Search tabs & actions…',
+                      footer: footer,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final sidebarMode =
+        controller.collapsed ? NavSidebarMode.rail : NavSidebarMode.expanded;
+
+    return Container(
+      color: t.bg,
+      child: Column(
+        children: [
           appBar,
           Expanded(
-            child: Stack(children: [
-              Positioned.fill(child: _FauxPage(controller: controller)),
-              Positioned.fill(
-                child: NavigationSidebar<String>(
+            child: Row(
+              children: [
+                NavigationSidebar<String>(
                   controller: controller,
-                  mode: NavSidebarMode.drawer,
+                  mode: sidebarMode,
                   allowSearchView: true,
                   searchHint: 'Search tabs & actions…',
                   footer: footer,
                 ),
-              ),
-            ]),
-          ),
-        ]),
-      );
-    }
-
-    final sidebarMode = controller.collapsed ? NavSidebarMode.rail : NavSidebarMode.expanded;
-
-    return Container(
-      color: t.bg,
-      child: Column(children: [
-        appBar,
-        Expanded(
-          child: Row(children: [
-            NavigationSidebar<String>(
-              controller: controller,
-              mode: sidebarMode,
-              allowSearchView: true,
-              searchHint: 'Search tabs & actions…',
-              footer: footer,
+                Expanded(child: _FauxPage(controller: controller)),
+              ],
             ),
-            Expanded(child: _FauxPage(controller: controller)),
-          ]),
-        ),
-      ]),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -447,7 +601,12 @@ class _Logo extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Image.asset('assets/logo-mark.png', width: size, height: size, fit: BoxFit.contain),
+        Image.asset(
+          'assets/logo-mark.png',
+          width: size,
+          height: size,
+          fit: BoxFit.contain,
+        ),
         if (wordmark) ...[
           const SizedBox(width: 10),
           Text(
@@ -472,10 +631,23 @@ class _Hamburger extends StatelessWidget {
   const _Hamburger({required this.color});
   @override
   Widget build(BuildContext context) {
-    Widget bar() => Container(width: 18, height: 2, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(2)));
+    Widget bar() => Container(
+          width: 18,
+          height: 2,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(2),
+          ),
+        );
     return Column(
       mainAxisSize: MainAxisSize.min,
-      children: [bar(), const SizedBox(height: 4), bar(), const SizedBox(height: 4), bar()],
+      children: [
+        bar(),
+        const SizedBox(height: 4),
+        bar(),
+        const SizedBox(height: 4),
+        bar(),
+      ],
     );
   }
 }
@@ -488,7 +660,12 @@ class _AppBar extends StatelessWidget {
   final int tenant;
   final ValueChanged<int> onTenant;
   final VoidCallback onMenu;
-  const _AppBar({required this.mode, required this.tenant, required this.onTenant, required this.onMenu});
+  const _AppBar({
+    required this.mode,
+    required this.tenant,
+    required this.onTenant,
+    required this.onMenu,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -496,7 +673,8 @@ class _AppBar extends StatelessWidget {
     final mobile = mode == NavSidebarMode.drawer;
     final tight = mode != NavSidebarMode.expanded; // compact clusters on tablet
 
-    Widget iconBtn({required Widget child, VoidCallback? onTap}) => GestureDetector(
+    Widget iconBtn({required Widget child, VoidCallback? onTap}) =>
+        GestureDetector(
           onTap: onTap,
           child: Container(
             width: 40,
@@ -519,15 +697,20 @@ class _AppBar extends StatelessWidget {
           color: t.surface,
           border: Border(bottom: BorderSide(color: t.border)),
         ),
-        child: Row(children: [
-          iconBtn(onTap: onMenu, child: _Hamburger(color: t.fg1)),
-          const SizedBox(width: 10),
-          const _Logo(size: 22, wordmark: false),
-          const Spacer(),
-          _WorkspaceMenu(tenant: tenant, onTenant: onTenant, compact: true),
-          const SizedBox(width: 8),
-          const _UserMenu(compact: true),
-        ]),
+        child: Row(
+          children: [
+            iconBtn(
+              onTap: onMenu,
+              child: _Hamburger(color: t.fg1),
+            ),
+            const SizedBox(width: 10),
+            const _Logo(size: 22, wordmark: false),
+            const Spacer(),
+            _WorkspaceMenu(tenant: tenant, onTenant: onTenant, compact: true),
+            const SizedBox(width: 8),
+            const _UserMenu(compact: true),
+          ],
+        ),
       );
     }
 
@@ -539,22 +722,36 @@ class _AppBar extends StatelessWidget {
         color: t.surface,
         border: Border(bottom: BorderSide(color: t.border)),
       ),
-      child: Row(children: [
-        Expanded(
-          child: Row(children: [
-            iconBtn(onTap: onMenu, child: _Hamburger(color: t.fg1)),
-            const SizedBox(width: 14),
-            Flexible(child: _Logo(size: 24, wordmark: !tight)),
-          ]),
-        ),
-        Expanded(
-          child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-            _WorkspaceMenu(tenant: tenant, onTenant: onTenant, compact: tight),
-            const SizedBox(width: 12),
-            _UserMenu(compact: tight),
-          ]),
-        ),
-      ]),
+      child: Row(
+        children: [
+          Expanded(
+            child: Row(
+              children: [
+                iconBtn(
+                  onTap: onMenu,
+                  child: _Hamburger(color: t.fg1),
+                ),
+                const SizedBox(width: 14),
+                Flexible(child: _Logo(size: 24, wordmark: !tight)),
+              ],
+            ),
+          ),
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                _WorkspaceMenu(
+                  tenant: tenant,
+                  onTenant: onTenant,
+                  compact: tight,
+                ),
+                const SizedBox(width: 12),
+                _UserMenu(compact: tight),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -564,18 +761,32 @@ class _WorkspaceMenu extends StatelessWidget {
   final int tenant;
   final ValueChanged<int> onTenant;
   final bool compact;
-  const _WorkspaceMenu({required this.tenant, required this.onTenant, required this.compact});
+  const _WorkspaceMenu({
+    required this.tenant,
+    required this.onTenant,
+    required this.compact,
+  });
 
   @override
   Widget build(BuildContext context) {
     final t = NavigationSidebarThemeData.of(context);
-    final cur = _tenants.firstWhere((e) => e.$1 == tenant, orElse: () => _tenants.first);
+    final cur = _tenants.firstWhere(
+      (e) => e.$1 == tenant,
+      orElse: () => _tenants.first,
+    );
     Widget icon(double s) => Container(
           width: s,
           height: s,
           alignment: Alignment.center,
-          decoration: BoxDecoration(color: NavigationSidebarThemeData.accent.withValues(alpha: 0.18), borderRadius: BorderRadius.circular(7)),
-          child: Icon(Icons.apartment, size: s * 0.56, color: NavigationSidebarThemeData.accent),
+          decoration: BoxDecoration(
+            color: NavigationSidebarThemeData.accent.withValues(alpha: 0.18),
+            borderRadius: BorderRadius.circular(7),
+          ),
+          child: Icon(
+            Icons.apartment,
+            size: s * 0.56,
+            color: NavigationSidebarThemeData.accent,
+          ),
         );
 
     return _HeaderMenu(
@@ -589,49 +800,117 @@ class _WorkspaceMenu extends StatelessWidget {
         decoration: BoxDecoration(
           color: open ? t.hover : t.inputBg,
           borderRadius: BorderRadius.circular(t.radiusLg),
-          border: Border.all(color: open ? NavigationSidebarThemeData.accent : t.border),
-        ),
-        child: Row(mainAxisSize: MainAxisSize.min, children: [
-          icon(26),
-          if (!compact) ...[
-            const SizedBox(width: 9),
-            ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 150),
-              child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
-                Text(cur.$2, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: t.fg1)),
-                Text('TENANT ${cur.$1}', style: TextStyle(fontFamily: NavigationSidebarThemeData.monoFont, fontSize: 9.5, color: t.fg3, letterSpacing: 0.4)),
-              ]),
-            ),
-            const SizedBox(width: 8),
-            Icon(Icons.keyboard_arrow_down, size: 14, color: t.fg3),
-          ],
-        ]),
-      ),
-      menu: (close) => Column(crossAxisAlignment: CrossAxisAlignment.stretch, mainAxisSize: MainAxisSize.min, children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(10, 6, 10, 8),
-          child: Text('SWITCH WORKSPACE', style: TextStyle(fontFamily: NavigationSidebarThemeData.monoFont, fontSize: 10, letterSpacing: 1.2, color: t.fg4)),
-        ),
-        for (final e in _tenants)
-          _MenuRow(
-            active: e.$1 == tenant,
-            onTap: () {
-              onTenant(e.$1);
-              close();
-            },
-            child: Row(children: [
-              icon(28),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
-                  Text(e.$2, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: e.$1 == tenant ? NavigationSidebarThemeData.accent : t.fg1)),
-                  Text('${e.$3} · Tenant ${e.$1}', style: TextStyle(fontSize: 10.5, fontFamily: NavigationSidebarThemeData.monoFont, color: t.fg3)),
-                ]),
-              ),
-              if (e.$1 == tenant) const Icon(Icons.check, size: 15, color: NavigationSidebarThemeData.accent),
-            ]),
+          border: Border.all(
+            color: open ? NavigationSidebarThemeData.accent : t.border,
           ),
-      ]),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            icon(26),
+            if (!compact) ...[
+              const SizedBox(width: 9),
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 150),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      cur.$2,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w600,
+                        color: t.fg1,
+                      ),
+                    ),
+                    Text(
+                      'TENANT ${cur.$1}',
+                      style: TextStyle(
+                        fontFamily: NavigationSidebarThemeData.monoFont,
+                        fontSize: 9.5,
+                        color: t.fg3,
+                        letterSpacing: 0.4,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Icon(Icons.keyboard_arrow_down, size: 14, color: t.fg3),
+            ],
+          ],
+        ),
+      ),
+      menu: (close) => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(10, 6, 10, 8),
+            child: Text(
+              'SWITCH WORKSPACE',
+              style: TextStyle(
+                fontFamily: NavigationSidebarThemeData.monoFont,
+                fontSize: 10,
+                letterSpacing: 1.2,
+                color: t.fg4,
+              ),
+            ),
+          ),
+          for (final e in _tenants)
+            _MenuRow(
+              active: e.$1 == tenant,
+              onTap: () {
+                onTenant(e.$1);
+                close();
+              },
+              child: Row(
+                children: [
+                  icon(28),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          e.$2,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: e.$1 == tenant
+                                ? NavigationSidebarThemeData.accent
+                                : t.fg1,
+                          ),
+                        ),
+                        Text(
+                          '${e.$3} · Tenant ${e.$1}',
+                          style: TextStyle(
+                            fontSize: 10.5,
+                            fontFamily: NavigationSidebarThemeData.monoFont,
+                            color: t.fg3,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (e.$1 == tenant)
+                    const Icon(
+                      Icons.check,
+                      size: 15,
+                      color: NavigationSidebarThemeData.accent,
+                    ),
+                ],
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
@@ -648,9 +927,18 @@ class _UserMenu extends StatelessWidget {
         decoration: BoxDecoration(
           color: NavigationSidebarThemeData.accent.withValues(alpha: 0.16),
           shape: BoxShape.circle,
-          border: Border.all(color: NavigationSidebarThemeData.accent.withValues(alpha: 0.35)),
+          border: Border.all(
+            color: NavigationSidebarThemeData.accent.withValues(alpha: 0.35),
+          ),
         ),
-        child: Text('SM', style: TextStyle(fontSize: s * 0.36, fontWeight: FontWeight.w700, color: NavigationSidebarThemeData.accent)),
+        child: Text(
+          'SM',
+          style: TextStyle(
+            fontSize: s * 0.36,
+            fontWeight: FontWeight.w700,
+            color: NavigationSidebarThemeData.accent,
+          ),
+        ),
       );
 
   @override
@@ -667,50 +955,126 @@ class _UserMenu extends StatelessWidget {
           borderRadius: BorderRadius.circular(t.radiusLg),
           border: Border.all(color: open ? t.borderStrong : Colors.transparent),
         ),
-        child: Row(mainAxisSize: MainAxisSize.min, children: [
-          _avatar(t, 32),
-          if (!compact) ...[
-            const SizedBox(width: 9),
-            Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
-              Text('Sara Mansour', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: t.fg1)),
-              Text('Administrator', style: TextStyle(fontFamily: NavigationSidebarThemeData.monoFont, fontSize: 10, color: t.fg3, letterSpacing: 0.4)),
-            ]),
-            const SizedBox(width: 8),
-            Icon(Icons.keyboard_arrow_down, size: 14, color: t.fg3),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _avatar(t, 32),
+            if (!compact) ...[
+              const SizedBox(width: 9),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Sara Mansour',
+                    style: TextStyle(
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w600,
+                      color: t.fg1,
+                    ),
+                  ),
+                  Text(
+                    'Administrator',
+                    style: TextStyle(
+                      fontFamily: NavigationSidebarThemeData.monoFont,
+                      fontSize: 10,
+                      color: t.fg3,
+                      letterSpacing: 0.4,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(width: 8),
+              Icon(Icons.keyboard_arrow_down, size: 14, color: t.fg3),
+            ],
           ],
-        ]),
-      ),
-      menu: (close) => Column(crossAxisAlignment: CrossAxisAlignment.stretch, mainAxisSize: MainAxisSize.min, children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(10, 8, 10, 12),
-          child: Row(children: [
-            _avatar(t, 38),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
-                Text('Sara Mansour', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: t.fg1)),
-                Text('sara.mansour@alrashid.co', maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 11, fontFamily: NavigationSidebarThemeData.monoFont, color: t.fg3)),
-              ]),
-            ),
-          ]),
         ),
-        Container(height: 1, color: t.border),
-        const SizedBox(height: 6),
-        _MenuRow(onTap: close, child: _menuLabel(t, Icons.person_outline, 'Profile')),
-        _MenuRow(onTap: close, child: _menuLabel(t, Icons.settings_outlined, 'Settings')),
-        Container(height: 1, color: t.border, margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 4)),
-        _MenuRow(onTap: close, child: _menuLabel(t, Icons.logout, 'Sign out', danger: true)),
-      ]),
+      ),
+      menu: (close) => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(10, 8, 10, 12),
+            child: Row(
+              children: [
+                _avatar(t, 38),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Sara Mansour',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: t.fg1,
+                        ),
+                      ),
+                      Text(
+                        'sara.mansour@alrashid.co',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontFamily: NavigationSidebarThemeData.monoFont,
+                          color: t.fg3,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(height: 1, color: t.border),
+          const SizedBox(height: 6),
+          _MenuRow(
+            onTap: close,
+            child: _menuLabel(t, Icons.person_outline, 'Profile'),
+          ),
+          _MenuRow(
+            onTap: close,
+            child: _menuLabel(t, Icons.settings_outlined, 'Settings'),
+          ),
+          Container(
+            height: 1,
+            color: t.border,
+            margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
+          ),
+          _MenuRow(
+            onTap: close,
+            child: _menuLabel(t, Icons.logout, 'Sign out', danger: true),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _menuLabel(NavigationSidebarThemeData t, IconData icon, String label, {bool danger = false}) {
+  Widget _menuLabel(
+    NavigationSidebarThemeData t,
+    IconData icon,
+    String label, {
+    bool danger = false,
+  }) {
     final c = danger ? NavigationSidebarThemeData.danger : t.fg1;
-    return Row(children: [
-      Icon(icon, size: 15, color: danger ? NavigationSidebarThemeData.danger : t.fg3),
-      const SizedBox(width: 10),
-      Text(label, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: c)),
-    ]);
+    return Row(
+      children: [
+        Icon(
+          icon,
+          size: 15,
+          color: danger ? NavigationSidebarThemeData.danger : t.fg3,
+        ),
+        const SizedBox(width: 10),
+        Text(
+          label,
+          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: c),
+        ),
+      ],
+    );
   }
 }
 
@@ -722,7 +1086,12 @@ class _HeaderMenu extends StatefulWidget {
   final Widget Function(VoidCallback close) menu;
   final double width;
   final _MenuAlign align;
-  const _HeaderMenu({required this.button, required this.menu, required this.width, required this.align});
+  const _HeaderMenu({
+    required this.button,
+    required this.menu,
+    required this.width,
+    required this.align,
+  });
 
   @override
   State<_HeaderMenu> createState() => _HeaderMenuState();
@@ -765,38 +1134,44 @@ class _HeaderMenuState extends State<_HeaderMenu> {
         : (rtl ? Alignment.topLeft : Alignment.topRight);
 
     _entry = OverlayEntry(
-      builder: (ctx) => Stack(children: [
-        Positioned.fill(
-          child: GestureDetector(behavior: HitTestBehavior.opaque, onTap: _close, child: const SizedBox.shrink()),
-        ),
-        CompositedTransformFollower(
-          link: _link,
-          showWhenUnlinked: false,
-          targetAnchor: target,
-          followerAnchor: follower,
-          offset: const Offset(0, 8),
-          child: Theme(
-            data: themeData,
-            child: Directionality(
-              textDirection: rtl ? TextDirection.rtl : TextDirection.ltr,
-              child: Material(
-                color: Colors.transparent,
-                child: Container(
-                  width: widget.width,
-                  decoration: BoxDecoration(
-                    color: t.surface,
-                    borderRadius: BorderRadius.circular(t.radiusLg),
-                    border: Border.all(color: t.borderStrong),
-                    boxShadow: NavigationSidebarThemeData.popShadow,
+      builder: (ctx) => Stack(
+        children: [
+          Positioned.fill(
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: _close,
+              child: const SizedBox.shrink(),
+            ),
+          ),
+          CompositedTransformFollower(
+            link: _link,
+            showWhenUnlinked: false,
+            targetAnchor: target,
+            followerAnchor: follower,
+            offset: const Offset(0, 8),
+            child: Theme(
+              data: themeData,
+              child: Directionality(
+                textDirection: rtl ? TextDirection.rtl : TextDirection.ltr,
+                child: Material(
+                  color: Colors.transparent,
+                  child: Container(
+                    width: widget.width,
+                    decoration: BoxDecoration(
+                      color: t.surface,
+                      borderRadius: BorderRadius.circular(t.radiusLg),
+                      border: Border.all(color: t.borderStrong),
+                      boxShadow: NavigationSidebarThemeData.popShadow,
+                    ),
+                    padding: const EdgeInsets.all(6),
+                    child: widget.menu(_close),
                   ),
-                  padding: const EdgeInsets.all(6),
-                  child: widget.menu(_close),
                 ),
               ),
             ),
           ),
-        ),
-      ]),
+        ],
+      ),
     );
     Overlay.of(context).insert(_entry!);
     setState(() {});
@@ -809,7 +1184,10 @@ class _HeaderMenuState extends State<_HeaderMenu> {
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: _toggle,
-        child: MouseRegion(cursor: SystemMouseCursors.click, child: widget.button(_open)),
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: widget.button(_open),
+        ),
       ),
     );
   }
@@ -819,7 +1197,11 @@ class _MenuRow extends StatefulWidget {
   final Widget child;
   final VoidCallback onTap;
   final bool active;
-  const _MenuRow({required this.child, required this.onTap, this.active = false});
+  const _MenuRow({
+    required this.child,
+    required this.onTap,
+    this.active = false,
+  });
   @override
   State<_MenuRow> createState() => _MenuRowState();
 }
@@ -829,7 +1211,9 @@ class _MenuRowState extends State<_MenuRow> {
   @override
   Widget build(BuildContext context) {
     final t = NavigationSidebarThemeData.of(context);
-    final bg = widget.active ? t.accentFill(0.10) : (_hover ? t.hover : Colors.transparent);
+    final bg = widget.active
+        ? t.accentFill(0.10)
+        : (_hover ? t.hover : Colors.transparent);
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       onEnter: (_) => setState(() => _hover = true),
@@ -839,7 +1223,10 @@ class _MenuRowState extends State<_MenuRow> {
         onTap: widget.onTap,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
-          decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(7)),
+          decoration: BoxDecoration(
+            color: bg,
+            borderRadius: BorderRadius.circular(7),
+          ),
           child: widget.child,
         ),
       ),
@@ -854,121 +1241,164 @@ class _SidebarFooter extends StatelessWidget {
   final bool collapsed;
   final bool light;
   final ValueChanged<bool> setTheme;
-  const _SidebarFooter({required this.collapsed, required this.light, required this.setTheme});
+  const _SidebarFooter({
+    required this.collapsed,
+    required this.light,
+    required this.setTheme,
+  });
 
   @override
   Widget build(BuildContext context) {
     final t = NavigationSidebarThemeData.of(context);
 
     if (collapsed) {
-      return Column(mainAxisSize: MainAxisSize.min, children: [
-        // theme toggle (round indicator)
-        GestureDetector(
-          onTap: () => setTheme(!light),
-          child: Container(
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // theme toggle (round indicator)
+          GestureDetector(
+            onTap: () => setTheme(!light),
+            child: Container(
+              width: 44,
+              height: 44,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: t.inputBg,
+                borderRadius: BorderRadius.circular(t.radiusMd),
+                border: Border.all(color: t.border),
+              ),
+              child: Container(
+                width: 16,
+                height: 16,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: t.fg2, width: 2),
+                  color: light ? Colors.transparent : t.fg2,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          // help
+          Container(
             width: 44,
             height: 44,
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: t.inputBg,
-              borderRadius: BorderRadius.circular(t.radiusMd),
+              borderRadius: BorderRadius.circular(t.radiusLg),
               border: Border.all(color: t.border),
             ),
-            child: Container(
-              width: 16,
-              height: 16,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: t.fg2, width: 2),
-                color: light ? Colors.transparent : t.fg2,
-              ),
-            ),
+            child: Icon(Icons.info_outline, size: 18, color: t.fg2),
           ),
-        ),
-        const SizedBox(height: 10),
-        // help
-        Container(
-          width: 44,
-          height: 44,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: t.inputBg,
-            borderRadius: BorderRadius.circular(t.radiusLg),
-            border: Border.all(color: t.border),
-          ),
-          child: Icon(Icons.info_outline, size: 18, color: t.fg2),
-        ),
-      ]);
+        ],
+      );
     }
 
-    return Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      // ── theme toggle (segmented Dark / Light) ──
-      Container(
-        padding: const EdgeInsets.all(4),
-        decoration: BoxDecoration(
-          color: t.inputBg,
-          borderRadius: BorderRadius.circular(t.radiusMd),
-          border: Border.all(color: t.border),
-        ),
-        child: Row(children: [
-          for (final opt in const [(false, 'DARK'), (true, 'LIGHT')])
-            Expanded(
-              child: GestureDetector(
-                onTap: () => setTheme(opt.$1),
-                child: AnimatedContainer(
-                  duration: NavigationSidebarThemeData.durFast,
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: light == opt.$1 ? t.surface : Colors.transparent,
-                    borderRadius: BorderRadius.circular(4),
-                    boxShadow: light == opt.$1 ? const [BoxShadow(color: Color(0x33000000), blurRadius: 2, offset: Offset(0, 1))] : null,
-                  ),
-                  child: Text(
-                    opt.$2,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 10,
-                      letterSpacing: 1.0,
-                      color: light == opt.$1 ? t.fg1 : t.fg3,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // ── theme toggle (segmented Dark / Light) ──
+        Container(
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            color: t.inputBg,
+            borderRadius: BorderRadius.circular(t.radiusMd),
+            border: Border.all(color: t.border),
+          ),
+          child: Row(
+            children: [
+              for (final opt in const [(false, 'DARK'), (true, 'LIGHT')])
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => setTheme(opt.$1),
+                    child: AnimatedContainer(
+                      duration: NavigationSidebarThemeData.durFast,
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: light == opt.$1 ? t.surface : Colors.transparent,
+                        borderRadius: BorderRadius.circular(4),
+                        boxShadow: light == opt.$1
+                            ? const [
+                                BoxShadow(
+                                  color: Color(0x33000000),
+                                  blurRadius: 2,
+                                  offset: Offset(0, 1),
+                                ),
+                              ]
+                            : null,
+                      ),
+                      child: Text(
+                        opt.$2,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 10,
+                          letterSpacing: 1.0,
+                          color: light == opt.$1 ? t.fg1 : t.fg3,
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ),
-        ]),
-      ),
-      const SizedBox(height: 12),
-      // ── help card ──
-      Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        decoration: BoxDecoration(
-          color: t.inputBg,
-          borderRadius: BorderRadius.circular(t.radiusXl),
-          border: Border.all(color: t.border),
+            ],
+          ),
         ),
-        child: Row(children: [
-          Container(
-            width: 34,
-            height: 34,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: NavigationSidebarThemeData.accent.withValues(alpha: 0.14),
-              borderRadius: BorderRadius.circular(9),
-            ),
-            child: const Icon(Icons.info_outline, size: 18, color: NavigationSidebarThemeData.accent),
+        const SizedBox(height: 12),
+        // ── help card ──
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          decoration: BoxDecoration(
+            color: t.inputBg,
+            borderRadius: BorderRadius.circular(t.radiusXl),
+            border: Border.all(color: t.border),
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
-              Text('Need help?', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: t.fg1)),
-              const SizedBox(height: 1),
-              Text('Go to Help Center →', style: TextStyle(fontSize: 11, color: t.fg3)),
-            ]),
+          child: Row(
+            children: [
+              Container(
+                width: 34,
+                height: 34,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: NavigationSidebarThemeData.accent.withValues(
+                    alpha: 0.14,
+                  ),
+                  borderRadius: BorderRadius.circular(9),
+                ),
+                child: const Icon(
+                  Icons.info_outline,
+                  size: 18,
+                  color: NavigationSidebarThemeData.accent,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Need help?',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: t.fg1,
+                      ),
+                    ),
+                    const SizedBox(height: 1),
+                    Text(
+                      'Go to Help Center →',
+                      style: TextStyle(fontSize: 11, color: t.fg3),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ]),
-      ),
-    ]);
+        ),
+      ],
+    );
   }
 }
 
@@ -986,10 +1416,18 @@ class _FauxPage extends StatelessWidget {
     final node = activeId == null ? null : controller.node(activeId);
     final ancestors = activeId == null
         ? const <String>[]
-        : NavOps.ancestorsOf<String>(controller.sections, activeId)
-            .map((id) => controller.node(id)?.label ?? id)
+        : NavOps.ancestorsOf<String>(
+            controller.sections,
+            activeId,
+          )
+            .map(
+              (id) => _plainExampleLabel(controller.node(id), fallback: id),
+            )
             .toList();
-    final crumb = [...ancestors, if (node != null) node.label].join('  ·  ');
+    final crumb = [
+      ...ancestors,
+      if (node != null) _plainExampleLabel(node, fallback: activeId ?? ''),
+    ].join('  ·  ');
 
     final muted = BoxDecoration(
       color: t.surface,
@@ -1001,26 +1439,62 @@ class _FauxPage extends StatelessWidget {
       color: t.bg,
       child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(40, 32, 40, 40),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(
-            (crumb.isEmpty ? 'Workspace' : crumb).toUpperCase(),
-            style: TextStyle(fontFamily: NavigationSidebarThemeData.monoFont, fontSize: 11, letterSpacing: 1.6, color: t.fg4),
-          ),
-          const SizedBox(height: 14),
-          Opacity(opacity: 0.55, child: Container(height: 28, width: 280, decoration: muted)),
-          const SizedBox(height: 28),
-          LayoutBuilder(builder: (context, c) {
-            final cols = c.maxWidth > 720 ? 3 : (c.maxWidth > 440 ? 2 : 1);
-            final w = (c.maxWidth - (cols - 1) * 20) / cols;
-            return Wrap(spacing: 20, runSpacing: 20, children: [
-              for (int i = 0; i < cols; i++)
-                Opacity(opacity: 0.55, child: Container(width: w, height: 120, decoration: muted)),
-            ]);
-          }),
-          const SizedBox(height: 24),
-          Opacity(opacity: 0.55, child: Container(height: 320, decoration: muted)),
-        ]),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              (crumb.isEmpty ? 'Workspace' : crumb).toUpperCase(),
+              style: TextStyle(
+                fontFamily: NavigationSidebarThemeData.monoFont,
+                fontSize: 11,
+                letterSpacing: 1.6,
+                color: t.fg4,
+              ),
+            ),
+            const SizedBox(height: 14),
+            Opacity(
+              opacity: 0.55,
+              child: Container(height: 28, width: 280, decoration: muted),
+            ),
+            const SizedBox(height: 28),
+            LayoutBuilder(
+              builder: (context, c) {
+                final cols = c.maxWidth > 720 ? 3 : (c.maxWidth > 440 ? 2 : 1);
+                final w = (c.maxWidth - (cols - 1) * 20) / cols;
+                return Wrap(
+                  spacing: 20,
+                  runSpacing: 20,
+                  children: [
+                    for (int i = 0; i < cols; i++)
+                      Opacity(
+                        opacity: 0.55,
+                        child: Container(
+                          width: w,
+                          height: 120,
+                          decoration: muted,
+                        ),
+                      ),
+                  ],
+                );
+              },
+            ),
+            const SizedBox(height: 24),
+            Opacity(
+              opacity: 0.55,
+              child: Container(height: 320, decoration: muted),
+            ),
+          ],
+        ),
       ),
     );
   }
+}
+
+String _plainExampleLabel<T>(NavNode<T>? node, {required String fallback}) {
+  if (node == null) return fallback;
+  final label = node.label;
+  if (label is Text) {
+    return label.data ?? label.textSpan?.toPlainText() ?? node.id;
+  }
+  return node.keywords.isNotEmpty ? node.keywords.first : node.id;
 }

@@ -27,8 +27,7 @@
 //   File: lib/src/models.dart
 // ============================================================
 
-import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart' show IconData;
+import 'package:flutter/widgets.dart';
 
 /// Stable identity of a nav node (the host's own screen/route key).
 typedef NavNodeId = String;
@@ -107,8 +106,8 @@ class NavNode<T> {
   /// unique in debug builds. Duplicate ids cause an assertion failure.
   final NavNodeId id;
 
-  /// Display label (also what the optional search filter matches against).
-  final String label;
+  /// Display label.
+  final Widget label;
 
   /// Optional short screen code (an SAP-style transaction code, e.g. `'JE01'`,
   /// `'AP-INV'`). Rendered as a mono chip in the command palette and matched
@@ -118,11 +117,13 @@ class NavNode<T> {
   /// Extra search terms (synonyms, legacy names, Arabic/English aliases).
   /// Never rendered — only matched by the tree filter and the command
   /// palette. Wrapped in [List.unmodifiable] at construction.
-  final List<String>? keywords;
+  final List<String> keywords;
 
-  /// Leading icon. Optional for [NavNodeRole.group] headers (they show a
+  /// Leading leadingIcon. Optional for [NavNodeRole.group] headers (they show a
   /// bullet), required-in-spirit for everything else.
-  final IconData? icon;
+  final Widget? leadingIcon;
+
+  final Widget? trailingIcon;
 
   /// Child nodes. Empty for a leaf.
   ///
@@ -132,7 +133,6 @@ class NavNode<T> {
 
   /// Optional trailing badge (count or status).
   final NavBadge? badge;
-
 
   /// Strongly-typed payload travelling with the node (`null` for structural
   /// nodes).
@@ -161,8 +161,9 @@ class NavNode<T> {
     required this.id,
     required this.label,
     this.code,
-    List<String>? keywords,
-    this.icon,
+    List<String> keywords = const [],
+    this.leadingIcon,
+    this.trailingIcon,
     List<NavNode<T>>? children,
     this.badge,
     this.value,
@@ -170,7 +171,7 @@ class NavNode<T> {
     this.locked = false,
     this.lockMessage,
     this.status = NavNodeStatus.none,
-  }) : keywords = keywords == null ? null : List.unmodifiable(keywords),
+  }) : keywords = List.unmodifiable(keywords),
        children = children == null ? const [] : List.unmodifiable(children);
 
   bool get hasChildren => children.isNotEmpty;
@@ -178,10 +179,11 @@ class NavNode<T> {
 
   NavNode<T> copyWith({
     NavNodeId? id,
-    String? label,
+    Widget? label,
     String? code,
     List<String>? keywords,
-    IconData? icon,
+    Widget? leadingIcon,
+    Widget? trailingIcon,
     List<NavNode<T>>? children,
     NavBadge? badge,
     T? value,
@@ -194,7 +196,8 @@ class NavNode<T> {
     label: label ?? this.label,
     code: code ?? this.code,
     keywords: keywords ?? this.keywords,
-    icon: icon ?? this.icon,
+    leadingIcon: leadingIcon ?? this.leadingIcon,
+    trailingIcon: trailingIcon ?? this.trailingIcon,
     children: children ?? List<NavNode<T>>.of(this.children),
     badge: badge ?? this.badge,
     value: value ?? this.value,

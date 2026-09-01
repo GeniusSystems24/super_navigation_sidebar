@@ -78,27 +78,27 @@ final sections = <NavSection<String>>[
     items: [
       NavNode(
         id: 'dashboard',
-        label: 'Dashboard',
+        label: Text('Dashboard'),
         code: 'DB01',
         keywords: const ['overview', 'home'],
-        icon: Icons.dashboard_outlined,
+        leadingIcon: Icon(Icons.dashboard_outlined),
         value: 'dashboard',
       ),
       NavNode(
         id: 'finance',
-        label: 'Finance',
-        icon: Icons.account_balance_outlined,
+        label: Text('Finance'),
+        leadingIcon: Icon(Icons.account_balance_outlined),
         children: [
           NavNode(
             id: 'ledger_group',
-            label: 'General ledger',
+            label: Text('General ledger'),
             children: [
               NavNode(
                 id: 'journals',
-                label: 'Journal entries',
+                label: Text('Journal entries'),
                 code: 'JE01',
                 keywords: const ['voucher', 'posting'],
-                icon: Icons.receipt_long_outlined,
+                leadingIcon: Icon(Icons.receipt_long_outlined),
                 badge: const NavBadge('8', tone: NavBadgeTone.warning),
                 value: 'journals',
               ),
@@ -243,8 +243,8 @@ nav.clearRecents();
 ```dart
 NavNode(
   id: 'year_end_close',
-  label: 'Year-end close',
-  icon: Icons.lock_outline,
+  label: Text('Year-end close'),
+  leadingIcon: Icon(Icons.lock_outline),
   locked: true,
   lockMessage: 'Requires Controller role',
   value: 'year_end_close',
@@ -252,8 +252,8 @@ NavNode(
 
 NavNode(
   id: 'fiscal_period',
-  label: 'Current fiscal period',
-  icon: Icons.calendar_month_outlined,
+  label: Text('Current fiscal period'),
+  leadingIcon: Icon(Icons.calendar_month_outlined),
   status: NavNodeStatus.open,
   value: 'fiscal_period',
 )
@@ -271,8 +271,8 @@ NavSection<String>(
   items: [
     NavNode(
       id: 'settings',
-      label: 'Settings',
-      icon: Icons.settings_outlined,
+      label: Text('Settings'),
+      leadingIcon: Icon(Icons.settings_outlined),
       value: 'settings',
     ),
   ],
@@ -323,3 +323,90 @@ and app-bar/shell-only controller/theme state.
 | `NavSection<T>` | Navigation section. |
 | `NavSidebarBreakpoints` | Responsive mode thresholds. |
 | `NavSidebarStateSnapshot` | Serializable pane/controller state snapshot. |
+
+## NavNode content
+
+`NavNode` accepts widgets for its label and optional leading/trailing icons. This allows navigation items to use rich text, badges, progress indicators, custom icon widgets, or any other Flutter widget without requiring a package-specific wrapper.
+
+```dart
+NavNode(
+  label: const Text('Dashboard'),
+  leadingIcon: const Icon(Icons.dashboard_outlined),
+  trailingIcon: const Icon(Icons.chevron_right),
+)
+```
+
+Only `label` is required. Omit `leadingIcon` or `trailingIcon` when that position is not needed.
+
+## Navigation node content
+
+Starting with version `3.1.0`, navigation content is Widget-based.
+
+`NavNode.label` accepts any `Widget`, so labels are no longer limited to plain
+text. `leadingIcon` and `trailingIcon` also accept Widgets, allowing navigation
+items to use custom visual content without forcing it into `String` or
+`IconData`.
+
+```dart
+NavNode(
+  label: const Text('Dashboard'),
+  leadingIcon: const Icon(Icons.dashboard_outlined),
+  trailingIcon: const Icon(Icons.chevron_right),
+  keywords: const ['dashboard', 'home'],
+)
+```
+
+A label can also be a custom widget:
+
+```dart
+NavNode(
+  label: Row(
+    mainAxisSize: MainAxisSize.min,
+    children: const [
+      Text('Inbox'),
+      SizedBox(width: 8),
+      Badge(label: Text('4')),
+    ],
+  ),
+  leadingIcon: const Icon(Icons.inbox_outlined),
+  keywords: const ['inbox', 'messages', 'mail'],
+)
+```
+
+### Search keywords
+
+Because `label` can be any Widget, the package does not attempt to extract text
+from it. Search and filtering should use `keywords`.
+
+```dart
+NavNode(
+  label: const Text('Customer Accounts'),
+  leadingIcon: const Icon(Icons.people_outline),
+  keywords: const [
+    'customer accounts',
+    'customers',
+    'accounts',
+  ],
+)
+```
+
+`keywords` is non-nullable in `3.1.0`. If no search terms are needed, omit the
+argument and the default empty list is used.
+
+### Leading and trailing content
+
+Both icon positions accept arbitrary Widgets:
+
+```dart
+NavNode(
+  label: const Text('Notifications'),
+  leadingIcon: const Icon(Icons.notifications_outlined),
+  trailingIcon: const Badge(
+    label: Text('12'),
+  ),
+  keywords: const ['notifications', 'alerts'],
+)
+```
+
+Do not convert `label` to `String`, and do not convert `leadingIcon` or
+`trailingIcon` back to `IconData`. Render these values directly as Widgets.

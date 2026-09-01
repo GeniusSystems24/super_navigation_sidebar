@@ -1,5 +1,30 @@
 # 3.0.0
 
+## 3.1.0
+
+### Breaking changes
+
+- Changed `NavNode.label` from `String` to `Widget`.
+- Replaced `NavNode.icon` (`IconData?`) with `NavNode.leadingIcon` (`Widget?`).
+- Added `NavNode.trailingIcon` (`Widget?`).
+- Changed `NavNode.keywords` from `List<String>?` to `List<String>`.
+- Updated navigation search results to use Widget-based labels and icons.
+- Updated `NavSearchHit.label` to `Widget`.
+- Replaced the old `NavSearchHit.icon` model with `leadingIcon` and added `trailingIcon`.
+- Changed `NavSearchHit.keywords` to a non-nullable `List<String>`.
+
+### Search behavior
+
+- Searchable text is now provided explicitly through `keywords`.
+- Navigation labels are treated as arbitrary Widgets and are not converted to text.
+- Widget icons are rendered directly and are not converted back to `IconData`.
+
+### Documentation
+
+- Updated the README for the Widget-based navigation content API.
+- Updated package skill documentation.
+- Added `migration_3.0.0_to_3.1.0.md`.
+
 ## Breaking architecture cleanup
 
 - Removed the package-owned integrated application chrome: the 2.x integrated shell, sidebar-specific app-bar layer, breadcrumb helper, and app-bar search-field helper. Host applications now own `Scaffold`, app bars, routing, back navigation, and responsive page composition.

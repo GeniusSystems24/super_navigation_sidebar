@@ -124,10 +124,82 @@ NavSection<String>(
   items: [
     NavNode(
       id: 'settings',
-      label: 'Settings',
-      icon: Icons.settings_outlined,
+      label: Text('Settings'),
+      leadingIcon: Icon(Icons.settings_outlined),
       value: 'settings',
     ),
   ],
 )
 ```
+
+## Version 3.1.0 navigation content rules
+
+When working with `NavNode` or navigation search results, follow these rules:
+
+- `NavNode.label` is a `Widget`, not a `String`.
+- `NavNode.leadingIcon` is `Widget?`.
+- `NavNode.trailingIcon` is `Widget?`.
+- `NavNode.keywords` is `List<String>` and defaults to an empty list.
+- `NavSearchHit.label` is a `Widget`.
+- `NavSearchHit.leadingIcon` and `NavSearchHit.trailingIcon` are Widgets.
+- `NavSearchHit.keywords` is a non-nullable `List<String>`.
+- Render label and icon Widgets directly.
+- Never assume the label is `Text`.
+- Never call `toString()` on a label for search or display behavior.
+- Never introduce helpers that attempt to extract `String` from an arbitrary
+  Widget.
+- Never convert navigation icon Widgets back to `IconData`.
+- Use `keywords` for search, matching, indexing, and text-only navigation
+  metadata.
+
+### Creating navigation nodes
+
+For a plain text label:
+
+```dart
+NavNode(
+  label: const Text('Settings'),
+  leadingIcon: const Icon(Icons.settings_outlined),
+  keywords: const ['settings', 'preferences'],
+)
+```
+
+For a custom label:
+
+```dart
+NavNode(
+  label: Row(
+    mainAxisSize: MainAxisSize.min,
+    children: const [
+      Text('Messages'),
+      SizedBox(width: 8),
+      Badge(label: Text('3')),
+    ],
+  ),
+  leadingIcon: const Icon(Icons.chat_bubble_outline),
+  keywords: const ['messages', 'chat'],
+)
+```
+
+### Migration rule
+
+Old:
+
+```dart
+NavNode(
+  label: 'Settings',
+  icon: Icons.settings,
+)
+```
+
+New:
+
+```dart
+NavNode(
+  label: const Text('Settings'),
+  leadingIcon: const Icon(Icons.settings),
+)
+```
+
+If search previously depended on `label`, move the searchable text into
+`keywords` instead of reading text from the Widget.

@@ -30,10 +30,11 @@ enum NavigationSearchViewMode {
 @immutable
 class NavSearchHit {
   final NavNodeId id;
-  final String label;
+  final Widget label;
+  final Widget? leadingIcon;
+  final Widget? trailingIcon;
   final String? code;
-  final List<String>? keywords;
-  final IconData icon;
+  final List<String> keywords;
   final String module;
   final String group;
   final NavBadge? badge;
@@ -41,17 +42,26 @@ class NavSearchHit {
   const NavSearchHit({
     required this.id,
     required this.label,
+    this.leadingIcon,
+    this.trailingIcon,
     this.code,
-    this.keywords,
-    required this.icon,
+    this.keywords = const [],
     required this.module,
     required this.group,
     this.badge,
   });
 
   String get haystack =>
-      '$label ${code ?? ''} ${keywords?.join(' ') ?? ''} $group $module'
+      '${_plainLabelFromWidget(label, fallback: id)} ${code ?? ''} '
+              '${keywords.join(' ')} $group $module'
           .toLowerCase();
+}
+
+String _plainLabelFromWidget(Widget label, {required String fallback}) {
+  if (label is Text) {
+    return label.data ?? label.textSpan?.toPlainText() ?? fallback;
+  }
+  return fallback;
 }
 
 /// Helpers for building and querying the navigation search index.
@@ -69,7 +79,8 @@ class NavSearchOps {
               label: top.label,
               code: top.code,
               keywords: top.keywords,
-              icon: top.icon ?? Icons.circle_outlined,
+              leadingIcon: top.leadingIcon,
+              trailingIcon: top.trailingIcon,
               module: section.title,
               group: '',
               badge: top.badge,
@@ -79,7 +90,9 @@ class NavSearchOps {
         }
 
         for (final group in top.children) {
-          final leaves = group.hasChildren ? group.children : <NavNode<T>>[group];
+          final leaves = group.hasChildren
+              ? group.children
+              : <NavNode<T>>[group];
           for (final leaf in leaves) {
             if (!leaf.isLeaf) continue;
             out.add(
@@ -88,9 +101,12 @@ class NavSearchOps {
                 label: leaf.label,
                 code: leaf.code,
                 keywords: leaf.keywords,
-                icon: leaf.icon ?? Icons.circle_outlined,
-                module: top.label,
-                group: group.hasChildren ? group.label : '',
+                leadingIcon: leaf.leadingIcon,
+                trailingIcon: leaf.trailingIcon,
+                module: _plainLabelFromWidget(top.label, fallback: top.id),
+                group: group.hasChildren
+                    ? _plainLabelFromWidget(group.label, fallback: group.id)
+                    : '',
                 badge: leaf.badge,
               ),
             );
@@ -145,8 +161,11 @@ class NavigationSearchView<T> extends StatefulWidget {
 
 class _NavigationSearchViewState<T> extends State<NavigationSearchView<T>> {
   late List<NavSearchHit> _index;
-  final SuperTextFieldController _searchFieldController =
-      SuperTextFieldController();
+  late final FocusNode _searchFocusNode = FocusNode(
+    onKeyEvent: _onSearchFieldKey,
+  );
+  late final SuperTextFieldController _searchFieldController =
+      SuperTextFieldController(focusNode: _searchFocusNode);
   final ScrollController _resultsScrollController = ScrollController();
   final Map<int, GlobalKey> _resultKeys = <int, GlobalKey>{};
   String _query = '';
@@ -173,6 +192,7 @@ class _NavigationSearchViewState<T> extends State<NavigationSearchView<T>> {
   void dispose() {
     widget.controller.removeListener(_controllerChanged);
     _searchFieldController.dispose();
+    _searchFocusNode.dispose();
     _resultsScrollController.dispose();
     super.dispose();
   }
@@ -223,9 +243,9 @@ class _NavigationSearchViewState<T> extends State<NavigationSearchView<T>> {
   }
 
   GlobalKey _resultKey(int index) => _resultKeys.putIfAbsent(
-        index,
-        () => GlobalKey(debugLabel: 'navigation-search-result-$index'),
-      );
+    index,
+    () => GlobalKey(debugLabel: 'navigation-search-result-$index'),
+  );
 
   void _moveSelection(int delta, int resultCount) {
     if (resultCount == 0) return;
@@ -262,8 +282,11 @@ class _NavigationSearchViewState<T> extends State<NavigationSearchView<T>> {
     if (resultCount == 0 || !_resultsScrollController.hasClients) return;
 
     final selectedIndex = _selected;
-    final alignmentPolicy =
-        _alignmentPolicyFor(selectedIndex, resultCount, direction);
+    final alignmentPolicy = _alignmentPolicyFor(
+      selectedIndex,
+      resultCount,
+      direction,
+    );
     final selectedContext = _resultKeys[selectedIndex]?.currentContext;
     if (selectedContext != null && selectedContext.mounted) {
       Scrollable.ensureVisible(
@@ -285,10 +308,12 @@ class _NavigationSearchViewState<T> extends State<NavigationSearchView<T>> {
     } else if (selectedIndex == resultCount - 1) {
       target = position.maxScrollExtent;
     } else {
-      const fallbackStep = 72.0;
-      target = (position.pixels + (direction > 0 ? fallbackStep : -fallbackStep))
-          .clamp(position.minScrollExtent, position.maxScrollExtent)
-          .toDouble();
+      const estimatedRowExtent = 54.0;
+      target =
+          (selectedIndex * estimatedRowExtent -
+                  position.viewportDimension * 0.45)
+              .clamp(position.minScrollExtent, position.maxScrollExtent)
+              .toDouble();
     }
 
     _resultsScrollController
@@ -298,16 +323,16 @@ class _NavigationSearchViewState<T> extends State<NavigationSearchView<T>> {
           curve: Curves.easeOutCubic,
         )
         .then((_) {
-      if (!mounted || selectedIndex != _selected) return;
-      final context = _resultKeys[selectedIndex]?.currentContext;
-      if (context == null || !context.mounted) return;
-      Scrollable.ensureVisible(
-        context,
-        duration: const Duration(milliseconds: 120),
-        curve: Curves.easeOutCubic,
-        alignmentPolicy: alignmentPolicy,
-      );
-    });
+          if (!mounted || selectedIndex != _selected) return;
+          final context = _resultKeys[selectedIndex]?.currentContext;
+          if (context == null || !context.mounted) return;
+          Scrollable.ensureVisible(
+            context,
+            duration: const Duration(milliseconds: 120),
+            curve: Curves.easeOutCubic,
+            alignmentPolicy: alignmentPolicy,
+          );
+        });
   }
 
   KeyEventResult _onKey(
@@ -336,6 +361,14 @@ class _NavigationSearchViewState<T> extends State<NavigationSearchView<T>> {
     return KeyEventResult.ignored;
   }
 
+  List<NavSearchHit> _currentFlatResults() {
+    return <NavSearchHit>[for (final band in _bands(_results)) ...band.$2];
+  }
+
+  KeyEventResult _onSearchFieldKey(FocusNode node, KeyEvent event) {
+    return _onKey(node, event, _currentFlatResults());
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = NavigationSidebarThemeData.of(context);
@@ -355,23 +388,48 @@ class _NavigationSearchViewState<T> extends State<NavigationSearchView<T>> {
         final height = math.min(math.max(available, 320.0), 720.0);
         return SizedBox(
           height: height,
-          child: Focus(
-            onKeyEvent: (node, event) => _onKey(node, event, flat),
-            child: Material(
-              color: theme.surface,
-              borderRadius: BorderRadius.circular(theme.radiusXl),
-              clipBehavior: Clip.antiAlias,
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  border: Border.all(color: theme.borderStrong),
-                  borderRadius: BorderRadius.circular(theme.radiusXl),
-                ),
-                child: Column(
-                  children: [
-                    _buildInput(theme),
-                    Expanded(child: _buildResults(theme, results, bands, flat)),
-                    if (widget.showKeyboardHints) _buildFooter(theme),
-                  ],
+          child: CallbackShortcuts(
+            bindings: <ShortcutActivator, VoidCallback>{
+              const SingleActivator(LogicalKeyboardKey.arrowDown): () {
+                _moveSelection(1, flat.length);
+              },
+              const SingleActivator(LogicalKeyboardKey.arrowUp): () {
+                _moveSelection(-1, flat.length);
+              },
+              const SingleActivator(LogicalKeyboardKey.enter): () {
+                if (flat.isNotEmpty && _selected < flat.length) {
+                  _pick(flat[_selected].id);
+                }
+              },
+              const SingleActivator(LogicalKeyboardKey.numpadEnter): () {
+                if (flat.isNotEmpty && _selected < flat.length) {
+                  _pick(flat[_selected].id);
+                }
+              },
+              const SingleActivator(LogicalKeyboardKey.escape): () {
+                widget.onClose?.call();
+              },
+            },
+            child: Focus(
+              onKeyEvent: (node, event) => _onKey(node, event, flat),
+              child: Material(
+                color: theme.surface,
+                borderRadius: BorderRadius.circular(theme.radiusXl),
+                clipBehavior: Clip.antiAlias,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: theme.borderStrong),
+                    borderRadius: BorderRadius.circular(theme.radiusXl),
+                  ),
+                  child: Column(
+                    children: [
+                      _buildInput(theme),
+                      Expanded(
+                        child: _buildResults(theme, results, bands, flat),
+                      ),
+                      if (widget.showKeyboardHints) _buildFooter(theme),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -581,12 +639,16 @@ class _NavigationSearchResultRowState
                   color: widget.active ? theme.accentFill(0.16) : theme.inputBg,
                   borderRadius: BorderRadius.circular(theme.radiusMd),
                 ),
-                child: Icon(
-                  widget.hit.icon,
-                  size: 16,
-                  color: widget.active
-                      ? NavigationSidebarThemeData.accent
-                      : theme.fg3,
+                child: IconTheme(
+                  data: IconThemeData(
+                    size: 16,
+                    color: widget.active
+                        ? NavigationSidebarThemeData.accent
+                        : theme.fg3,
+                  ),
+                  child:
+                      widget.hit.leadingIcon ??
+                      const Icon(Icons.circle_outlined),
                 ),
               ),
               const SizedBox(width: 12),
@@ -595,8 +657,7 @@ class _NavigationSearchResultRowState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      widget.hit.label,
+                    DefaultTextStyle.merge(
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
@@ -604,6 +665,7 @@ class _NavigationSearchResultRowState
                         fontWeight: FontWeight.w500,
                         color: theme.fg1,
                       ),
+                      child: widget.hit.label,
                     ),
                     Text(
                       widget.hit.group.isEmpty
@@ -623,7 +685,10 @@ class _NavigationSearchResultRowState
               if (widget.hit.code != null) ...[
                 Container(
                   margin: const EdgeInsetsDirectional.only(end: 6),
-                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 5,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: theme.inputBg,
                     borderRadius: BorderRadius.circular(4),
@@ -741,7 +806,10 @@ Future<void> showNavigationSearchView<T>(
           final screen = MediaQuery.sizeOf(dialogContext);
           return Dialog(
             backgroundColor: Colors.transparent,
-            insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+            insetPadding: const EdgeInsets.symmetric(
+              horizontal: 24,
+              vertical: 40,
+            ),
             child: SizedBox(
               width: math.min(620.0, screen.width - 48),
               height: math.min(620.0, screen.height - 80),

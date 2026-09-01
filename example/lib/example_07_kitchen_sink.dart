@@ -21,17 +21,17 @@ class _KitchenSinkExampleState extends State<KitchenSinkExample> {
       items: [
         NavNode(
           id: 'dashboard',
-          label: 'Dashboard',
+          label: Text('Dashboard'),
           code: 'DB01',
           keywords: const ['overview', 'home'],
-          icon: Icons.dashboard_outlined,
+          leadingIcon: Icon(Icons.dashboard_outlined),
           value: 'dashboard',
         ),
         NavNode(
           id: 'approvals',
-          label: 'Approvals',
+          label: Text('Approvals'),
           code: 'AP01',
-          icon: Icons.approval_outlined,
+          leadingIcon: Icon(Icons.approval_outlined),
           badge: const NavBadge('12', tone: NavBadgeTone.danger),
           value: 'approvals',
         ),
@@ -42,34 +42,34 @@ class _KitchenSinkExampleState extends State<KitchenSinkExample> {
       items: [
         NavNode(
           id: 'finance',
-          label: 'Finance',
-          icon: Icons.account_balance_outlined,
+          label: Text('Finance'),
+          leadingIcon: Icon(Icons.account_balance_outlined),
           children: [
             NavNode(
               id: 'gl',
-              label: 'General ledger',
+              label: Text('General ledger'),
               children: [
                 NavNode(
                   id: 'journals',
-                  label: 'Journal entries',
+                  label: Text('Journal entries'),
                   code: 'JE01',
                   keywords: const ['voucher', 'posting', 'قيد يومية'],
-                  icon: Icons.receipt_long_outlined,
+                  leadingIcon: Icon(Icons.receipt_long_outlined),
                   badge: const NavBadge('9', tone: NavBadgeTone.warning),
                   value: 'journals',
                 ),
                 NavNode(
                   id: 'period',
-                  label: 'Current fiscal period',
+                  label: Text('Current fiscal period'),
                   code: 'FP01',
-                  icon: Icons.calendar_month_outlined,
+                  leadingIcon: Icon(Icons.calendar_month_outlined),
                   status: NavNodeStatus.open,
                   value: 'period',
                 ),
                 NavNode(
                   id: 'restricted',
-                  label: 'Year-end close',
-                  icon: Icons.lock_outline,
+                  label: Text('Year-end close'),
+                  leadingIcon: Icon(Icons.lock_outline),
                   locked: true,
                   lockMessage: 'Requires Controller role',
                   value: 'restricted',
@@ -80,10 +80,10 @@ class _KitchenSinkExampleState extends State<KitchenSinkExample> {
         ),
         NavNode(
           id: 'inventory',
-          label: 'Inventory',
+          label: Text('Inventory'),
           code: 'INV01',
           keywords: const ['stock', 'warehouse'],
-          icon: Icons.inventory_2_outlined,
+          leadingIcon: Icon(Icons.inventory_2_outlined),
           value: 'inventory',
         ),
       ],
@@ -94,9 +94,9 @@ class _KitchenSinkExampleState extends State<KitchenSinkExample> {
       items: [
         NavNode(
           id: 'settings',
-          label: 'Settings',
+          label: Text('Settings'),
           code: 'SET01',
-          icon: Icons.settings_outlined,
+          leadingIcon: Icon(Icons.settings_outlined),
           value: 'settings',
         ),
       ],
@@ -106,7 +106,10 @@ class _KitchenSinkExampleState extends State<KitchenSinkExample> {
   @override
   void initState() {
     super.initState();
-    _nav = NavigationSidebarController<String>(sections: _sections, active: 'dashboard');
+    _nav = NavigationSidebarController<String>(
+      sections: _sections,
+      active: 'dashboard',
+    );
   }
 
   @override
@@ -133,7 +136,9 @@ class _KitchenSinkExampleState extends State<KitchenSinkExample> {
       textDirection: _rtl ? TextDirection.rtl : TextDirection.ltr,
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final mode = const NavSidebarBreakpoints().modeFor(constraints.maxWidth);
+          final mode = const NavSidebarBreakpoints().modeFor(
+            constraints.maxWidth,
+          );
           final searchMode = mode == NavSidebarMode.drawer
               ? NavigationSearchViewMode.sheet
               : NavigationSearchViewMode.dialog;
@@ -163,8 +168,10 @@ class _KitchenSinkExampleState extends State<KitchenSinkExample> {
             onFavorites: (v) => setState(() => _favorites = v),
             onAggregate: (v) => setState(() => _aggregateBadges = v),
             onGuides: (v) => setState(() => _guides = v),
-            onDialogSearch: () => _openSearch(context, NavigationSearchViewMode.dialog),
-            onSheetSearch: () => _openSearch(context, NavigationSearchViewMode.sheet),
+            onDialogSearch: () =>
+                _openSearch(context, NavigationSearchViewMode.dialog),
+            onSheetSearch: () =>
+                _openSearch(context, NavigationSearchViewMode.sheet),
           );
 
           if (mode == NavSidebarMode.drawer) {
@@ -175,7 +182,12 @@ class _KitchenSinkExampleState extends State<KitchenSinkExample> {
               ],
             );
           }
-          return Row(children: [sidebar, Expanded(child: page)]);
+          return Row(
+            children: [
+              sidebar,
+              Expanded(child: page),
+            ],
+          );
         },
       ),
     );
@@ -216,7 +228,10 @@ class _Workbench extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = NavigationSidebarThemeData.of(context);
-    final active = controller.node(controller.active ?? '')?.label ?? 'Dashboard';
+    final active = _plainExampleLabel(
+      controller.node(controller.active ?? ''),
+      fallback: 'Dashboard',
+    );
     return Material(
       color: theme.bg,
       child: SafeArea(
@@ -225,7 +240,11 @@ class _Workbench extends StatelessWidget {
           children: [
             Row(
               children: [
-                if (drawer) IconButton(onPressed: onOpenDrawer, icon: const Icon(Icons.menu)),
+                if (drawer)
+                  IconButton(
+                    onPressed: onOpenDrawer,
+                    icon: const Icon(Icons.menu),
+                  ),
                 Expanded(
                   child: Text(
                     '3.0 Kitchen sink · $active',
@@ -242,15 +261,37 @@ class _Workbench extends StatelessWidget {
               spacing: 10,
               runSpacing: 10,
               children: [
-                FilledButton(onPressed: onDialogSearch, child: const Text('Search dialog')),
-                OutlinedButton(onPressed: onSheetSearch, child: const Text('Search sheet')),
+                FilledButton(
+                  onPressed: onDialogSearch,
+                  child: const Text('Search dialog'),
+                ),
+                OutlinedButton(
+                  onPressed: onSheetSearch,
+                  child: const Text('Search sheet'),
+                ),
               ],
             ),
             const SizedBox(height: 18),
-            SwitchListTile(value: rtl, onChanged: onRtl, title: const Text('RTL + Arabic localization')),
-            SwitchListTile(value: favorites, onChanged: onFavorites, title: const Text('Quick Access favorites')),
-            SwitchListTile(value: aggregateBadges, onChanged: onAggregate, title: const Text('Aggregate numeric badges')),
-            SwitchListTile(value: guides, onChanged: onGuides, title: const Text('Tree connector guides')),
+            SwitchListTile(
+              value: rtl,
+              onChanged: onRtl,
+              title: const Text('RTL + Arabic localization'),
+            ),
+            SwitchListTile(
+              value: favorites,
+              onChanged: onFavorites,
+              title: const Text('Quick Access favorites'),
+            ),
+            SwitchListTile(
+              value: aggregateBadges,
+              onChanged: onAggregate,
+              title: const Text('Aggregate numeric badges'),
+            ),
+            SwitchListTile(
+              value: guides,
+              onChanged: onGuides,
+              title: const Text('Tree connector guides'),
+            ),
             const SizedBox(height: 18),
             Text(
               'Search accepts labels, screen codes, and hidden keywords. Try JE01, voucher, warehouse, or قيد.',
@@ -266,4 +307,13 @@ class _Workbench extends StatelessWidget {
       ),
     );
   }
+}
+
+String _plainExampleLabel<T>(NavNode<T>? node, {required String fallback}) {
+  if (node == null) return fallback;
+  final label = node.label;
+  if (label is Text) {
+    return label.data ?? label.textSpan?.toPlainText() ?? node.id;
+  }
+  return node.keywords.isNotEmpty ? node.keywords.first : node.id;
 }

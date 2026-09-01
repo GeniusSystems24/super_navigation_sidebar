@@ -76,7 +76,6 @@ class NavigationSidebarLocalizations {
   /// [NavNode.lockMessage] is `null`.
   final String lockedDefault;
 
-
   // ── Semantic / accessibility labels ────────────────────────
   /// Appended to a branch node's semantic label when it is expanded.
   final String semanticExpanded;
@@ -95,7 +94,6 @@ class NavigationSidebarLocalizations {
 
   /// Semantic label for the hamburger / open-drawer button in drawer mode.
   final String semanticOpenDrawer;
-
 
   const NavigationSidebarLocalizations({
     this.searchHint = 'Search navigation…',
@@ -145,7 +143,6 @@ class NavigationSidebarLocalizations {
   /// Example: `searchEmptyFor('journals')` → `'No matches for "journals"'`.
   String searchEmptyFor(String query) =>
       searchEmpty.replaceAll('{query}', query);
-
 
   @override
   bool operator ==(Object other) =>

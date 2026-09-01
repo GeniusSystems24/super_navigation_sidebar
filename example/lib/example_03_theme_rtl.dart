@@ -19,31 +19,72 @@ import 'package:flutter/material.dart';
 import 'package:super_navigation_sidebar/super_navigation_sidebar.dart';
 
 final _sections = <NavSection<String>>[
-  NavSection(title: 'Overview', items: [
-    NavNode(id: 'dashboard', label: 'Dashboard',
-            icon: Icons.dashboard_outlined, value: 'dashboard'),
-    NavNode(id: 'reports',   label: 'Reports',
-            icon: Icons.description_outlined, value: 'reports'),
-  ]),
-  NavSection(title: 'Finance', items: [
-    NavNode(id: 'accountsHub', label: 'Accounts',
-            icon: Icons.menu_book_outlined, children: [
-      NavNode(id: 'coaGroup', label: 'Chart of Accounts', children: [
-        NavNode(id: 'accounts',    label: 'Chart of Accounts',
-                icon: Icons.menu_book_outlined, value: 'accounts'),
-        NavNode(id: 'accountTree', label: 'Account Tree',
-                icon: Icons.account_tree_outlined, value: 'accountTree',
-                badge: NavBadge('3')),
-      ]),
-    ]),
-    NavNode(id: 'journals', label: 'Journals',
-            icon: Icons.receipt_long_outlined, value: 'journals',
-            badge: NavBadge('Live', tone: NavBadgeTone.success)),
-  ]),
-  NavSection(title: 'Administration', items: [
-    NavNode(id: 'settings', label: 'Settings',
-            icon: Icons.settings_outlined, value: 'settings'),
-  ]),
+  NavSection(
+    title: 'Overview',
+    items: [
+      NavNode(
+        id: 'dashboard',
+        label: Text('Dashboard'),
+        leadingIcon: Icon(Icons.dashboard_outlined),
+        value: 'dashboard',
+      ),
+      NavNode(
+        id: 'reports',
+        label: Text('Reports'),
+        leadingIcon: Icon(Icons.description_outlined),
+        value: 'reports',
+      ),
+    ],
+  ),
+  NavSection(
+    title: 'Finance',
+    items: [
+      NavNode(
+        id: 'accountsHub',
+        label: Text('Accounts'),
+        leadingIcon: Icon(Icons.menu_book_outlined),
+        children: [
+          NavNode(
+            id: 'coaGroup',
+            label: Text('Chart of Accounts'),
+            children: [
+              NavNode(
+                id: 'accounts',
+                label: Text('Chart of Accounts'),
+                leadingIcon: Icon(Icons.menu_book_outlined),
+                value: 'accounts',
+              ),
+              NavNode(
+                id: 'accountTree',
+                label: Text('Account Tree'),
+                leadingIcon: Icon(Icons.account_tree_outlined),
+                value: 'accountTree',
+                badge: NavBadge('3'),
+              ),
+            ],
+          ),
+        ],
+      ),
+      NavNode(
+        id: 'journals',
+        label: Text('Journals'),
+        leadingIcon: Icon(Icons.receipt_long_outlined),
+        value: 'journals',
+        badge: NavBadge('Live', tone: NavBadgeTone.success),
+      ),
+    ],
+  ),
+  NavSection(
+    title: 'Administration',
+    items: [
+      NavNode(
+        id: 'settings',
+        label: Text('Settings'),
+        leadingIcon: Icon(Icons.settings_outlined),
+        value: 'settings',
+      ),
+    ],
+  ),
 ];
 
 enum _ThemeChoice { dark, light, warm }
@@ -86,27 +127,27 @@ class _ThemeRtlExampleState extends State<ThemeRtlExample> {
         // Warm sidebar — every copyWith field annotated:
         return NavigationSidebarThemeData.light.copyWith(
           // bg: page backdrop behind the sidebar — warm parchment
-          bg:           const Color(0xFFF7F3EE),
+          bg: const Color(0xFFF7F3EE),
           // surface: the sidebar panel fill
-          surface:      const Color(0xFFFFFFFF),
+          surface: const Color(0xFFFFFFFF),
           // inputBg: boxed-icon fill + chip backgrounds
-          inputBg:      const Color(0xFFEEE9E2),
+          inputBg: const Color(0xFFEEE9E2),
           // hover: row hover tint
-          hover:        const Color(0xFFEAE4DB),
+          hover: const Color(0xFFEAE4DB),
           // border: hairline dividers between rows
-          border:       const Color(0xFFDDD7CE),
+          border: const Color(0xFFDDD7CE),
           // borderStrong: outer panel edge + flyout card border
           borderStrong: const Color(0xFFBBB4A8),
           // guide: the │ ├ └ connector lines
-          guide:        const Color(0xFFCEC8C0),
+          guide: const Color(0xFFCEC8C0),
           // fg1: active label / primary text
-          fg1:          const Color(0xFF1A1714),
+          fg1: const Color(0xFF1A1714),
           // fg2: row labels (inactive)
-          fg2:          const Color(0xFF3D3830),
+          fg2: const Color(0xFF3D3830),
           // fg3: icons, group eyebrows, chevrons
-          fg3:          const Color(0xFF7A7268),
+          fg3: const Color(0xFF7A7268),
           // fg4: section eyebrows (uppercase muted)
-          fg4:          const Color(0xFFBBB4A8),
+          fg4: const Color(0xFFBBB4A8),
           // NOTE: accent, success, warning, danger are static consts —
           // they cannot be overridden via copyWith.
         );
@@ -119,144 +160,168 @@ class _ThemeRtlExampleState extends State<ThemeRtlExample> {
 
     return Theme(
       data: Theme.of(context).copyWith(extensions: [themeData]),
-      child: Builder(builder: (ctx) {
-        final s = NavigationSidebarThemeData.of(ctx);
-        return Scaffold(
-          backgroundColor: s.bg,
-          body: Column(children: [
-            // ── controls bar ──────────────────────────────
-            Container(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 16, vertical: 10),
-              decoration: BoxDecoration(
-                color: s.surface,
-                border: Border(bottom: BorderSide(color: s.border)),
-              ),
-              child: Row(children: [
-                IconButton(
-                  icon: Icon(Icons.arrow_back, color: s.fg1),
-                  onPressed: () => Navigator.pop(ctx),
-                ),
-                Expanded(
-                  child: Wrap(
-                    spacing: 8,
-                    runSpacing: 6,
-                    crossAxisAlignment: WrapCrossAlignment.center,
+      child: Builder(
+        builder: (ctx) {
+          final s = NavigationSidebarThemeData.of(ctx);
+          return Scaffold(
+            backgroundColor: s.bg,
+            body: Column(
+              children: [
+                // ── controls bar ──────────────────────────────
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: s.surface,
+                    border: Border(bottom: BorderSide(color: s.border)),
+                  ),
+                  child: Row(
                     children: [
-                      // Theme picker
-                      _Seg(
-                        options: const ['Dark', 'Light', 'Warm ✦'],
-                        selected: _theme.index,
-                        onChanged: (i) => setState(
-                            () => _theme = _ThemeChoice.values[i]),
+                      IconButton(
+                        icon: Icon(Icons.arrow_back, color: s.fg1),
+                        onPressed: () => Navigator.pop(ctx),
                       ),
-                      // LTR / RTL
-                      _Seg(
-                        options: const ['LTR', 'RTL'],
-                        selected: _rtl ? 1 : 0,
-                        onChanged: (i) =>
-                            setState(() => _rtl = i == 1),
-                      ),
-                      // Expanded / Rail
-                      _Seg(
-                        options: const ['Expanded', 'Rail'],
-                        selected: _railMode ? 1 : 0,
-                        onChanged: (i) =>
-                            setState(() => _railMode = i == 1),
-                      ),
-                      // Guides toggle
-                      _Toggle(
-                        label: 'Guides',
-                        value: _showGuides,
-                        onChanged: (v) =>
-                            setState(() => _showGuides = v),
-                      ),
-                      // Rail flyouts toggle
-                      _Toggle(
-                        label: 'Flyouts',
-                        value: _railFlyouts,
-                        onChanged: (v) =>
-                            setState(() => _railFlyouts = v),
+                      Expanded(
+                        child: Wrap(
+                          spacing: 8,
+                          runSpacing: 6,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            // Theme picker
+                            _Seg(
+                              options: const ['Dark', 'Light', 'Warm ✦'],
+                              selected: _theme.index,
+                              onChanged: (i) => setState(
+                                () => _theme = _ThemeChoice.values[i],
+                              ),
+                            ),
+                            // LTR / RTL
+                            _Seg(
+                              options: const ['LTR', 'RTL'],
+                              selected: _rtl ? 1 : 0,
+                              onChanged: (i) => setState(() => _rtl = i == 1),
+                            ),
+                            // Expanded / Rail
+                            _Seg(
+                              options: const ['Expanded', 'Rail'],
+                              selected: _railMode ? 1 : 0,
+                              onChanged: (i) =>
+                                  setState(() => _railMode = i == 1),
+                            ),
+                            // Guides toggle
+                            _Toggle(
+                              label: 'Guides',
+                              value: _showGuides,
+                              onChanged: (v) => setState(() => _showGuides = v),
+                            ),
+                            // Rail flyouts toggle
+                            _Toggle(
+                              label: 'Flyouts',
+                              value: _railFlyouts,
+                              onChanged: (v) =>
+                                  setState(() => _railFlyouts = v),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
                 ),
-              ]),
-            ),
-            // ── warm theme legend ─────────────────────────
-            if (_theme == _ThemeChoice.warm)
-              Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 16, vertical: 8),
-                color: s.surface,
-                child: Text(
-                  '✦ Warm — bg #F7F3EE · surface #FFF · '
-                  'inputBg #EEE9E2 · border #DDD7CE · '
-                  'guide #CEC8C0 · fg1 #1A1714',
-                  style: TextStyle(
-                      fontFamily: NavigationSidebarThemeData.monoFont,
-                      fontSize: 11,
-                      color: s.fg3),
-                ),
-              ),
-            // ── sidebar + faux page ───────────────────────
-            Expanded(
-              child: Row(children: [
-                Directionality(
-                  textDirection:
-                      _rtl ? TextDirection.rtl : TextDirection.ltr,
-                  child: NavigationSidebar<String>(
-                    controller: _nav,
-                    mode: _railMode
-                        ? NavSidebarMode.rail
-                        : NavSidebarMode.expanded,
-                    showGuides: _showGuides,
-                    railFlyouts: _railFlyouts,
-                    header: (c, collapsed) =>
-                        _Header(collapsed: collapsed),
-                    footer: (c, collapsed) =>
-                        _FooterHelp(collapsed: collapsed),
-                    onNavigate: (n) =>
-                        setState(() => _screen = n.value!),
+                // ── warm theme legend ─────────────────────────
+                if (_theme == _ThemeChoice.warm)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    color: s.surface,
+                    child: Text(
+                      '✦ Warm — bg #F7F3EE · surface #FFF · '
+                      'inputBg #EEE9E2 · border #DDD7CE · '
+                      'guide #CEC8C0 · fg1 #1A1714',
+                      style: TextStyle(
+                        fontFamily: NavigationSidebarThemeData.monoFont,
+                        fontSize: 11,
+                        color: s.fg3,
+                      ),
+                    ),
                   ),
-                ),
+                // ── sidebar + faux page ───────────────────────
                 Expanded(
-                  child: Container(
-                    color: s.bg,
-                    padding: const EdgeInsets.all(28),
-                    child: Column(
-                        crossAxisAlignment:
-                            CrossAxisAlignment.start,
-                        children: [
-                          Text(_screen.toUpperCase(),
-                              style: TextStyle(
+                  child: Row(
+                    children: [
+                      Directionality(
+                        textDirection:
+                            _rtl ? TextDirection.rtl : TextDirection.ltr,
+                        child: NavigationSidebar<String>(
+                          controller: _nav,
+                          mode: _railMode
+                              ? NavSidebarMode.rail
+                              : NavSidebarMode.expanded,
+                          showGuides: _showGuides,
+                          railFlyouts: _railFlyouts,
+                          header: (c, collapsed) =>
+                              _Header(collapsed: collapsed),
+                          footer: (c, collapsed) =>
+                              _FooterHelp(collapsed: collapsed),
+                          onNavigate: (n) => setState(() => _screen = n.value!),
+                        ),
+                      ),
+                      Expanded(
+                        child: Container(
+                          color: s.bg,
+                          padding: const EdgeInsets.all(28),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                _screen.toUpperCase(),
+                                style: TextStyle(
                                   fontFamily:
-                                      NavigationSidebarThemeData
-                                          .monoFont,
+                                      NavigationSidebarThemeData.monoFont,
                                   fontSize: 10.5,
                                   letterSpacing: 1.6,
-                                  color: s.fg4)),
-                          const SizedBox(height: 8),
-                          Text(
-                              _nav.node(_screen)?.label ??
-                                  'Screen',
-                              style: TextStyle(
+                                  color: s.fg4,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                _plainExampleLabel(
+                                  _nav.node(_screen),
+                                  fallback: 'Screen',
+                                ),
+                                style: TextStyle(
                                   fontFamily:
-                                      NavigationSidebarThemeData
-                                          .displayFont,
+                                      NavigationSidebarThemeData.displayFont,
                                   fontSize: 24,
                                   fontWeight: FontWeight.w700,
-                                  color: s.fg1)),
-                        ]),
+                                  color: s.fg1,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ]),
+              ],
             ),
-          ]),
-        );
-      }),
+          );
+        },
+      ),
     );
   }
+}
+
+String _plainExampleLabel<T>(NavNode<T>? node, {required String fallback}) {
+  if (node == null) return fallback;
+  final label = node.label;
+  if (label is Text)
+    return label.data ?? label.textSpan?.toPlainText() ?? node.id;
+  return node.keywords.isNotEmpty ? node.keywords.first : node.id;
 }
 
 // ── Header slot ───────────────────────────────────────────────────
@@ -268,32 +333,40 @@ class _Header extends StatelessWidget {
     final s = NavigationSidebarThemeData.of(context);
     return SizedBox(
       height: 36,
-      child: Row(children: [
-        Container(
-          width: 26,
-          height: 26,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: NavigationSidebarThemeData.accent,
-            borderRadius: BorderRadius.circular(7),
+      child: Row(
+        children: [
+          Container(
+            width: 26,
+            height: 26,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: NavigationSidebarThemeData.accent,
+              borderRadius: BorderRadius.circular(7),
+            ),
+            child: const Text(
+              'GL',
+              style: TextStyle(
+                fontFamily: NavigationSidebarThemeData.displayFont,
+                fontSize: 10,
+                fontWeight: FontWeight.w800,
+                color: Colors.white,
+              ),
+            ),
           ),
-          child: const Text('GL',
+          if (!collapsed) ...[
+            const SizedBox(width: 10),
+            Text(
+              'GeniusLink',
               style: TextStyle(
-                  fontFamily: NavigationSidebarThemeData.displayFont,
-                  fontSize: 10,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.white)),
-        ),
-        if (!collapsed) ...[
-          const SizedBox(width: 10),
-          Text('GeniusLink',
-              style: TextStyle(
-                  fontFamily: NavigationSidebarThemeData.displayFont,
-                  fontWeight: FontWeight.w800,
-                  fontSize: 14,
-                  color: s.fg1)),
+                fontFamily: NavigationSidebarThemeData.displayFont,
+                fontWeight: FontWeight.w800,
+                fontSize: 14,
+                color: s.fg1,
+              ),
+            ),
+          ],
         ],
-      ]),
+      ),
     );
   }
 }
@@ -313,41 +386,49 @@ class _FooterHelp extends StatelessWidget {
         decoration: BoxDecoration(
           color: s.inputBg,
           border: Border.all(color: s.border),
-          borderRadius: BorderRadius.circular(
-              s.radiusMd),
+          borderRadius: BorderRadius.circular(s.radiusMd),
         ),
-        child: const Icon(Icons.info_outline,
-            size: 18, color: NavigationSidebarThemeData.accent),
+        child: const Icon(
+          Icons.info_outline,
+          size: 18,
+          color: NavigationSidebarThemeData.accent,
+        ),
       );
     }
     return Container(
-      padding:
-          const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
         color: s.inputBg,
         border: Border.all(color: s.border),
-        borderRadius: BorderRadius.circular(
-            s.radiusLg),
+        borderRadius: BorderRadius.circular(s.radiusLg),
       ),
-      child: Row(children: [
-        Container(
-          width: 30,
-          height: 30,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: NavigationSidebarThemeData.accent.withValues(alpha: 0.14),
-            borderRadius: BorderRadius.circular(8),
+      child: Row(
+        children: [
+          Container(
+            width: 30,
+            height: 30,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: NavigationSidebarThemeData.accent.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(
+              Icons.info_outline,
+              size: 15,
+              color: NavigationSidebarThemeData.accent,
+            ),
           ),
-          child: const Icon(Icons.info_outline,
-              size: 15, color: NavigationSidebarThemeData.accent),
-        ),
-        const SizedBox(width: 10),
-        Text('Need help?',
+          const SizedBox(width: 10),
+          Text(
+            'Need help?',
             style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: s.fg1)),
-      ]),
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: s.fg1,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -357,10 +438,11 @@ class _Seg extends StatelessWidget {
   final List<String> options;
   final int selected;
   final ValueChanged<int> onChanged;
-  const _Seg(
-      {required this.options,
-      required this.selected,
-      required this.onChanged});
+  const _Seg({
+    required this.options,
+    required this.selected,
+    required this.onChanged,
+  });
   @override
   Widget build(BuildContext context) {
     final s = NavigationSidebarThemeData.of(context);
@@ -369,8 +451,7 @@ class _Seg extends StatelessWidget {
       decoration: BoxDecoration(
         color: s.inputBg,
         border: Border.all(color: s.border),
-        borderRadius:
-            BorderRadius.circular(s.radiusMd),
+        borderRadius: BorderRadius.circular(s.radiusMd),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -380,21 +461,22 @@ class _Seg extends StatelessWidget {
             onTap: () => onChanged(i),
             child: AnimatedContainer(
               duration: NavigationSidebarThemeData.durFast,
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 10, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
                 color: active
                     ? NavigationSidebarThemeData.accent
                     : Colors.transparent,
-                borderRadius: BorderRadius.circular(
-                    s.radiusSm),
+                borderRadius: BorderRadius.circular(s.radiusSm),
               ),
-              child: Text(options[i],
-                  style: TextStyle(
-                      fontFamily: NavigationSidebarThemeData.monoFont,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: active ? Colors.white : s.fg2)),
+              child: Text(
+                options[i],
+                style: TextStyle(
+                  fontFamily: NavigationSidebarThemeData.monoFont,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: active ? Colors.white : s.fg2,
+                ),
+              ),
             ),
           );
         }),
@@ -408,10 +490,11 @@ class _Toggle extends StatelessWidget {
   final String label;
   final bool value;
   final ValueChanged<bool> onChanged;
-  const _Toggle(
-      {required this.label,
-      required this.value,
-      required this.onChanged});
+  const _Toggle({
+    required this.label,
+    required this.value,
+    required this.onChanged,
+  });
   @override
   Widget build(BuildContext context) {
     final s = NavigationSidebarThemeData.of(context);
@@ -424,20 +507,21 @@ class _Toggle extends StatelessWidget {
               ? NavigationSidebarThemeData.accent.withValues(alpha: 0.12)
               : s.inputBg,
           border: Border.all(
-              color: value
-                  ? NavigationSidebarThemeData.accent.withValues(alpha: 0.4)
-                  : s.border),
-          borderRadius: BorderRadius.circular(
-              s.radiusMd),
+            color: value
+                ? NavigationSidebarThemeData.accent.withValues(alpha: 0.4)
+                : s.border,
+          ),
+          borderRadius: BorderRadius.circular(s.radiusMd),
         ),
-        child: Text(label,
-            style: TextStyle(
-                fontFamily: NavigationSidebarThemeData.bodyFont,
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: value
-                    ? NavigationSidebarThemeData.accent
-                    : s.fg2)),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontFamily: NavigationSidebarThemeData.bodyFont,
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: value ? NavigationSidebarThemeData.accent : s.fg2,
+          ),
+        ),
       ),
     );
   }

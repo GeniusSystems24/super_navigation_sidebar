@@ -45,6 +45,14 @@ import 'theme.dart';
 typedef NavSidebarSlotBuilder =
     Widget Function(BuildContext context, bool collapsed);
 
+String _plainNodeLabel<T>(NavNode<T> node) {
+  final label = node.label;
+  if (label is Text) {
+    return label.data ?? label.textSpan?.toPlainText() ?? node.id;
+  }
+  return node.keywords.isNotEmpty ? node.keywords.first : node.id;
+}
+
 class NavigationSidebar<T> extends StatefulWidget {
   /// Initial sections. Required when [controller] is null.
   final List<NavSection<T>>? sections;
@@ -77,7 +85,6 @@ class NavigationSidebar<T> extends StatefulWidget {
   /// pane — the NavigationView "menu button" placement. Off by default; enable
   /// it when the host does not provide its own pane toggle.
   final bool showPaneToggle;
-
 
   /// Show a built-in search field above the tree (expanded / drawer modes).
   final bool searchable;
@@ -706,7 +713,7 @@ class _NavigationSidebarState<T> extends State<NavigationSidebar<T>> {
           open: open,
           ownsActive: ownsActive,
           aggregateBadges: widget.aggregateBadges,
-            query: _controller.query,
+          query: _controller.query,
           localizations: _l10n,
           onTap: () => _controller.toggleNode(node.id),
         ),
@@ -852,7 +859,6 @@ class _NavRowState<T> extends State<_NavRow<T>> {
   bool _hover = false;
   bool _focused = false;
 
-
   @override
   Widget build(BuildContext context) {
     final t = NavigationSidebarThemeData.of(context);
@@ -894,7 +900,7 @@ class _NavRowState<T> extends State<_NavRow<T>> {
     }
 
     // Build accessible label for screen readers.
-    final buffer = StringBuffer(widget.node.label);
+    final buffer = StringBuffer(_plainNodeLabel(widget.node));
     if (widget.expandable) {
       buffer.write(
         ', ${widget.open ? l10n.semanticExpanded : l10n.semanticCollapsed}',
@@ -949,8 +955,8 @@ class _NavRowState<T> extends State<_NavRow<T>> {
                         borderRadius: BorderRadius.circular(radius),
                         border: Border.all(
                           color: _focused
-                              ? NavigationSidebarThemeData.accent.withValues(alpha: 
-                                  0.55,
+                              ? NavigationSidebarThemeData.accent.withValues(
+                                  alpha: 0.55,
                                 )
                               : Colors.transparent,
                         ),
@@ -1033,6 +1039,20 @@ class _NavRowState<T> extends State<_NavRow<T>> {
     );
   }
 
+  Widget _labelWidget(NavigationSidebarThemeData t, TextStyle style) {
+    final label = widget.node.label;
+    if (label is Text) {
+      final text = label.data ?? label.textSpan?.toPlainText();
+      if (text != null) return _label(text, style);
+    }
+    return DefaultTextStyle.merge(
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: style,
+      child: label,
+    );
+  }
+
   Widget _statusDot(NavigationSidebarThemeData t) {
     final c = t.statusColor(widget.node.status);
     if (c == null) return const SizedBox.shrink();
@@ -1096,16 +1116,15 @@ class _NavRowState<T> extends State<_NavRow<T>> {
 
     return Row(
       children: [
-        Icon(
-          widget.node.icon ?? Icons.circle_outlined,
-          size: t.iconTop,
-          color: tint,
+        IconTheme(
+          data: IconThemeData(size: t.iconTop, color: tint),
+          child: widget.node.leadingIcon ?? const Icon(Icons.circle_outlined),
         ),
         const SizedBox(width: 12),
         if (widget.node.status != NavNodeStatus.none) _statusDot(t),
         Expanded(
-          child: _label(
-            widget.node.label,
+          child: _labelWidget(
+            t,
             TextStyle(
               fontFamily: NavigationSidebarThemeData.bodyFont,
               fontSize: 13.5,
@@ -1156,7 +1175,7 @@ class _NavRowState<T> extends State<_NavRow<T>> {
         const SizedBox(width: 9),
         Expanded(
           child: Text(
-            widget.node.label.toUpperCase(),
+            _plainNodeLabel(widget.node).toUpperCase(),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
@@ -1188,17 +1207,19 @@ class _NavRowState<T> extends State<_NavRow<T>> {
             ),
             color: active ? t.accentFill(0.12) : t.surface,
           ),
-          child: Icon(
-            widget.node.icon ?? Icons.circle,
-            size: t.iconItem,
-            color: active ? NavigationSidebarThemeData.accent : t.fg3,
+          child: IconTheme(
+            data: IconThemeData(
+              size: t.iconItem,
+              color: active ? NavigationSidebarThemeData.accent : t.fg3,
+            ),
+            child: widget.node.leadingIcon ?? const Icon(Icons.circle),
           ),
         ),
         const SizedBox(width: 10),
         if (widget.node.status != NavNodeStatus.none) _statusDot(t),
         Expanded(
-          child: _label(
-            widget.node.label,
+          child: _labelWidget(
+            t,
             TextStyle(
               fontFamily: NavigationSidebarThemeData.bodyFont,
               fontSize: 12.5,
@@ -1346,7 +1367,7 @@ class _RailItemState<T> extends State<_RailItem<T>> {
       button: isInteractive,
       selected: widget.active,
       label:
-          widget.node.label +
+          _plainNodeLabel(widget.node) +
           (widget.node.locked
               ? ', ${widget.localizations.semanticLocked}'
               : ''),
@@ -1377,7 +1398,7 @@ class _RailItemState<T> extends State<_RailItem<T>> {
               }
             },
             child: Tooltip(
-              message: isModule ? '' : widget.node.label,
+              message: isModule ? '' : _plainNodeLabel(widget.node),
               child: Container(
                 width: t.railButton,
                 height: t.railButton,
@@ -1391,10 +1412,11 @@ class _RailItemState<T> extends State<_RailItem<T>> {
                   children: [
                     Opacity(
                       opacity: widget.node.locked ? 0.45 : 1.0,
-                      child: Icon(
-                        widget.node.icon ?? Icons.circle_outlined,
-                        size: t.railIconSize,
-                        color: fg,
+                      child: IconTheme(
+                        data: IconThemeData(size: t.railIconSize, color: fg),
+                        child:
+                            widget.node.leadingIcon ??
+                            const Icon(Icons.circle_outlined),
                       ),
                     ),
                     if (barStyle && widget.active && !isModule)
@@ -1481,15 +1503,14 @@ class _RailFlyout<T> extends StatelessWidget {
                 padding: const EdgeInsets.fromLTRB(8, 4, 8, 10),
                 child: Row(
                   children: [
-                    Icon(
-                      node.icon ?? Icons.circle_outlined,
-                      size: 17,
-                      color: t.fg2,
+                    IconTheme(
+                      data: IconThemeData(size: 17, color: t.fg2),
+                      child:
+                          node.leadingIcon ?? const Icon(Icons.circle_outlined),
                     ),
                     const SizedBox(width: 9),
                     Expanded(
-                      child: Text(
-                        node.label,
+                      child: DefaultTextStyle.merge(
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
@@ -1498,6 +1519,7 @@ class _RailFlyout<T> extends StatelessWidget {
                           color: t.fg1,
                           fontFamily: NavigationSidebarThemeData.bodyFont,
                         ),
+                        child: node.label,
                       ),
                     ),
                   ],
@@ -1522,7 +1544,7 @@ class _RailFlyout<T> extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.fromLTRB(8, 6, 8, 3),
             child: Text(
-              group.label.toUpperCase(),
+              _plainNodeLabel(group).toUpperCase(),
               style: TextStyle(
                 fontSize: 9.5,
                 fontWeight: FontWeight.w700,
@@ -1580,7 +1602,7 @@ class _FlyoutRowState<T> extends State<_FlyoutRow<T>> {
       button: isInteractive,
       selected: active,
       label:
-          widget.leaf.label +
+          _plainNodeLabel(widget.leaf) +
           (widget.leaf.locked ? ', ${l10n.semanticLocked}' : '') +
           (!widget.leaf.enabled ? ', ${l10n.semanticDisabled}' : ''),
       child: MouseRegion(
@@ -1617,16 +1639,20 @@ class _FlyoutRowState<T> extends State<_FlyoutRow<T>> {
                             : t.border,
                       ),
                     ),
-                    child: Icon(
-                      widget.leaf.icon ?? Icons.circle,
-                      size: 13,
-                      color: active ? NavigationSidebarThemeData.accent : t.fg3,
+                    child: IconTheme(
+                      data: IconThemeData(
+                        size: 13,
+                        color: active
+                            ? NavigationSidebarThemeData.accent
+                            : t.fg3,
+                      ),
+                      child:
+                          widget.leaf.leadingIcon ?? const Icon(Icons.circle),
                     ),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
-                    child: Text(
-                      widget.leaf.label,
+                    child: DefaultTextStyle.merge(
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
@@ -1637,6 +1663,7 @@ class _FlyoutRowState<T> extends State<_FlyoutRow<T>> {
                             : t.fg1,
                         fontFamily: NavigationSidebarThemeData.bodyFont,
                       ),
+                      child: widget.leaf.label,
                     ),
                   ),
                   if (widget.leaf.locked)
@@ -1884,4 +1911,3 @@ class _StarButton extends StatelessWidget {
     );
   }
 }
-

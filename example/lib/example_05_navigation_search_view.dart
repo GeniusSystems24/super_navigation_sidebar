@@ -19,35 +19,35 @@ class _NavigationSearchViewExampleState
       items: [
         NavNode(
           id: 'dashboard',
-          label: 'Dashboard',
+          label: Text('Dashboard'),
           code: 'DB01',
           keywords: const ['home', 'overview'],
-          icon: Icons.dashboard_outlined,
+          leadingIcon: Icon(Icons.dashboard_outlined),
           value: 'dashboard',
         ),
         NavNode(
           id: 'finance',
-          label: 'Finance',
-          icon: Icons.account_balance_outlined,
+          label: Text('Finance'),
+          leadingIcon: Icon(Icons.account_balance_outlined),
           children: [
             NavNode(
               id: 'ledger',
-              label: 'General ledger',
+              label: Text('General ledger'),
               children: [
                 NavNode(
                   id: 'accounts',
-                  label: 'Chart of accounts',
+                  label: Text('Chart of accounts'),
                   code: 'COA',
                   keywords: const ['account tree', 'ledger'],
-                  icon: Icons.account_tree_outlined,
+                  leadingIcon: Icon(Icons.account_tree_outlined),
                   value: 'accounts',
                 ),
                 NavNode(
                   id: 'journals',
-                  label: 'Journal entries',
+                  label: Text('Journal entries'),
                   code: 'JE01',
                   keywords: const ['voucher', 'posting', 'قيد'],
-                  icon: Icons.receipt_long_outlined,
+                  leadingIcon: Icon(Icons.receipt_long_outlined),
                   badge: const NavBadge('8', tone: NavBadgeTone.warning),
                   value: 'journals',
                 ),
@@ -57,10 +57,10 @@ class _NavigationSearchViewExampleState
         ),
         NavNode(
           id: 'inventory',
-          label: 'Inventory',
+          label: Text('Inventory'),
           code: 'INV01',
           keywords: const ['stock', 'products'],
-          icon: Icons.inventory_2_outlined,
+          leadingIcon: Icon(Icons.inventory_2_outlined),
           value: 'inventory',
         ),
       ],
@@ -111,7 +111,10 @@ class _NavigationSearchViewExampleState
                     children: [
                       Text(
                         'NavigationSearchView',
-                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineMedium
+                            ?.copyWith(
                               color: theme.fg1,
                               fontWeight: FontWeight.w700,
                             ),
@@ -150,8 +153,11 @@ class _NavigationSearchViewExampleState
                       ),
                       const SizedBox(height: 20),
                       Text(
-                        'Active: ${_nav.node(_nav.active ?? '')?.label ?? 'None'}',
-                        style: TextStyle(color: theme.fg2, fontWeight: FontWeight.w600),
+                        'Active: ${_plainExampleLabel(_nav.node(_nav.active ?? ''), fallback: 'None')}',
+                        style: TextStyle(
+                          color: theme.fg2,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                       const SizedBox(height: 12),
                       SizedBox(
@@ -174,4 +180,13 @@ class _NavigationSearchViewExampleState
       ),
     );
   }
+}
+
+String _plainExampleLabel<T>(NavNode<T>? node, {required String fallback}) {
+  if (node == null) return fallback;
+  final label = node.label;
+  if (label is Text) {
+    return label.data ?? label.textSpan?.toPlainText() ?? node.id;
+  }
+  return node.keywords.isNotEmpty ? node.keywords.first : node.id;
 }

@@ -116,7 +116,6 @@ class NavigationSidebarThemeData
   /// Width **and** height of the square `item` icon container. Default: **28**.
   final double itemBox;
 
-
   // ── CORNER RADII ───────────────────────────────────────────
   /// Smallest radius — keycap chips, small controls. Default: **6**.
   final double radiusSm;
@@ -146,7 +145,6 @@ class NavigationSidebarThemeData
   /// Vertical inset of the [NavSelectionIndicator.bar] pill from the top and
   /// bottom of its row. Default: **9**.
   final double indicatorInset;
-
 
   // ── constructor ────────────────────────────────────────────
   const NavigationSidebarThemeData({

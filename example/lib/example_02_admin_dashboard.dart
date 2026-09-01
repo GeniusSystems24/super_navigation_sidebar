@@ -18,16 +18,16 @@ class _AdminDashboardExampleState extends State<AdminDashboardExample> {
           items: [
             NavNode(
               id: 'dashboard',
-              label: 'Dashboard',
+              label: Text('Dashboard'),
               code: 'DB01',
-              icon: Icons.dashboard_outlined,
+              leadingIcon: Icon(Icons.dashboard_outlined),
               value: 'dashboard',
             ),
             NavNode(
               id: 'approvals',
-              label: 'Approvals',
+              label: Text('Approvals'),
               code: 'AP01',
-              icon: Icons.approval_outlined,
+              leadingIcon: Icon(Icons.approval_outlined),
               badge: NavBadge('$_pending', tone: NavBadgeTone.danger),
               value: 'approvals',
             ),
@@ -38,28 +38,28 @@ class _AdminDashboardExampleState extends State<AdminDashboardExample> {
           items: [
             NavNode(
               id: 'accounting',
-              label: 'Accounting',
-              icon: Icons.account_balance_outlined,
+              label: Text('Accounting'),
+              leadingIcon: Icon(Icons.account_balance_outlined),
               children: [
                 NavNode(
                   id: 'ledger_group',
-                  label: 'General ledger',
+                  label: Text('General ledger'),
                   children: [
                     NavNode(
                       id: 'chart',
-                      label: 'Chart of accounts',
+                      label: Text('Chart of accounts'),
                       code: 'COA',
                       keywords: const ['accounts tree', 'ledger'],
-                      icon: Icons.account_tree_outlined,
+                      leadingIcon: Icon(Icons.account_tree_outlined),
                       badge: const NavBadge('Live', tone: NavBadgeTone.success),
                       value: 'chart',
                     ),
                     NavNode(
                       id: 'journals',
-                      label: 'Journal entries',
+                      label: Text('Journal entries'),
                       code: 'JE01',
                       keywords: const ['voucher', 'posting'],
-                      icon: Icons.receipt_long_outlined,
+                      leadingIcon: Icon(Icons.receipt_long_outlined),
                       value: 'journals',
                     ),
                   ],
@@ -74,8 +74,8 @@ class _AdminDashboardExampleState extends State<AdminDashboardExample> {
           items: [
             NavNode(
               id: 'settings',
-              label: 'Settings',
-              icon: Icons.settings_outlined,
+              label: Text('Settings'),
+              leadingIcon: Icon(Icons.settings_outlined),
               value: 'settings',
             ),
           ],
@@ -106,7 +106,9 @@ class _AdminDashboardExampleState extends State<AdminDashboardExample> {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final mode = const NavSidebarBreakpoints().modeFor(constraints.maxWidth);
+        final mode = const NavSidebarBreakpoints().modeFor(
+          constraints.maxWidth,
+        );
         final content = _DashboardContent(
           controller: _nav,
           pending: _pending,
@@ -170,7 +172,9 @@ class _DashboardContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = NavigationSidebarThemeData.of(context);
-    final active = controller.node(controller.active ?? '')?.label ?? 'Dashboard';
+    final activeNode = controller.node(controller.active ?? '');
+    final active =
+        activeNode == null ? 'Dashboard' : _plainExampleLabel(activeNode);
     return Material(
       color: theme.bg,
       child: SafeArea(
@@ -180,7 +184,10 @@ class _DashboardContent extends StatelessWidget {
             Row(
               children: [
                 if (showMenu) ...[
-                  IconButton(onPressed: onOpenDrawer, icon: const Icon(Icons.menu)),
+                  IconButton(
+                    onPressed: onOpenDrawer,
+                    icon: const Icon(Icons.menu),
+                  ),
                   const SizedBox(width: 8),
                 ],
                 Expanded(
@@ -205,8 +212,14 @@ class _DashboardContent extends StatelessWidget {
               runSpacing: 12,
               children: [
                 _Metric(label: 'Pending approvals', value: '$pending'),
-                _Metric(label: 'Recent screens', value: '${controller.recents.length}'),
-                _Metric(label: 'Favorites', value: '${controller.favorites.length}'),
+                _Metric(
+                  label: 'Recent screens',
+                  value: '${controller.recents.length}',
+                ),
+                _Metric(
+                  label: 'Favorites',
+                  value: '${controller.favorites.length}',
+                ),
               ],
             ),
             const SizedBox(height: 24),
@@ -219,6 +232,13 @@ class _DashboardContent extends StatelessWidget {
       ),
     );
   }
+}
+
+String _plainExampleLabel<T>(NavNode<T> node) {
+  final label = node.label;
+  if (label is Text)
+    return label.data ?? label.textSpan?.toPlainText() ?? node.id;
+  return node.keywords.isNotEmpty ? node.keywords.first : node.id;
 }
 
 class _Metric extends StatelessWidget {
@@ -240,7 +260,14 @@ class _Metric extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(value, style: TextStyle(color: theme.fg1, fontSize: 26, fontWeight: FontWeight.w700)),
+          Text(
+            value,
+            style: TextStyle(
+              color: theme.fg1,
+              fontSize: 26,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
           const SizedBox(height: 4),
           Text(label, style: TextStyle(color: theme.fg3)),
         ],
